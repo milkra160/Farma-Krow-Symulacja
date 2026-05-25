@@ -9,5 +9,16 @@ class Krowa(Zwierze):
         self.max_dni_glodowania: int = 3
         self.dni_glodowania_z_rzedu: int = 0
 
+    def aktualizuj_stan(self, czy_zjadla_trawe: bool) -> None:
+        if not self.czy_zyje:
+            return
+        if czy_zjadla_trawe:
+            self.poziom_glodu = 0
+            self.dni_glodowania_z_rzedu = 0
+        else:
+            self.poziom_glodu += 1
+            self.dni_glodowania_z_rzedu += 1
 
-        #krowa bedzie jeść
+        if self.poziom_glodu >= self.max_dni_glodowania:
+            self.czy_zyje = False
+

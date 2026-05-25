@@ -7,3 +7,5 @@ dependencies = [
     "ruff>=0.15.14",
     "typer>=0.23.2",
 ]
+[tool.pytest.ini_options]
+pythonpath = ["."]

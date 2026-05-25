@@ -1,5 +1,5 @@
 class Zwierze:
-    def __init__(self, imie : str, wiek : str, czy_zyje : bool):
+    def __init__(self, imie: str, wiek: int, czy_zyje: bool):
         self.imie: str = imie
         self.wiek: int = wiek
         self.czy_zyje: bool = czy_zyje

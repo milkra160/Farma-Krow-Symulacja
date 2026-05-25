@@ -8,3 +8,6 @@ class Krowa(Zwierze):
         self.poziom_glodu: int = 0
         self.max_dni_glodowania: int = 3
         self.dni_glodowania_z_rzedu: int = 0
+
+
+        #krowa bedzie jeść

@@ -19,6 +19,6 @@ class Krowa(Zwierze):
             self.poziom_glodu += 1
             self.dni_glodowania_z_rzedu += 1
 
-        if self.poziom_glodu >= self.max_dni_glodowania:
+        if self.dni_glodowania_z_rzedu >= self.max_dni_glodowania:
             self.czy_zyje = False
 

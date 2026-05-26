@@ -1,4 +1,4 @@
-from src.zwierzeta import Zwierze
+from src.wszystkie_zwierzeta.zwierzeta import Zwierze
 from src.config import *
 
 

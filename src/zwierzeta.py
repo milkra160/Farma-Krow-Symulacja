@@ -1,14 +1,14 @@
-class Zwierze:
-    def __init__(self, imie: str, wiek: int, czy_zyje: bool):
-        self.imie: str = imie
-        self.wiek: int = wiek
-        self.czy_zyje: bool = czy_zyje
+from src.config import *
 
-    def starzej_sie(self) -> None:
-        #zwieksza wiek zwierzecia o 1 jesli zyje
-        if not self.czy_zyje:
-            return
-        self.wiek += 1
+class Zwierze:
+    def __init__(self, id: int, pozycja: tuple):
+        self.id = id
+        self.pozycja = pozycja # pozycja w klasycznym ukladzie wspolrzednych X Y
+        self.zyje = True
+        self.symbol = "?" # Symbol bazowy. Ulatwia przyszle pisane kodu i konfiguralnosc
+
+
+
 
 
 

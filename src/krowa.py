@@ -1,26 +1,37 @@
 from src.zwierzeta import Zwierze
+from src.config import *
 
 
 class Krowa(Zwierze):
-    def __init__(self, imie: str, wiek: int, czy_zyje: bool):
-        super().__init__(imie, wiek, czy_zyje)
+    def __init__(self, id: int, pozycja: tuple, imie: str):
+        super().__init__(id, pozycja)
+        #Ustawienie poziomow glodu i przypisanie konkretnych zmiennych dla krowy
+        #by zbalansowac przebieg symulacji
+        self.imie = imie
+        self.wiek = 0
+        self.najedzenie = GLOD_START
+        self.dorosla = False
+        self.zjadla_dzisiaj = False
+        self.umarla_dzis = False
+        self.symbol = "K"
 
-        #Ustawienie poziomow glodu i stalych by zbalansowac przebieg symulacji
+    def starzej_sie(self):
+        #Balansowanie przebiegu symulacji przez glod i smierc krow
+        self.wiek += 1
+        self.najedzenie -= GLOD_DZIENNY_UBYTEK
+        if self.wiek >= WIEK_DOROSLOSCI:
+            self.dorosla = True
+        if self.najedzenie <= 0:
+            self.zyje = False
+            self.umarla_dzis = True
 
-        self.poziom_glodu: int = 0
-        self.max_dni_glodowania: int = 3
-        self.dni_glodowania_z_rzedu: int = 0
+    def jedz(self):
+        #Minimum zapobiega przekroczeniu limitu najedzenia przez krowe
+        self.najedzenie = min(self.najedzenie + GLOD_Z_JEDZENIA, GLOD_START)
+        self.zjadla_dzisiaj = True
 
-    def aktualizuj_stan(self, czy_zjadla_trawe: bool) -> None:
-        if not self.czy_zyje:
-            return
-        if czy_zjadla_trawe:
-            self.poziom_glodu = 0
-            self.dni_glodowania_z_rzedu = 0
-        else:
-            self.poziom_glodu += 1
-            self.dni_glodowania_z_rzedu += 1
+    def reset_dnia(self):
+        self.zjadla_dzisiaj = False
+        self.umarla_dzis = False
 
-        if self.dni_glodowania_z_rzedu >= self.max_dni_glodowania:
-            self.czy_zyje = False
 

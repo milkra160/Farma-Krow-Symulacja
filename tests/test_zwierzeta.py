@@ -13,13 +13,13 @@ def test_krowa_zaczyna_z_pelnym_najedzeniem():
     assert k.najedzenie == GLOD_START
 
 def test_krowa_starzeje_sie():
-    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k = Krowa(id=1, pozycja=(0, 0), imie="Hipolit")
     k.starzej_sie()
     assert k.wiek == 1
     assert k.najedzenie == GLOD_START - GLOD_DZIENNY_UBYTEK
 
 def test_krowa_umiera_z_glodu():
-    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k = Krowa(id=1, pozycja=(0, 0), imie="Karol")
     k.najedzenie = GLOD_DZIENNY_UBYTEK
     k.starzej_sie()
     assert k.zyje == False
@@ -40,18 +40,25 @@ def test_krowa_je():
     assert k.zjadla_dzisiaj == True
 
 def test_krowa_nie_je_powyzej_max():
-    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k = Krowa(id=1, pozycja=(0, 0), imie="Stanislaw")
     k.najedzenie = 90
     k.jedz()
     assert k.najedzenie == GLOD_START
 
 def test_krowa_reset_dnia():
-    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k = Krowa(id=1, pozycja=(0, 0), imie="Marek")
     k.zjadla_dzisiaj = True
     k.umarla_dzis = True
     k.reset_dnia()
     assert k.zjadla_dzisiaj == False
     assert k.umarla_dzis == False
+
+def test_krowa_czy_gloda():
+    k = Krowa(id=1, pozycja=(0,0),imie="Beata")
+    k.najedzenie = 39
+    assert k.czy_glodna() == True
+    k.najedzenie = 40
+    assert k.czy_glodna() == False
 
 #  Cielak *******************************************************
 

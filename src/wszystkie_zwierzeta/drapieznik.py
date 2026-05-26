@@ -1,7 +1,8 @@
 from src.wszystkie_zwierzeta.zwierzeta import Zwierze
 from src.wszystkie_zwierzeta.krowa import Krowa
 
-#Wprowadzenie drapieznika balansuje przebieg symulacji przez ograniczenie rozrodu krow
+
+# Wprowadzenie drapieznika balansuje przebieg symulacji przez ograniczenie rozrodu krow
 class Drapieznik(Zwierze):
     def __init__(self, id: int, pozycja: tuple):
         super().__init__(id, pozycja)

@@ -10,7 +10,12 @@ class Krowa(Zwierze):
         self.imie = imie
         self.wiek = 0
         self.najedzenie = GLOD_START
+
+        #mechanika ciazy
         self.dorosla = False
+        self.w_ciazy = False
+        self.dni_do_porodu = 0
+
         self.zjadla_dzisiaj = False
         self.umarla_dzis = False
         self.symbol = "K"
@@ -29,6 +34,16 @@ class Krowa(Zwierze):
         #Minimum zapobiega przekroczeniu limitu najedzenia przez krowe
         self.najedzenie = min(self.najedzenie + GLOD_Z_JEDZENIA, GLOD_START)
         self.zjadla_dzisiaj = True
+
+    #metoda ktora tworzy komunikat zwiastujacy mozliwa przyszla smierc glodowa lub katastrofe
+    def czy_glodna(self) -> bool:
+        return self.najedzenie < 40
+
+    def wartosc_mleka(self) -> int:
+        if self.dorosla:
+            return PRZYCHOD_Z_KROWY
+        return 0
+
 
     def reset_dnia(self):
         self.zjadla_dzisiaj = False

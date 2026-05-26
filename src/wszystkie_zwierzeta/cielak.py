@@ -9,3 +9,5 @@ class Cielak(Krowa):
     #Cielak nie produkuje mleka
     def wartosc_mleka(self):
         return 0
+
+    

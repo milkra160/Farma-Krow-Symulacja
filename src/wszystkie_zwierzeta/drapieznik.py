@@ -13,3 +13,6 @@ class Drapieznik(Zwierze):
             krowa.umarla_dzis = True
             return True
         return False
+
+    def ruch(self):
+        pass

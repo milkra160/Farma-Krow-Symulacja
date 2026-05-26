@@ -1,4 +1,6 @@
-from src.config import *
+from abc import ABC, abstractmethod
+#definiujemy klase abstrakcyjna zeby zapobiec tworzeniu obiektow z te klasy
+#tworzymy abstrakcyjna metode odpowiadajaca za ruch by uniknac bladow w klasach dziedziczacych
 
 class Zwierze:
     def __init__(self, id: int, pozycja: tuple):
@@ -7,6 +9,9 @@ class Zwierze:
         self.zyje = True
         self.symbol = "?" # Symbol bazowy. Ulatwia przyszle pisane kodu i konfiguralnosc
 
+    @abstractmethod
+    def ruch(self):
+        pass
 
 
 

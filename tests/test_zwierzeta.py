@@ -1,7 +1,6 @@
-from src.zwierzeta import Zwierze
-from src.krowa import Krowa
-from src.drapieznik import Drapieznik
-from src.cielak import Cielak
+from src.wszystkie_zwierzeta.krowa import Krowa
+from src.wszystkie_zwierzeta.drapieznik import Drapieznik
+from src.wszystkie_zwierzeta.cielak import Cielak
 from src.config import *
 
 

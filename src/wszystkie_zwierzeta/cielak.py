@@ -1,4 +1,4 @@
-from src.krowa import Krowa
+from src.wszystkie_zwierzeta.krowa import Krowa
 
 class Cielak(Krowa):
     def __init__(self, id: int, pozycja: tuple, imie: str):
@@ -6,5 +6,6 @@ class Cielak(Krowa):
         self.symbol = "c"
 
     #wartosc mleka to preludium do sensu symulacji, konfigurowanie tej metody bedzie w przyszlosci
+    #Cielak nie produkuje mleka
     def wartosc_mleka(self):
         return 0

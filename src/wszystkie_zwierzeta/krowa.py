@@ -47,7 +47,7 @@ class Krowa(Zwierze):
 
     # mechanika ciazy = balans symulacji
     def losuj_ciaze(self):
-        if self.dorosla and not self.w_ciazy:
+        if self.dorosla and not self.w_ciazy and self.najedzenie > 60:
             if random.random() < SZANSA_NA_CIAZE:
                 self.w_ciazy = True
                 self.dni_do_porodu = 0

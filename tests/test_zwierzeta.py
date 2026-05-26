@@ -1,36 +1,91 @@
-#Testy dla klasy Zwierzeta
 from src.zwierzeta import Zwierze
-def test_zwierze_starzeje_sie_gdy_zyje():
-    zwierze = Zwierze("Marek",5,True)
-    zwierze.starzej_sie()
-    assert zwierze.wiek == 6
-
-def test_zwierze_nie_starzeje_sie_gdy_jest_martwe():
-    zwierze = Zwierze("Czarek",8,False)
-    zwierze.starzej_sie()
-    assert zwierze.wiek == 8
-
-#testy dla klasy Krowa
 from src.krowa import Krowa
-def test_krowa_zwieksza_glod_gdy_nie_zje_trawy():
-    krowa = Krowa("Marek",3,True)
-    krowa.aktualizuj_stan(False)
-    assert krowa.poziom_glodu == 1
-    assert krowa.dni_glodowania_z_rzedu == 1
-    assert krowa.czy_zyje == True
+from src.drapieznik import Drapieznik
+from src.cielak import Cielak
+from src.config import *
 
-def test_krowa_zeruje_glod_gdy_zje_trawe():
-    krowa = Krowa("Marek",3,True)
-    krowa.poziom_glodu = 2
-    krowa.dni_glodowania_z_rzedu = 2
-    krowa.aktualizuj_stan(True)
 
-    assert krowa.poziom_glodu == 0
-    assert krowa.dni_glodowania_z_rzedu == 0
-    assert krowa.czy_zyje == True
+# =============================================================
+#  Krowa
+# =============================================================
 
-def test_krowa_umiera_gdy_gloduje_3_dni():
-    krowa = Krowa("Marek",3,True)
-    krowa.dni_glodowania_z_rzedu = 2
-    krowa.aktualizuj_stan(False)
-    assert krowa.czy_zyje == False
+def test_krowa_zaczyna_z_pelnym_najedzeniem():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    assert k.najedzenie == GLOD_START
+
+def test_krowa_starzeje_sie():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k.starzej_sie()
+    assert k.wiek == 1
+    assert k.najedzenie == GLOD_START - GLOD_DZIENNY_UBYTEK
+
+def test_krowa_umiera_z_glodu():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k.najedzenie = GLOD_DZIENNY_UBYTEK
+    k.starzej_sie()
+    assert k.zyje == False
+    assert k.umarla_dzis == True
+
+def test_krowa_dorasta():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k.najedzenie = 999
+    for _ in range(WIEK_DOROSLOSCI):
+        k.starzej_sie()
+    assert k.dorosla == True
+
+def test_krowa_je():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k.najedzenie = 50
+    k.jedz()
+    assert k.najedzenie == 50 + GLOD_Z_JEDZENIA
+    assert k.zjadla_dzisiaj == True
+
+def test_krowa_nie_je_powyzej_max():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k.najedzenie = 90
+    k.jedz()
+    assert k.najedzenie == GLOD_START
+
+def test_krowa_reset_dnia():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
+    k.zjadla_dzisiaj = True
+    k.umarla_dzis = True
+    k.reset_dnia()
+    assert k.zjadla_dzisiaj == False
+    assert k.umarla_dzis == False
+
+
+# =============================================================
+#  Cielak
+# =============================================================
+
+def test_cielak_ma_symbol_c():
+    c = Cielak(id=2, pozycja=(1, 1), imie="Mały")
+    assert c.symbol == "c"
+
+def test_cielak_nie_produkuje_mleka():
+    c = Cielak(id=2, pozycja=(1, 1), imie="Mały")
+    assert c.wartosc_mleka() == 0
+
+def test_cielak_dziedziczy_starzenie():
+    c = Cielak(id=2, pozycja=(1, 1), imie="Mały")
+    c.starzej_sie()
+    assert c.wiek == 1
+
+
+# =============================================================
+#  Drapieznik
+# =============================================================
+
+def test_drapieznik_zabija_na_tym_samym_polu():
+    d = Drapieznik(id=10, pozycja=(3, 3))
+    k = Krowa(id=1, pozycja=(3, 3), imie="Łaciata")
+    assert d.czy_zabija(k) == True
+    assert k.zyje == False
+    assert k.umarla_dzis == True
+
+def test_drapieznik_nie_zabija_na_innym_polu():
+    d = Drapieznik(id=10, pozycja=(3, 3))
+    k = Krowa(id=1, pozycja=(5, 5), imie="Łaciata")
+    assert d.czy_zabija(k) == False
+    assert k.zyje == True

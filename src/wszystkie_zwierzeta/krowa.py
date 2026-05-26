@@ -5,13 +5,13 @@ from src.config import *
 class Krowa(Zwierze):
     def __init__(self, id: int, pozycja: tuple, imie: str):
         super().__init__(id, pozycja)
-        #Ustawienie poziomow glodu i przypisanie konkretnych zmiennych dla krowy
-        #by zbalansowac przebieg symulacji
+        # Ustawienie poziomow glodu i przypisanie konkretnych zmiennych dla krowy
+        # by zbalansowac przebieg symulacji
         self.imie = imie
         self.wiek = 0
         self.najedzenie = GLOD_START
 
-        #mechanika ciazy
+        # mechanika ciazy
         self.dorosla = False
         self.w_ciazy = False
         self.dni_do_porodu = 0
@@ -21,7 +21,7 @@ class Krowa(Zwierze):
         self.symbol = "K"
 
     def starzej_sie(self):
-        #Balansowanie przebiegu symulacji przez glod i smierc krow
+        # Balansowanie przebiegu symulacji przez glod i smierc krow
         self.wiek += 1
         self.najedzenie -= GLOD_DZIENNY_UBYTEK
         if self.wiek >= WIEK_DOROSLOSCI:
@@ -31,11 +31,11 @@ class Krowa(Zwierze):
             self.umarla_dzis = True
 
     def jedz(self):
-        #Minimum zapobiega przekroczeniu limitu najedzenia przez krowe
+        # Minimum zapobiega przekroczeniu limitu najedzenia przez krowe
         self.najedzenie = min(self.najedzenie + GLOD_Z_JEDZENIA, GLOD_START)
         self.zjadla_dzisiaj = True
 
-    #metoda ktora tworzy komunikat zwiastujacy mozliwa przyszla smierc glodowa lub katastrofe
+    # metoda ktora tworzy komunikat zwiastujacy mozliwa przyszla smierc glodowa lub katastrofe
     def czy_glodna(self) -> bool:
         return self.najedzenie < 40
 
@@ -44,11 +44,9 @@ class Krowa(Zwierze):
             return PRZYCHOD_Z_KROWY
         return 0
 
-
     def reset_dnia(self):
         self.zjadla_dzisiaj = False
         self.umarla_dzis = False
 
     def ruch(self):
         pass
-

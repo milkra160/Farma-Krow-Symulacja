@@ -1,3 +1,4 @@
+import random
 from src.wszystkie_zwierzeta.zwierzeta import Zwierze
 from src.config import *
 
@@ -43,6 +44,21 @@ class Krowa(Zwierze):
         if self.dorosla:
             return PRZYCHOD_Z_KROWY
         return 0
+
+    # mechanika ciazy = balans symulacji
+    def losuj_ciaze(self):
+        if self.dorosla and not self.w_ciazy:
+            if random.random() < SZANSA_NA_CIAZE:
+                self.w_ciazy = True
+                self.dni_do_porodu = 0
+
+    def aktualizuj_ciaze(self) -> bool:
+        if self.w_ciazy:
+            self.dni_do_porodu -= 1
+            if self.dni_do_porodu == 0:
+                self.w_ciazy = False
+                return True  # udany porod
+        return False
 
     def reset_dnia(self):
         self.zjadla_dzisiaj = False

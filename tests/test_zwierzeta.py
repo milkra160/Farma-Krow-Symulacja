@@ -78,6 +78,24 @@ def test_krowa_wartosc_mleka():
     assert k.wartosc_mleka() == PRZYCHOD_Z_KROWY
 
 
+def test_krowa_odliczanie_ciaza_i_porod():
+    k = Krowa(id=1, pozycja=(0, 0), imie="Mela")
+    k.dorosla = True
+    k.w_ciazy = True
+    k.dni_do_porodu = 2
+
+    # dzien 1
+    urodzila = k.aktualizuj_ciaze()
+    assert k.dni_do_porodu == 1
+    assert urodzila == False
+    assert k.w_ciazy == True
+    # dzien 2
+    urodzila = k.aktualizuj_ciaze()
+    assert k.dni_do_porodu == 0
+    assert urodzila == True
+    assert k.w_ciazy == False
+
+
 #  Cielak *******************************************************
 
 

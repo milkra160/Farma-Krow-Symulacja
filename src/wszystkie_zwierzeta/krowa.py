@@ -34,4 +34,6 @@ class Krowa(Zwierze):
         self.zjadla_dzisiaj = False
         self.umarla_dzis = False
 
+    def ruch(self):
+        pass
 

@@ -4,7 +4,9 @@ from src.wszystkie_zwierzeta.cielak import Cielak
 from src.config import *
 
 
+
 #  Krowa
+
 
 def test_krowa_zaczyna_z_pelnym_najedzeniem():
     k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
@@ -51,8 +53,7 @@ def test_krowa_reset_dnia():
     assert k.zjadla_dzisiaj == False
     assert k.umarla_dzis == False
 
-
-#  Cielak
+#  Cielak *******************************************************
 
 def test_cielak_ma_symbol_c():
     c = Cielak(id=2, pozycja=(1, 1), imie="Mały")
@@ -68,7 +69,9 @@ def test_cielak_dziedziczy_starzenie():
     assert c.wiek == 1
 
 
+
 #  Drapieznik
+
 
 def test_drapieznik_zabija_na_tym_samym_polu():
     d = Drapieznik(id=10, pozycja=(3, 3))

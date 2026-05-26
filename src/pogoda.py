@@ -10,8 +10,12 @@ class Pogoda:
     def __init__(self):
         # Stan bazowy
         self.aktualny_stan_pogody = "slonecznie"
+        self.poprzedni_stan_pogody = "slonecznie"
+        self.historia = []
 
     def nowy_dzien(self):
+        self.poprzedni_stan_pogody = self.aktualny_stan_pogody
+        self.historia.append(self.poprzedni_stan_pogody)
         self.aktualny_stan_pogody = random.choice(self.STANY_POGODY)
         return self.aktualny_stan_pogody
 
@@ -23,3 +27,5 @@ class Pogoda:
         if self.aktualny_stan_pogody == "susza":
             return MNOZNIK_SUSZA
         return MNOZNIK_SLONCE
+    def __str__(self):
+        return f"Pogoda: {self.aktualny_stan_pogody}"

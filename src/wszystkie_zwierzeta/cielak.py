@@ -2,7 +2,7 @@ from src.wszystkie_zwierzeta.krowa import Krowa
 
 
 class Cielak(Krowa):
-    def __init__(self, id: int, pozycja: tuple, imie: str):
+    def __init__(self, id: int, pozycja: tuple[int, int], imie: str):
         super().__init__(id, pozycja, imie)
         self.symbol = "c"
 

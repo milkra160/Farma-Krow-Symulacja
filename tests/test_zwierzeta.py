@@ -16,7 +16,7 @@ def test_krowa_zaczyna_z_pelnym_najedzeniem():
 
 def test_krowa_starzeje_sie():
     k = Krowa(id=1, pozycja=(0, 0), imie="Hipolit")
-    k.starzej_sie()
+    k.starzej_sie_smierc_glodowa_doroslosc()
     assert k.wiek == 1
     assert k.najedzenie == GLOD_START - GLOD_DZIENNY_UBYTEK
 
@@ -24,7 +24,7 @@ def test_krowa_starzeje_sie():
 def test_krowa_umiera_z_glodu():
     k = Krowa(id=1, pozycja=(0, 0), imie="Karol")
     k.najedzenie = GLOD_DZIENNY_UBYTEK
-    k.starzej_sie()
+    k.starzej_sie_smierc_glodowa_doroslosc()
     assert k.zyje == False
     assert k.umarla_dzis == True
 
@@ -33,7 +33,7 @@ def test_krowa_dorasta():
     k = Krowa(id=1, pozycja=(0, 0), imie="Łaciata")
     k.najedzenie = 999
     for _ in range(WIEK_DOROSLOSCI):
-        k.starzej_sie()
+        k.starzej_sie_smierc_glodowa_doroslosc()
     assert k.dorosla == True
 
 
@@ -111,7 +111,7 @@ def test_cielak_nie_produkuje_mleka():
 
 def test_cielak_dziedziczy_starzenie():
     c = Cielak(id=2, pozycja=(1, 1), imie="Mały")
-    c.starzej_sie()
+    c.starzej_sie_smierc_glodowa_doroslosc()
     assert c.wiek == 1
 
 

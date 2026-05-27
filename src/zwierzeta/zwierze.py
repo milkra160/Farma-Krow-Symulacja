@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 
 class Zwierze(ABC):
-    def __init__(self, id: int, pozycja: tuple):
+    def __init__(self, id: int, pozycja: tuple[int,int]):
         self.id = id
         self.pozycja = pozycja  # pozycja w klasycznym ukladzie wspolrzednych X Y
         self.zyje = True

@@ -1,5 +1,5 @@
-from src.wszystkie_zwierzeta.zwierzeta import Zwierze
-from src.wszystkie_zwierzeta.krowa import Krowa
+from src.zwierzeta.zwierze import Zwierze
+from src.zwierzeta.krowa import Krowa
 
 
 # Wprowadzenie drapieznika balansuje przebieg symulacji przez ograniczenie rozrodu krow

@@ -1,4 +1,4 @@
-from src.wszystkie_zwierzeta.krowa import Krowa
+from src.zwierzeta.krowa import Krowa
 
 
 class Cielak(Krowa):

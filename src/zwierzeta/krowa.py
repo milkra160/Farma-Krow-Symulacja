@@ -1,5 +1,5 @@
 import random
-from src.wszystkie_zwierzeta.zwierzeta import Zwierze
+from src.zwierzeta.zwierze import Zwierze
 from src.config import *
 
 

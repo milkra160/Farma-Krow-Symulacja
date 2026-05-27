@@ -25,3 +25,4 @@ class Finanse:
 
     def czy_bankrut(self) -> bool:
         return self.budzet <= 0
+#test

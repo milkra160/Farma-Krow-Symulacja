@@ -25,3 +25,6 @@ MNOZNIK_SUSZA: float = 0.8
 MNOZNIK_SLONCE: float = 1.0
 
 BAZA_KEPEK_TRAWY: int = 30
+
+# finanse
+BUDZET_START: float = 50

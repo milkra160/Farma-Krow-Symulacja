@@ -25,7 +25,7 @@ class Krowa(Zwierze):
         self.przypisana_kepka = None #przygotowanie miejsca gdzie będzie przypisana kępka trawy
         self.pozycja_wizualna = (0,0) #domyślne współżędne pozycji wizualnej krowy
 
-    def starzej_sie(self):
+    def starzej_sie_smierc_glodowa_doroslosc(self):
         # Balansowanie przebiegu symulacji przez glod i smierc krow
         self.wiek += 1
         self.najedzenie -= GLOD_DZIENNY_UBYTEK

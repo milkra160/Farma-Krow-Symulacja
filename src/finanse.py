@@ -1,7 +1,8 @@
+from src.config import *
 
 class Finanse:
-    def __init__(self, budzet_start: float):
-        self.budzet = budzet_start
+    def __init__(self):
+        self.budzet = BUDZET_START
         self.historia = []
 
     def rozlicz_dzien(self, przychod: float, koszt: float, dzien: int):

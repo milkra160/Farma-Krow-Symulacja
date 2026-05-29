@@ -1,5 +1,6 @@
 from src.config import GLOD_Z_JEDZENIA
 from src.pastwisko.komorka import Komorka
+from src.pastwisko.pastwisko import Pastwisko
 from src.zwierzeta.drapieznik import Drapieznik
 
 from src.zwierzeta.krowa import Krowa
@@ -64,3 +65,55 @@ def test_krowa_wchodzi_z_drapieznikiem_i_ginie():
     assert wynik == "smierc"
     assert krowa.zyje == False
     assert krowa.umarla_dzis == True
+
+
+# Pastwisko *******************************************
+def test_czy_pastwisko_ma_wymiary():
+    p = Pastwisko(5, 3)
+    assert p.wysokosc == 3
+    assert p.szerokosc == 5
+
+
+def test_pastwisko_buduje_siatke_komorek():
+    p = Pastwisko(5, 3)
+    assert len(p.siatka) == 3  # liczba rzedow = wysokosc
+    assert len(p.siatka[0]) == 5  # liczba kolumn = szerokosc
+    assert isinstance(
+        p.siatka[0][0], Komorka
+    )  # sprawdzamy czy obiekt siatka nalezy do klasy komorka, by uniknac przyszlych bledow
+
+
+def test_pobierz_komorke_zwraca_wlasciwa_wartosc():
+    p = Pastwisko(5, 3)
+    k = p.pobierz_komorke(2, 1)
+    assert k.x == 2
+    assert k.y == 1
+
+
+def test_czy_generuj_trawke_ustala_tyle_ile_trzeva():
+    p = Pastwisko(5, 5)
+    pozycje = p.generuj_trawke(7)
+    assert len(pozycje) == 7
+    assert len(p.kepki_z_trawa()) == 7
+
+
+def test_pozycje_generuj_trawke_sa_unikalne():
+    p = Pastwisko(5, 5)
+    pozycje = p.generuj_trawke(10)
+    assert len(set(pozycje)) == 10
+
+
+def test_kepki_z_trawa_maja_trawe():
+    p = Pastwisko(4, 4)
+    p.generuj_trawke(3)
+    kepki = p.kepki_z_trawa()
+    assert len(kepki) == 3
+    for k in kepki:
+        assert k.ma_trawke == True
+
+
+def test_generuj_trawke_na_wlasciwych_polach():
+    p = Pastwisko(4, 4)
+    pozycje = p.generuj_trawke(5)
+    for x, y in pozycje:
+        assert p.pobierz_komorke(x, y).ma_trawke == True

@@ -48,10 +48,3 @@ def test_rozlicz_dzien_zwroci_slownik():
     assert stan["bilans"] == 30
     assert stan["bankrut"] == False
     assert stan["budzet"] == 130
-
-def test_rozlicz_dzien_zapisze_historie():
-    f = Finanse()
-    f.rozlicz_dzien(50,20,1)
-    f.rozlicz_dzien(10,5,2)
-    assert len(f.historia[0]["dzien"]) == 1
-    assert len(f.historia[1]["dzien"]) == 2

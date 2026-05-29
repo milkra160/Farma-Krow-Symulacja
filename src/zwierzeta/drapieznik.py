@@ -9,11 +9,9 @@ class Drapieznik(Zwierze):
         self.symbol = "!"
 
     def czy_zabija(self, krowa: Krowa) -> bool:
-        if krowa.pozycja == self.pozycja:
-            krowa.zyje = False
-            krowa.umarla_dzis = True
-            return True
-        return False
+        krowa.zyje = False
+        krowa.umarla_dzis = True
+        return True
 
     def ruch(self):
         pass

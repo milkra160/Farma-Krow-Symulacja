@@ -1,5 +1,6 @@
 from src.config import *
 
+
 class Finanse:
     def __init__(self):
         self.budzet = BUDZET_START
@@ -9,19 +10,16 @@ class Finanse:
         bilans = przychod - koszt
         self.budzet += bilans
 
-        #słownik służący do wyświetlania finansów pod koniec dnia
+        # słownik służący do wyświetlania finansów pod uv koniec dnia
         stan_finansow = {
             "budzet": float(self.budzet),
             "przychod": float(przychod),
             "koszt": float(koszt),
-            "blians": float(bilans),
-            "bankrut": self.czy_bankrut()
+            "bilans": float(bilans),
+            "bankrut": self.czy_bankrut(),
         }
 
-        self.historia.append({
-            "dzien": dzien,
-            "stan": stan_finansow
-        })
+        self.historia.append({"dzien": dzien, "stan": stan_finansow})
         return stan_finansow
 
     def czy_bankrut(self) -> bool:

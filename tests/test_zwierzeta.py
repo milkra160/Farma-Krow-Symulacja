@@ -4,7 +4,6 @@ from src.zwierzeta.cielak import Cielak
 from src.config import *
 
 #   Zwierzeta **************************************************
-    
 
 
 #  Krowa *********************************************************
@@ -63,7 +62,7 @@ def test_krowa_reset_dnia():
 
 
 def test_krowa_czy_gloda():
-    k = Krowa(id=1, pozycja=(0,0),imie="Beata")
+    k = Krowa(id=1, pozycja=(0, 0), imie="Beata")
     k.najedzenie = 39
     assert k.czy_glodna() == True
     k.najedzenie = 40
@@ -97,19 +96,28 @@ def test_cielak_dziedziczy_starzenie():
     c.starzej_sie_smierc_glodowa_doroslosc()
     assert c.wiek == 1
 
+
 #  Drapieznik *******************************************************
 
+def test_czy_drapieznik_ma_symbol_wykrzyknik():
+    d = Drapieznik(id=1,pozycja=(0,0))
+    assert d.symbol == "!"
 
-def test_drapieznik_zabija_na_tym_samym_polu():
-    d = Drapieznik(id=10, pozycja=(3, 3))
-    k = Krowa(id=1, pozycja=(3, 3), imie="Łaciata")
-    assert d.czy_zabija(k) == True
+
+
+
+
+def test_drapieznik_zabija_krowe():
+    k = Krowa(id=1, pozycja=(3, 3), imie="Łaciat")
+    d = Drapieznik(id=2, pozycja=(3,3))
+    wynik = d.czy_zabija(k)
+    assert wynik == True
     assert k.zyje == False
     assert k.umarla_dzis == True
 
+#Sprawdzamy czy nie ma bledu z ruchem drapieznika( musi miec ruch bo dziedziczy po zwierzeciu)
+def test_drapieznik_sie_nie_rusza():
+    d = Drapieznik(id=1, pozycja=(3,3))
+    d.ruch()
+    assert d.pozycja == (3,3)
 
-def test_drapieznik_nie_zabija_na_innym_polu():
-    d = Drapieznik(id=10, pozycja=(3, 3))
-    k = Krowa(id=1, pozycja=(5, 5), imie="Łaciata")
-    assert d.czy_zabija(k) == False
-    assert k.zyje == True

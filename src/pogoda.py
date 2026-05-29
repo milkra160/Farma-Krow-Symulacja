@@ -27,5 +27,6 @@ class Pogoda:
         if self.aktualny_stan_pogody == "susza":
             return MNOZNIK_SUSZA
         return MNOZNIK_SLONCE
+
     def __str__(self):
         return f"Pogoda: {self.aktualny_stan_pogody}"

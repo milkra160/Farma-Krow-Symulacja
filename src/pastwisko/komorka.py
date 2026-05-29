@@ -3,8 +3,8 @@ from src.zwierzeta.drapieznik import Drapieznik
 from src.zwierzeta.krowa import Krowa
 
 
-#komorka to jedno pole 2D pastwiskoa
-#komorka moze miec w sobie trawe albo drapieznika
+# komorka to jedno pole 2D pastwiskoa
+# komorka moze miec w sobie trawe albo drapieznika
 
 
 class Komorka:
@@ -14,21 +14,21 @@ class Komorka:
         self.ma_trawke = False
         self.zajeta_przez = None
         self.ma_drapieznika = False
-        self.drapieznik = None # Mozliwosc wywolania metody czy_zabija
+        self.drapieznik = None  # Mozliwosc wywolania metody czy_zabija
 
     def dodaj_trawke(self):
         self.ma_trawke = True
 
-    def czy_wolna(self)-> bool:
+    def czy_wolna(self) -> bool:
         if self.zajeta_przez is None:
             return True
         else:
             return False
 
-    #krowa wchodzi na komorke. Zwracamy to co sie wydarzylo: smierc, zjadla trawe lub brak trawy
+    # krowa wchodzi na komorke. Zwracamy to co sie wydarzylo: smierc, zjadla trawe lub brak trawy
     def wejdz(self, krowa: Krowa) -> str:
         self.zajeta_przez = krowa
-        krowa.przypisana_kepka = self #komorka
+        krowa.przypisana_kepka = self  # komorka
 
         if self.ma_drapieznika:
             self.drapieznik.czy_zabija(krowa)
@@ -37,6 +37,3 @@ class Komorka:
             krowa.jedz()
             return "zjadla trawe"
         return "brak trawy"
-
-
-

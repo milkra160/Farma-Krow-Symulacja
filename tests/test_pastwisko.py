@@ -146,4 +146,43 @@ def test_czy_wyczysc_usuwa_drapiezniki():
     assert p.pobierz_komorke(0, 0).ma_drapieznika == False
     assert p.pobierz_komorke(0, 0).drapieznik is None
 
+#funkcja poomcnicza do testow
+def policz_drapiezniki(pastwisko):
+    ile = 0
+    for rzad in pastwisko.siatka:
+        for kratka in rzad:
+            if kratka.ma_drapieznika:
+                ile += 1
+    return ile
+
+def test_rozmieszcz_drapiezniki_stawia_je_na_trawie():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(10)
+    d1 = Drapieznik(id=1, pozycja=(0, 0))
+    d2 = Drapieznik(id=2, pozycja=(0, 0))
+    p.rozmieszcz_drapiezniki([d1, d2])
+
+    assert policz_drapiezniki(p) == 2
+    for rzad in p.siatka:
+        for kratka in rzad:
+            if kratka.ma_drapieznika:
+                assert kratka.ma_trawke == True
+                assert kratka.drapieznik is not None
+
+def test_rozmieszcz_drapiezniki_na_rozne_kepki():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(10)
+    drapiezniki = [Drapieznik(id=1, pozycja=(0, 0)), Drapieznik(id=2, pozycja=(0, 0)), Drapieznik(id=3, pozycja=(0, 0))]
+    p.rozmieszcz_drapiezniki(drapiezniki)
+    assert policz_drapiezniki(p) == 3
+
+def test_rozmieszcz_drapiezniki_na_pustej_liscie():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(10)
+    p.rozmieszcz_drapiezniki([])
+    assert policz_drapiezniki(p) == 0
+
+
+
+
 

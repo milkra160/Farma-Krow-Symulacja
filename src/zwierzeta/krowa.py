@@ -69,6 +69,7 @@ class Krowa(Zwierze):
     def reset_dnia(self):
         self.zjadla_dzisiaj = False
         self.umarla_dzis = False
+        self.przypisana_kepka = None
 
     def ruch(self):
         pass

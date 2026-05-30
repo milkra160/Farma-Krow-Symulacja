@@ -40,3 +40,11 @@ class Pastwisko:
                 if kratka.ma_trawke:
                     wynik.append(kratka)
         return wynik
+
+    def wyczysc(self): #resetujemy kazda kepke z trawa do stanu poczatkowego
+        for rzad in self.siatka:
+            for kratka in rzad:
+                kratka.usun_trawke()
+                kratka.zajeta_przez = None
+                kratka.ma_drapieznika = False
+                kratka.drapieznik = None

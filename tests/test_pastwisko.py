@@ -117,3 +117,33 @@ def test_generuj_trawke_na_wlasciwych_polach():
     pozycje = p.generuj_trawke(5)
     for x, y in pozycje:
         assert p.pobierz_komorke(x, y).ma_trawke == True
+
+def test_usun_trawke():
+    k = Komorka(x=0, y=0)
+    k.dodaj_trawke()
+    k.usun_trawke()
+    assert k.ma_trawke == False
+
+def test_czy_wyczysc_usuwa_trawe():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(5)
+    p.wyczysc()
+    assert len(p.kepki_z_trawa()) == 0
+
+def test_czy_wwyczysc_usuwa_trawe_z_komorek():
+    p = Pastwisko(5, 5)
+    k = Krowa(id=1, pozycja=(0, 0), imie="Laciata")
+    p.pobierz_komorke(0,0).wejdz(k)
+    p.wyczysc()
+    assert p.pobierz_komorke(0,0).czy_wolna() == True
+
+def test_czy_wyczysc_usuwa_drapiezniki():
+    p = Pastwisko(5, 5)
+    k = p.pobierz_komorke(0, 0)
+    k.ma_drapieznik = True
+    k.drapieznik = Drapieznik(id=89, pozycja=(0, 0))
+    p.wyczysc()
+    assert p.pobierz_komorke(0, 0).ma_drapieznika == False
+    assert p.pobierz_komorke(0, 0).drapieznik is None
+
+

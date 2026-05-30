@@ -19,6 +19,9 @@ class Komorka:
     def dodaj_trawke(self):
         self.ma_trawke = True
 
+    def usun_trawke(self):
+        self.ma_trawke = False
+
     def czy_wolna(self) -> bool:
         if self.zajeta_przez is None:
             return True

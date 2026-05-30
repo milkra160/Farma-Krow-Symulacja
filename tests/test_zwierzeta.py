@@ -2,6 +2,7 @@ from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.drapieznik import Drapieznik
 from src.zwierzeta.cielak import Cielak
 from src.config import *
+from src.pastwisko.komorka import Komorka
 
 #   Zwierzeta **************************************************
 
@@ -56,9 +57,11 @@ def test_krowa_reset_dnia():
     k = Krowa(id=1, pozycja=(0, 0), imie="Marek")
     k.zjadla_dzisiaj = True
     k.umarla_dzis = True
+    k.przypisana_kepka = Komorka(x=0,y=0)
     k.reset_dnia()
     assert k.zjadla_dzisiaj == False
     assert k.umarla_dzis == False
+    assert k.przypisana_kepka is None
 
 
 def test_krowa_czy_gloda():

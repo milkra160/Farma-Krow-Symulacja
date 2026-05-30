@@ -14,7 +14,7 @@ class Finanse:
             "budzet": float(self.budzet),
             "przychod": float(przychod),
             "koszt": float(koszt),
-            "blians": float(bilans),
+            "bilans": float(bilans),
             "bankrut": self.czy_bankrut()
         }
 

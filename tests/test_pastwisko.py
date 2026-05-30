@@ -144,7 +144,7 @@ def test_czy_wwyczysc_usuwa_trawe_z_komorek():
 def test_czy_wyczysc_usuwa_drapiezniki():
     p = Pastwisko(5, 5)
     k = p.pobierz_komorke(0, 0)
-    k.ma_drapieznik = True
+    k.ma_drapieznika = True
     k.drapieznik = Drapieznik(id=89, pozycja=(0, 0))
     p.wyczysc()
     assert p.pobierz_komorke(0, 0).ma_drapieznika == False

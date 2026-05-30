@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 import random
-import config
+from src import config
 
 class ZdarzenieLosoweBase(ABC):
     def __init__(self):
@@ -175,7 +175,7 @@ class Wielkanoc(ZdarzenieLosoweBase):
             wskrzeszona = random.choice(martwe)
             wskrzeszona.zyje = True
             wskrzeszona.umarla_dzis = False
-            wskrzeszona.najedzenia = config.GLOD_START
+            wskrzeszona.najedzenie = config.GLOD_START
             return f"{self.nazwa}: {self.opis} ({wskrzeszona.imie} wraca do stada!)"
 
         return  f"{self.nazwa}: Miał dokonać się cud, ale żadna krowa dotychczas nie umarła."

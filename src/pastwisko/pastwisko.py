@@ -57,3 +57,21 @@ class Pastwisko:
             kepka = wybrane_kepki[i]
             kepka.ma_drapieznika = True
             kepka.drapieznik = drapiezniki[i]
+
+    # Docelowo krowa po zjedzeniu kepki trawy powinna przenosic sie na wolna kratke na okolo swojej kepki ( jednej z czterech)
+    # Znak _ przed nazwa metody pzrekazuje nam informacje o hermetyzacji. Nie powinnismy udostepniac tej metody innym klasom
+    def _losuj_sasiada(self, x: int, y: int) -> tuple:
+        # cztery pola wokol kepki
+        # *********** gora ****** prawo *** lewo *** dol
+        sasiedzi = [(x, y - 1), (x + 1, y), (x, y + 1), (x - 1, y)]
+        wolne = []
+        for sx, sy in sasiedzi:
+            # sasiad mussi miescic sie na planszy
+            if 0 <= sx < self.szerokosc and 0 <= sy < self.wysokosc:
+                if self.pobierz_komorke(sx, sy).czy_wolna():
+                    wolne.append((sx, sy))
+        if len(wolne) > 0:
+            return random.choice(wolne)  # losowanie wolnego sasiada
+
+        # gdy brak wolnych sasiadow krowa zostaje na tej samej kepce
+        return (x, y)

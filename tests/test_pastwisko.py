@@ -193,3 +193,37 @@ def test_rozmieszcz_drapiezniki_na_pustej_liscie():
     p.generuj_trawke(10)
     p.rozmieszcz_drapiezniki([])
     assert policz_drapiezniki(p) == 0
+
+
+# funkcja pomocnica
+def zajmij(p, x, y):
+    p.pobierz_komorke(x, y).wejdz(Krowa(id=1, pozycja=(0, 0), imie="X"))
+
+
+def test_czy_losuj_sasiada_zwraca_wolnego_sasiada():
+    p = Pastwisko(5, 5)
+    wynik = p._losuj_sasiada(2, 2)
+    assert wynik in [(2, 1), (3, 2), (2, 3), (1, 2)]
+
+
+def test_czy_losuj_sasiada_pomija_zajete_pola():
+    p = Pastwisko(5, 5)
+    zajmij(p, 2, 1)  # gora
+    zajmij(p, 2, 3)  # dol
+    zajmij(p, 1, 2)  # lewo
+    assert p._losuj_sasiada(2, 2) == (3, 2)  # jedyny wolny (prawo)
+
+
+def test_cz_losuj_sasiada_brak_wolnych_miejsc_zwraca_ta_sama_kepke():
+    p = Pastwisko(5, 5)
+    zajmij(p, 2, 1)
+    zajmij(p, 2, 3)
+    zajmij(p, 1, 2)
+    zajmij(p, 3, 2)
+    assert p._losuj_sasiada(2, 2) == (2, 2)
+
+
+def test_czy_losuj_sasiada_nie_wychodzi_poza_plansze():
+    p = Pastwisko(5, 5)
+    wynik = p._losuj_sasiada(0, 0)
+    assert wynik in [(1, 0), (0, 1)]

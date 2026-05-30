@@ -57,7 +57,7 @@ def test_krowa_reset_dnia():
     k = Krowa(id=1, pozycja=(0, 0), imie="Marek")
     k.zjadla_dzisiaj = True
     k.umarla_dzis = True
-    k.przypisana_kepka = Komorka(x=0,y=0)
+    k.przypisana_kepka = Komorka(x=0, y=0)
     k.reset_dnia()
     assert k.zjadla_dzisiaj == False
     assert k.umarla_dzis == False

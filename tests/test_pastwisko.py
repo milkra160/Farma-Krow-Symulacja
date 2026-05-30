@@ -118,11 +118,13 @@ def test_generuj_trawke_na_wlasciwych_polach():
     for x, y in pozycje:
         assert p.pobierz_komorke(x, y).ma_trawke == True
 
+
 def test_usun_trawke():
     k = Komorka(x=0, y=0)
     k.dodaj_trawke()
     k.usun_trawke()
     assert k.ma_trawke == False
+
 
 def test_czy_wyczysc_usuwa_trawe():
     p = Pastwisko(5, 5)
@@ -130,12 +132,14 @@ def test_czy_wyczysc_usuwa_trawe():
     p.wyczysc()
     assert len(p.kepki_z_trawa()) == 0
 
+
 def test_czy_wwyczysc_usuwa_trawe_z_komorek():
     p = Pastwisko(5, 5)
     k = Krowa(id=1, pozycja=(0, 0), imie="Laciata")
-    p.pobierz_komorke(0,0).wejdz(k)
+    p.pobierz_komorke(0, 0).wejdz(k)
     p.wyczysc()
-    assert p.pobierz_komorke(0,0).czy_wolna() == True
+    assert p.pobierz_komorke(0, 0).czy_wolna() == True
+
 
 def test_czy_wyczysc_usuwa_drapiezniki():
     p = Pastwisko(5, 5)
@@ -146,7 +150,8 @@ def test_czy_wyczysc_usuwa_drapiezniki():
     assert p.pobierz_komorke(0, 0).ma_drapieznika == False
     assert p.pobierz_komorke(0, 0).drapieznik is None
 
-#funkcja poomcnicza do testow
+
+# funkcja poomcnicza do testow
 def policz_drapiezniki(pastwisko):
     ile = 0
     for rzad in pastwisko.siatka:
@@ -154,6 +159,7 @@ def policz_drapiezniki(pastwisko):
             if kratka.ma_drapieznika:
                 ile += 1
     return ile
+
 
 def test_rozmieszcz_drapiezniki_stawia_je_na_trawie():
     p = Pastwisko(5, 5)
@@ -169,20 +175,21 @@ def test_rozmieszcz_drapiezniki_stawia_je_na_trawie():
                 assert kratka.ma_trawke == True
                 assert kratka.drapieznik is not None
 
+
 def test_rozmieszcz_drapiezniki_na_rozne_kepki():
     p = Pastwisko(5, 5)
     p.generuj_trawke(10)
-    drapiezniki = [Drapieznik(id=1, pozycja=(0, 0)), Drapieznik(id=2, pozycja=(0, 0)), Drapieznik(id=3, pozycja=(0, 0))]
+    drapiezniki = [
+        Drapieznik(id=1, pozycja=(0, 0)),
+        Drapieznik(id=2, pozycja=(0, 0)),
+        Drapieznik(id=3, pozycja=(0, 0)),
+    ]
     p.rozmieszcz_drapiezniki(drapiezniki)
     assert policz_drapiezniki(p) == 3
+
 
 def test_rozmieszcz_drapiezniki_na_pustej_liscie():
     p = Pastwisko(5, 5)
     p.generuj_trawke(10)
     p.rozmieszcz_drapiezniki([])
     assert policz_drapiezniki(p) == 0
-
-
-
-
-

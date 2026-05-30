@@ -41,7 +41,7 @@ class Pastwisko:
                     wynik.append(kratka)
         return wynik
 
-    def wyczysc(self): #resetujemy kazda kepke z trawa do stanu poczatkowego
+    def wyczysc(self):  # resetujemy kazda kepke z trawa do stanu poczatkowego
         for rzad in self.siatka:
             for kratka in rzad:
                 kratka.usun_trawke()
@@ -50,14 +50,10 @@ class Pastwisko:
                 kratka.drapieznik = None
 
     def rozmieszcz_drapiezniki(self, drapiezniki: list):
-        kepki = self.kepki_z_trawa() #poniewaz drapieznik staje tylko na trawie
-        #losujemy tyle kepek ile jest drapieznikow (bez powtorzen)
-        wybrane_kepki  = random.sample(kepki, len(drapiezniki))
+        kepki = self.kepki_z_trawa()  # poniewaz drapieznik staje tylko na trawie
+        # losujemy tyle kepek ile jest drapieznikow (bez powtorzen)
+        wybrane_kepki = random.sample(kepki, len(drapiezniki))
         for i in range(len(drapiezniki)):
             kepka = wybrane_kepki[i]
             kepka.ma_drapieznika = True
             kepka.drapieznik = drapiezniki[i]
-
-
-
-

@@ -1,7 +1,7 @@
-
 from abc import ABC, abstractmethod
 import random
 from src import config
+
 
 class ZdarzenieLosoweBase(ABC):
     def __init__(self):
@@ -9,7 +9,6 @@ class ZdarzenieLosoweBase(ABC):
         self.opis = ""
         self.dni_trwania = 1
         self.dni_pozostale = 0
-
 
     @abstractmethod
     def czy_zachodzi(self, dzien: int) -> bool:
@@ -20,13 +19,14 @@ class ZdarzenieLosoweBase(ABC):
         pass
 
     @abstractmethod
-    def cofnij (self, farma) -> None:
+    def cofnij(self, farma) -> None:
         pass
 
     def __str__(self) -> str:
         return f"{self.nazwa} (pozostało: {self.dni_pozostale} dni)"
 
-    #ZDARZENIA LOSOWE
+    # ZDARZENIA LOSOWE
+
 
 class Walentynki(ZdarzenieLosoweBase):
     def __init__(self):
@@ -46,7 +46,10 @@ class Walentynki(ZdarzenieLosoweBase):
 
     def cofnij(self, farma) -> None:
         config.SZANSA_NA_CIAZE = self.oryginalna_szansa
-#-------------------------------------------------------------
+
+
+# -------------------------------------------------------------
+
 
 class NaglaSusza(ZdarzenieLosoweBase):
     def __init__(self):
@@ -67,7 +70,9 @@ class NaglaSusza(ZdarzenieLosoweBase):
     def cofnij(self, farma) -> None:
         config.BAZA_KEPEK_TRAWY = self.oryginalna_baza
 
-#--------------------------------------------------------------------
+
+# --------------------------------------------------------------------
+
 
 class Epidemia(ZdarzenieLosoweBase):
     def __init__(self):
@@ -87,7 +92,9 @@ class Epidemia(ZdarzenieLosoweBase):
     def cofnij(self, farma) -> None:
         pass
 
-#----------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
+
 
 class Weterynarz(ZdarzenieLosoweBase):
     def __init__(self):
@@ -110,7 +117,9 @@ class Weterynarz(ZdarzenieLosoweBase):
     def cofnij(self, farma) -> None:
         pass
 
-#--------------------------------------------------------------------
+
+# --------------------------------------------------------------------
+
 
 class MlekoGMO(ZdarzenieLosoweBase):
     def __init__(self):
@@ -131,7 +140,9 @@ class MlekoGMO(ZdarzenieLosoweBase):
     def cofnij(self, farma) -> None:
         config.PRZYCHOD_Z_KROWY = self.oryginalny_przychod
 
-#--------------------------------------------------------------------
+
+# --------------------------------------------------------------------
+
 
 class Meteoryt(ZdarzenieLosoweBase):
     def __init__(self):
@@ -153,7 +164,9 @@ class Meteoryt(ZdarzenieLosoweBase):
     def cofnij(self, farma) -> None:
         pass
 
-#-------------------------------------------------------------
+
+# -------------------------------------------------------------
+
 
 class Wielkanoc(ZdarzenieLosoweBase):
     def __init__(self):
@@ -178,18 +191,22 @@ class Wielkanoc(ZdarzenieLosoweBase):
             wskrzeszona.najedzenie = config.GLOD_START
             return f"{self.nazwa}: {self.opis} ({wskrzeszona.imie} wraca do stada!)"
 
-        return  f"{self.nazwa}: Miał dokonać się cud, ale żadna krowa dotychczas nie umarła."
+        return f"{self.nazwa}: Miał dokonać się cud, ale żadna krowa dotychczas nie umarła."
 
     def cofnij(self, farma) -> None:
         pass
 
-#-----------------------------------------------------------------
+
+# -----------------------------------------------------------------
+
 
 class UFO(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
         self.nazwa = "Inwazja UFO 👽"
-        self.opis = "Kosmici porywają jedną losową krowę, by przeprowadzić na niej eksperymenty"
+        self.opis = (
+            "Kosmici porywają jedną losową krowę, by przeprowadzić na niej eksperymenty"
+        )
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
@@ -205,20 +222,26 @@ class UFO(ZdarzenieLosoweBase):
             porwana = random.choice(zywe)
             porwana.zyje = False
             porwana.umarla_dzis = True
-            return f"{self.nazwa}: {self.opis} ({porwana.imie} zniknęła w snopie światła)"
+            return (
+                f"{self.nazwa}: {self.opis} ({porwana.imie} zniknęła w snopie światła)"
+            )
 
         return f"{self.nazwa}: Statek UFO przeleciał nad pustym pastwiskiem."
 
     def cofnij(self, farma) -> None:
         pass
 
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
+
 
 class Lesniczy(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
         self.nazwa = "Wujek Leśniczy 🌲"
-        self.opis = "Wujek pilnuje pastwiska przez weekend. Brak drapieżników przez 3 dni"
+        self.opis = (
+            "Wujek pilnuje pastwiska przez weekend. Brak drapieżników przez 3 dni"
+        )
         self.dni_trwania = 3
         self.oryginalna_szansa = config.SZANSA_DRAPIEZNIK
 
@@ -233,7 +256,9 @@ class Lesniczy(ZdarzenieLosoweBase):
     def cofnij(self, farma) -> None:
         config.SZANSA_DRAPIEZNIK = self.oryginalna_szansa
 
-#-------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+
 
 class PoraDeszczowa(ZdarzenieLosoweBase):
     def __init__(self):
@@ -255,7 +280,9 @@ class PoraDeszczowa(ZdarzenieLosoweBase):
     def cofnij(self, farma) -> None:
         farma.pogoda.STANY_POGODY = tuple(self.oryginalne_stany)
 
-#--------------------------------------------------------------------
+
+# --------------------------------------------------------------------
+
 
 class ZazdrosnaKoza(ZdarzenieLosoweBase):
     def __init__(self):
@@ -264,19 +291,21 @@ class ZazdrosnaKoza(ZdarzenieLosoweBase):
         self.opis = "Koza wstała wcześniej i zjadła całą trawę przed krowami: Brak trawy dzisiaj"
         self.dni_trwania = 1
         self.oryginalne_baza = config.BAZA_KEPEK_TRAWY
-        
+
     def czy_zachodzi(self, dzien: int) -> bool:
         return random.random() < 0.05
-    
+
     def zastosuj(self, farma) -> str:
         self.oryginalne_baza = config.BAZA_KEPEK_TRAWY
         config.BAZA_KEPEK_TRAWY = 0
         return f"{self.nazwa}: {self.opis}"
-    
+
     def cofnij(self, farma) -> None:
         config.BAZA_KEPEK_TRAWY = self.oryginalne_baza
-        
-#--------------------------------------------------------------
+
+
+# --------------------------------------------------------------
+
 
 class CudNadOdra(ZdarzenieLosoweBase):
     def __init__(self):

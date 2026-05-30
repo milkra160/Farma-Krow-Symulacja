@@ -21,9 +21,11 @@ class Krowa(Zwierze):
         self.umarla_dzis = False
         self.symbol = "K"
 
-        #zmienne potrzebne do rozmieszczania krów
-        self.przypisana_kepka = None #przygotowanie miejsca gdzie będzie przypisana kępka trawy
-        self.pozycja_wizualna = (0,0) #domyślne współżędne pozycji wizualnej krowy
+        # zmienne potrzebne do rozmieszczania krów
+        self.przypisana_kepka = (
+            None  # przygotowanie miejsca gdzie będzie przypisana kępka trawy
+        )
+        self.pozycja_wizualna = (0, 0)  # domyślne współżędne pozycji wizualnej krowy
 
     def starzej_sie_smierc_glodowa_doroslosc(self):
         # Balansowanie przebiegu symulacji przez glod i smierc krow
@@ -54,7 +56,7 @@ class Krowa(Zwierze):
         if self.dorosla and not self.w_ciazy and self.najedzenie > 60:
             if random.random() < SZANSA_NA_CIAZE:
                 self.w_ciazy = True
-                self.dni_do_porodu = 0
+                self.dni_do_porodu = DNI_CIAZY
 
     def aktualizuj_ciaze(self) -> bool:
         if self.w_ciazy:
@@ -67,6 +69,7 @@ class Krowa(Zwierze):
     def reset_dnia(self):
         self.zjadla_dzisiaj = False
         self.umarla_dzis = False
+        self.przypisana_kepka = None
 
     def ruch(self):
         pass

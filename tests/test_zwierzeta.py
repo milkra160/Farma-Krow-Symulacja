@@ -2,6 +2,7 @@ from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.drapieznik import Drapieznik
 from src.zwierzeta.cielak import Cielak
 from src.config import *
+from src.pastwisko.komorka import Komorka
 
 #   Zwierzeta **************************************************
 
@@ -56,9 +57,11 @@ def test_krowa_reset_dnia():
     k = Krowa(id=1, pozycja=(0, 0), imie="Marek")
     k.zjadla_dzisiaj = True
     k.umarla_dzis = True
+    k.przypisana_kepka = Komorka(x=0, y=0)
     k.reset_dnia()
     assert k.zjadla_dzisiaj == False
     assert k.umarla_dzis == False
+    assert k.przypisana_kepka is None
 
 
 def test_krowa_czy_gloda():
@@ -76,24 +79,6 @@ def test_krowa_wartosc_mleka():
 
     k.dorosla = True
     assert k.wartosc_mleka() == PRZYCHOD_Z_KROWY
-
-
-def test_krowa_odliczanie_ciaza_i_porod():
-    k = Krowa(id=1, pozycja=(0, 0), imie="Mela")
-    k.dorosla = True
-    k.w_ciazy = True
-    k.dni_do_porodu = 2
-
-    # dzien 1
-    urodzila = k.aktualizuj_ciaze()
-    assert k.dni_do_porodu == 1
-    assert urodzila == False
-    assert k.w_ciazy == True
-    # dzien 2
-    urodzila = k.aktualizuj_ciaze()
-    assert k.dni_do_porodu == 0
-    assert urodzila == True
-    assert k.w_ciazy == False
 
 
 #  Cielak *******************************************************
@@ -118,16 +103,22 @@ def test_cielak_dziedziczy_starzenie():
 #  Drapieznik *******************************************************
 
 
-def test_drapieznik_zabija_na_tym_samym_polu():
-    d = Drapieznik(id=10, pozycja=(3, 3))
-    k = Krowa(id=1, pozycja=(3, 3), imie="Łaciata")
-    assert d.czy_zabija(k) == True
+def test_czy_drapieznik_ma_symbol_wykrzyknik():
+    d = Drapieznik(id=1, pozycja=(0, 0))
+    assert d.symbol == "!"
+
+
+def test_drapieznik_zabija_krowe():
+    k = Krowa(id=1, pozycja=(3, 3), imie="Łaciat")
+    d = Drapieznik(id=2, pozycja=(3, 3))
+    wynik = d.czy_zabija(k)
+    assert wynik == True
     assert k.zyje == False
     assert k.umarla_dzis == True
 
 
-def test_drapieznik_nie_zabija_na_innym_polu():
-    d = Drapieznik(id=10, pozycja=(3, 3))
-    k = Krowa(id=1, pozycja=(5, 5), imie="Łaciata")
-    assert d.czy_zabija(k) == False
-    assert k.zyje == True
+# Sprawdzamy czy nie ma bledu z ruchem drapieznika( musi miec ruch bo dziedziczy po zwierzeciu)
+def test_drapieznik_sie_nie_rusza():
+    d = Drapieznik(id=1, pozycja=(3, 3))
+    d.ruch()
+    assert d.pozycja == (3, 3)

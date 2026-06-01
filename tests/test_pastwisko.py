@@ -227,3 +227,64 @@ def test_czy_losuj_sasiada_nie_wychodzi_poza_plansze():
     p = Pastwisko(5, 5)
     wynik = p._losuj_sasiada(0, 0)
     assert wynik in [(1, 0), (0, 1)]
+
+
+def test_przypisz_krowy_daje_jesc_zywym_krowom():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(10)
+    k1 = Krowa(id=1, pozycja=(0, 0), imie="X")
+    k2 = Krowa(id=2, pozycja=(0, 0), imie="Y")
+    p.przypisz_krowy([k1, k2])
+    assert k1.przypisana_kepka is not None
+    assert k2.przypisana_kepka is not None
+    assert k1.zjadla_dzisiaj == True
+    assert k2.zjadla_dzisiaj == True
+
+
+def test_przypisz_krowy_gdy_jest_malo_kepek():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(1)
+    k1 = Krowa(id=1, pozycja=(0, 0), imie="X")
+    k2 = Krowa(id=2, pozycja=(0, 0), imie="Y")
+    p.przypisz_krowy([k1, k2])
+    ile_zjadlo = 0
+    if k1.zjadla_dzisiaj:
+        ile_zjadlo += 1
+    if k2.zjadla_dzisiaj:
+        ile_zjadlo += 1
+    assert ile_zjadlo == 1
+
+
+def test_przypisz_krowy_co_pozycja_wizualna_na_planszy():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(5)
+    krowy = []
+    for i in range(8):  # wiecej krow niz kepek
+        krowy.append(Krowa(id=i, pozycja=(0, 0), imie="X"))
+    p.przypisz_krowy(krowy)
+    for k in krowy:  # kazda krowa musi miec swoje miejsce na planszy
+        x, y = k.pozycja_wizualna
+        assert 0 <= x < 5  # zakres planszy
+        assert 0 <= y < 5
+
+
+def test_przypisz_krowy_pomija_martwe_krowy():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(5)
+    martwa = Krowa(id=1, pozycja=(0, 0), imie="X")
+    martwa.zyje = False
+    p.przypisz_krowy([martwa])
+    assert martwa.przypisana_kepka is None
+    assert martwa.zjadla_dzisiaj == False
+
+
+def test_przypisz_krowy_gdy_krowa_ginie_od_drapieznika():
+    p = Pastwisko(5, 5)
+    p.generuj_trawke(1)
+    kepka = p.kepki_z_trawa()[0]
+    kepka.ma_drapieznika = True
+    kepka.drapieznik = Drapieznik(id=6, pozycja=(kepka.x, kepka.y))
+    krowa = Krowa(id=1, pozycja=(0, 0), imie="X")
+    p.przypisz_krowy([krowa])
+    assert krowa.zyje == False
+    assert krowa.umarla_dzis == True

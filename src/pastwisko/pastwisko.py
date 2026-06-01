@@ -1,5 +1,6 @@
 from src.pastwisko.komorka import Komorka
 import random
+from src.zwierzeta.krowa import Krowa
 
 
 # klasa Pastwisko to model planszy 2D zbudowanej z komorek
@@ -75,3 +76,29 @@ class Pastwisko:
 
         # gdy brak wolnych sasiadow krowa zostaje na tej samej kepce
         return (x, y)
+
+    def przypisz_krowy(self, krowy: list):  # Bierzemy tylko zywe krowy
+        zywe = []
+        for krowa in krowy:
+            if krowa.zyje:
+                zywe.append(krowa)
+
+        # zbieramy wolne kepki trawy i mieszamy je losowo
+        wolne_kepki = []
+        for kepka in self.kepki_z_trawa():
+            if kepka.czy_wolna():
+                wolne_kepki.append(kepka)
+            random.shuffle(wolne_kepki)
+
+        # przydzielamy kepki do krow. Kazda krowa dostaje kepke dopoki ich starcza
+        for i in range(len(zywe)):
+            krowa = zywe[i]
+            if i < len(wolne_kepki):
+                kepka = wolne_kepki[i]
+                kepka.wejdz(krowa)  # Ustawiamy przypisana kepke, krowa je lub nie
+                krowa.pozycja_wizualna = self._losuj_sasiada(kepka.x, kepka.y)
+            else:
+                # brak wolnej kepki = krowa nie je( stoi gdziekolwiek)
+                x = random.randint(0, self.szerokosc - 1)
+                y = random.randint(0, self.wysokosc - 1)
+                krowa.pozycja_wizualna = (x, y)

@@ -28,3 +28,4 @@ BAZA_KEPEK_TRAWY: int = 30
 
 # finanse
 BUDZET_START: float = 50
+KOSZT_DZIENNY_FARMY: int = 50

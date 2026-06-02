@@ -343,3 +343,52 @@ class CudNadOdra(ZdarzenieLosoweBase):
 
     def cofnij(self, farma) -> None:
         pass
+
+    # ----------------------------------------------------------------------------
+    # menedzer zarzaca pula zdarzen losowych i cyklem zycia
+    # pula to lista klas z ktorem losujemy i tworzymy obiekty
+
+
+class ZdarzeniaLosoweMenadzer:
+    def __init__(self, pula=None):
+        if pula is None:
+            pula = [
+                Walentynki,
+                NaglaSusza,
+                Epidemia,
+                Weterynarz,
+                Meteoryt,
+                MlekoGMO,
+                Wielkanoc,
+                UFO,
+                Lesniczy,
+                PoraDeszczowa,
+                ZazdrosnaKoza,
+                CudNadOdra,
+            ]
+        self.pula = pula
+        self.aktywne = []
+
+    def aktualizuj(self, farma, dzien: int) -> list:
+        # odliczamy dni aktywnym. te ktore wygasly cofamy i usuwamy
+        nadal_aktywne = []
+        for zdarzenie in self.aktywne:
+            zdarzenie.dni_pozostale -= 1
+            if zdarzenie.dni_pozostale <= 0:
+                zdarzenie.cofnij(farma)
+            else:
+                nadal_aktywne.append(zdarzenie)
+        self.aktywne = nadal_aktywne
+
+        # losujemy jedno zdarzenie z puli i pytamy czy dzis zachodzi
+        nowe = random.choice(self.pula)()  # nawiasy bo tworzymy nowy obiekt
+        if nowe.czy_zachodzi(dzien):
+            nowe.dni_pozostale = nowe.dni_trwania
+            nowe.zastosuj(farma)
+            self.aktywne.append(nowe)
+
+        # zwracamy opisy wszystkich aktualnych zdarzen
+        opisy = []
+        for zdarzenie in self.aktywne:
+            opisy.append(zdarzenie.opis)
+        return opisy

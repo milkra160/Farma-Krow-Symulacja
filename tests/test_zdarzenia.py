@@ -15,6 +15,8 @@ from src.zdarzenia import (
     PoraDeszczowa,
     ZazdrosnaKoza,
     CudNadOdra,
+    ZdarzeniaLosoweMenadzer,
+    ZdarzenieLosoweBase,
 )
 
 
@@ -207,3 +209,57 @@ def test_cud_nad_odra_gdy_brak_doroslych_krow_nic_nie_dodaje():
     wynik = CudNadOdra().zastosuj(farma)
     assert len(farma.stado) == 1
     assert isinstance(wynik, str)
+
+    # **********************************
+
+
+class SztuczneZdarzenie(ZdarzenieLosoweBase):
+    zaszlo = True
+
+    def __init__(self):
+        super().__init__()
+        self.nazwa = "fake"
+        self.opis = "Fake"
+        self.dni_trwania = 2
+        self.zastosowano = False
+        self.cofnieto = False
+
+    def czy_zachodzi(self, dzien: int):
+        return SztuczneZdarzenie.zaszlo
+
+    def zastosuj(self, farma):
+        self.zastosowano = True
+        return self.opis
+
+    def cofnij(self, farma):
+        self.cofnieto = True
+
+
+def test_menager_aktywuje_zdarzenie():
+    SztuczneZdarzenie.zaszlo = True
+    m = ZdarzeniaLosoweMenadzer(pula=[SztuczneZdarzenie])
+    opisy = m.aktualizuj(None, 1)
+    assert len(m.aktywne) == 1
+    assert m.aktywne[0].zastosowano == True
+    assert "Fake" in opisy
+
+
+def test_menager_nic_nie_robi_gdy_nic_nie_zaszlo():
+    SztuczneZdarzenie.zaszlo = False
+    m = ZdarzeniaLosoweMenadzer(pula=[SztuczneZdarzenie])
+    opisy = m.aktualizuj(None, 1)
+    assert len(m.aktywne) == 0
+    assert opisy == []
+
+
+def test_menager_wygasza_cofa():
+    SztuczneZdarzenie.zaszlo = True
+    m = ZdarzeniaLosoweMenadzer(pula=[SztuczneZdarzenie])
+    m.aktualizuj(None, 1)  # aktywuje dni_pozostale = 2
+    z = m.aktywne[0]
+    SztuczneZdarzenie.zaszlo = False  # zeby nie aktywowac kolejmych
+    m.aktualizuj(None, 2)  # w do 1, nadal aktywne
+    assert len(m.aktywne) == 1
+    m.aktualizuj(None, 3)  # 1 do 0, cofnij usun
+    assert len(m.aktywne) == 0
+    assert z.cofnieto == True

@@ -18,6 +18,19 @@ PRZYCHOD_Z_KROWY: int = 20
 SZANSA_DRAPIEZNIK: float = 0.15
 MAKS_DRAPIEZNIKOW: int = 3
 
+IMIONA_KROW: list = [
+    "Łaciata",
+    "Bogdan",
+    "Zbys",
+    "Cecylia",
+    "Jakub",
+    "Marek",
+    "Zuzanna",
+    "Anna",
+    "Karol",
+    "Karolina",
+]
+
 
 # Stale pogoda i pastwisko
 MNOZNIK_DESZCZ: float = 1.2

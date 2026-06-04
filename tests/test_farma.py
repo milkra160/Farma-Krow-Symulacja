@@ -49,3 +49,61 @@ def test_czy_farma_jest_aktywna():
     assert f.czy_aktywna() == True
     f.finanse.budzet = 0
     assert f.czy_aktywna() == False
+
+
+# tworzymy farme do testow
+def stworz_farme(liczba_krow=3):
+    stado = []
+    for i in range(liczba_krow):
+        stado.append(Krowa(id=i, pozycja=(0, 0), imie=f"K{i}"))
+    return Farma(
+        "Farma",
+        Pastwisko(20, 20),
+        Pogoda(),
+        Finanse(),
+        ZdarzeniaLosoweMenadzer(),
+        stado,
+    )
+
+
+def test_czy_nowy_dzien_bedzie_zwiekszal_dzien():
+    f = stworz_farme()
+    log = f.nowy_dzien()
+    assert f.dzien == 1
+    assert log["dzien"] == 1
+
+
+def test_czy_slownik_nowy_dzien_ma_klucze():
+    f = stworz_farme()
+    log = f.nowy_dzien()
+    for klucz in [
+        "dzien",
+        "pogoda",
+        "narodziny",
+        "martwe",
+        "zjadly",
+        "glodne",
+        "finanse",
+        "zdarzenia",
+    ]:
+        assert klucz in log
+
+
+def test_nowy_dzien_czy_pogoda_bedzie_poprawna():
+    f = stworz_farme()
+    log = f.nowy_dzien()
+    assert log["pogoda"] in ("slonecznie", "deszcz", "susza")
+
+
+def test_czy_nowy_dzien_dobrze_rozlicza_finanse():
+    f = stworz_farme()
+    log = f.nowy_dzien()
+    finanse = log["finanse"]
+    assert finanse["bilans"] == finanse["przychod"] - finanse["koszt"]
+
+
+def test_nowy_dzien_dziala_dla_kilku_dni():
+    f = stworz_farme()
+    for _ in range(5):
+        f.nowy_dzien()
+    assert f.dzien == 5

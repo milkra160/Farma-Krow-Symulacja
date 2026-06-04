@@ -81,8 +81,12 @@ def test_czy_slownik_nowy_dzien_ma_klucze():
         "pogoda",
         "narodziny",
         "martwe",
+        "powod_smierci",
         "zjadly",
+        "drapiezniki",
+        "stan_krow",
         "glodne",
+        "kepki_trawy",
         "finanse",
         "zdarzenia",
     ]:
@@ -107,3 +111,23 @@ def test_nowy_dzien_dziala_dla_kilku_dni():
     for _ in range(5):
         f.nowy_dzien()
     assert f.dzien == 5
+
+
+def test_czy_nowy_dzien_zwraca_poprawny_log_krow():
+    f = stworz_farme(liczba_krow=1)
+    log = f.nowy_dzien()
+    krowa_log = log["stan_krow"][0]
+    for klucz in [
+        "id",
+        "imie",
+        "pozycja_wizualna",
+        "pozycja_kepki",
+        "najedzenie",
+        "wiek",
+        "dorosla",
+        "w_ciazy",
+        "zjadla",
+        "zyje",
+        "umarla_dzis",
+    ]:
+        assert klucz in krowa_log

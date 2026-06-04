@@ -126,6 +126,56 @@ class Farma:
 
         # usuwmy martwe krowy i zwracamy do logu
         martwe = self.usun_martwe()
+        # zbieramy wszystkie krowy by zbudowac dla nich pelny raport stan_krow
+        wszystkie_krowy_dzis = []
+        for krowa in self.stado:
+            wszystkie_krowy_dzis.append(krowa)
+        for krowa in martwe:
+            wszystkie_krowy_dzis.append(krowa)
+
+        stan_krow = []
+        for krowa in wszystkie_krowy_dzis:
+            # zabezpieczenie. Glodne krowy maja przypisana_kepka = None
+            pozycja_kepki = None
+            if krowa.przypisana_kepka is not None:
+                pozycja_kepki = (krowa.przypisana_kepka.x, krowa.przypisana_kepka.y)
+
+            stan_krow.append(
+                {
+                    "id": krowa.id,
+                    "imie": krowa.imie,
+                    "pozycja_wizualna": krowa.pozycja_wizualna,
+                    "pozycja_kepki": pozycja_kepki,
+                    "najedzenie": krowa.najedzenie,
+                    "wiek": krowa.wiek,
+                    "dorosla": krowa.dorosla,
+                    "w_ciazy": krowa.w_ciazy,
+                    "zjadla": krowa.zjadla_dzisiaj,
+                    "zyje": krowa.zyje,
+                    "umarla_dzis": krowa.umarla_dzis,
+                }
+            )
+
+        # wyznaczanie powodu smierci
+        powod_smierci = {}
+        imiona_martwych_krow = []
+        for krowa in martwe:
+            imiona_martwych_krow.append(krowa.imie)
+            # smierc glodowa
+            if krowa.najedzenie <= 0:
+                powod_smierci[krowa.imie] = "glod"
+            else:
+                powod_smierci[krowa.imie] = "drapieznik"
+
+        # zbieramy koordynaty trawy do wizualizacji
+        pozycje_trawy = []
+        for kepka in self.pastwisko.kepki_z_trawa():
+            pozycje_trawy.append((kepka.x, kepka.y))
+
+        # zbieramy koordynaty drapieznikow do wizualizacji
+        pozycje_drapieznikow = []
+        for d in self.drapiezniki:
+            pozycje_drapieznikow.append(d.pozycja)
 
         # zdarzenia losowe
         opisy_zdarzen = self.zdarzenia.aktualizuj(self, self.dzien)
@@ -147,17 +197,17 @@ class Farma:
             else:
                 glodne_krowy.append(krowa.imie)
 
-        martwe_imiona_krow = []
-        for krowa in martwe:
-            martwe_imiona_krow.append(krowa.imie)
-
         log = {
             "dzien": self.dzien,
             "pogoda": stan_pogody,
             "narodziny": narodziny,
-            "martwe": martwe_imiona_krow,
+            "martwe": imiona_martwych_krow,
+            "powod_smierci": powod_smierci,
             "zjadly": najedzone_krowy,
             "glodne": glodne_krowy,
+            "drapiezniki": pozycje_drapieznikow,
+            "stan_krow": stan_krow,
+            "kepki_trawy": pozycje_trawy,
             "finanse": stan_finansow,
             "zdarzenia": opisy_zdarzen,
         }

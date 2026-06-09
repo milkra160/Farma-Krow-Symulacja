@@ -117,6 +117,12 @@ class Farma:
         # przypisujemy krowy do kepek. Krowa je lub ginie od drapieznika
         self.pastwisko.przypisz_krowy(self.stado)
 
+        # jesli jjakas krowa juz nie zyje to musi byc ofiara drapieznika
+        zabite_przez_drapieznika = []
+        for krowa in self.stado:
+            if not krowa.zyje:
+                zabite_przez_drapieznika.append(krowa.id)
+
         # czynniki naturalne
         for krowa in self.stado:
             krowa.starzej_sie_smierc_glodowa_doroslosc()
@@ -162,10 +168,10 @@ class Farma:
         for krowa in martwe:
             imiona_martwych_krow.append(krowa.imie)
             # smierc glodowa
-            if krowa.najedzenie <= 0:
-                powod_smierci[krowa.imie] = "glod"
-            else:
+            if krowa.id in zabite_przez_drapieznika:
                 powod_smierci[krowa.imie] = "drapieznik"
+            else:
+                powod_smierci[krowa.imie] = "glod"
 
         # zbieramy koordynaty trawy do wizualizacji
         pozycje_trawy = []

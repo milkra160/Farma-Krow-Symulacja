@@ -237,7 +237,7 @@ class SztuczneZdarzenie(ZdarzenieLosoweBase):
 
 def test_menager_aktywuje_zdarzenie():
     SztuczneZdarzenie.zaszlo = True
-    m = ZdarzeniaLosoweMenadzer(pula=[SztuczneZdarzenie])
+    m = ZdarzeniaLosoweMenadzer(pula=[SztuczneZdarzenie], szansa_zdarzenia=1.0)
     opisy = m.aktualizuj(None, 1)
     assert len(m.aktywne) == 1
     assert m.aktywne[0].zastosowano == True
@@ -254,7 +254,7 @@ def test_menager_nic_nie_robi_gdy_nic_nie_zaszlo():
 
 def test_menager_wygasza_cofa():
     SztuczneZdarzenie.zaszlo = True
-    m = ZdarzeniaLosoweMenadzer(pula=[SztuczneZdarzenie])
+    m = ZdarzeniaLosoweMenadzer(pula=[SztuczneZdarzenie], szansa_zdarzenia=1.0)
     m.aktualizuj(None, 1)  # aktywuje dni_pozostale = 2
     z = m.aktywne[0]
     SztuczneZdarzenie.zaszlo = False  # zeby nie aktywowac kolejmych

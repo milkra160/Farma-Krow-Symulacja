@@ -58,6 +58,7 @@ class Pastwisko:
             kepka = wybrane_kepki[i]
             kepka.ma_drapieznika = True
             kepka.drapieznik = drapiezniki[i]
+            drapiezniki[i].pozycja = (kepka.x, kepka.y)
 
     # Docelowo krowa po zjedzeniu kepki trawy powinna przenosic sie na wolna kratke na okolo swojej kepki ( jednej z czterech)
     # Znak _ przed nazwa metody pzrekazuje nam informacje o hermetyzacji. Nie powinnismy udostepniac tej metody innym klasom

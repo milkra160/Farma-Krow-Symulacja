@@ -350,7 +350,7 @@ class CudNadOdra(ZdarzenieLosoweBase):
 
 
 class ZdarzeniaLosoweMenadzer:
-    def __init__(self, pula=None):
+    def __init__(self, pula=None, szansa_zdarzenia: float = config.SZANSA_NA_ZDARZENIE):
         if pula is None:
             pula = [
                 Walentynki,
@@ -368,6 +368,7 @@ class ZdarzeniaLosoweMenadzer:
             ]
         self.pula = pula
         self.aktywne = []
+        self.szansa_zdarzenia = szansa_zdarzenia
 
     def aktualizuj(self, farma, dzien: int) -> list:
         # odliczamy dni aktywnym. te ktore wygasly cofamy i usuwamy
@@ -381,11 +382,12 @@ class ZdarzeniaLosoweMenadzer:
         self.aktywne = nadal_aktywne
 
         # losujemy jedno zdarzenie z puli i pytamy czy dzis zachodzi
-        nowe = random.choice(self.pula)()  # nawiasy bo tworzymy nowy obiekt
-        if nowe.czy_zachodzi(dzien):
-            nowe.dni_pozostale = nowe.dni_trwania
-            nowe.zastosuj(farma)
-            self.aktywne.append(nowe)
+        if random.random() < self.szansa_zdarzenia:
+            nowe = random.choice(self.pula)()  # nawiasy bo tworzymy nowy obiekt
+            if nowe.czy_zachodzi(dzien):
+                nowe.dni_pozostale = nowe.dni_trwania
+                nowe.zastosuj(farma)
+                self.aktywne.append(nowe)
 
         # zwracamy opisy wszystkich aktualnych zdarzen
         opisy = []

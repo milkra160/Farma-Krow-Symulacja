@@ -26,9 +26,8 @@ class Pastwisko:
             for x in range(self.szerokosc):
                 wszystkie_pozycje.append((x, y))
 
-        wybrane_pozycje = random.sample(
-            wszystkie_pozycje, ilosc_kepek
-        )  # uzywamy random.sample by uniknac powtorzen
+        wybrane_pozycje = random.sample(wszystkie_pozycje, ilosc_kepek)
+        # uzywamy random.sample by uniknac powtorzen
         # random.choice moglby powodowac powtorzenia
         for x, y in wybrane_pozycje:
             self.pobierz_komorke(x, y).dodaj_trawke()

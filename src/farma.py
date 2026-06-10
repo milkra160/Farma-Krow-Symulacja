@@ -3,7 +3,7 @@ from src.finanse import Finanse
 from src.pastwisko.pastwisko import Pastwisko
 from src.pogoda import Pogoda
 from src.zdarzenia import ZdarzeniaLosoweMenadzer
-from src.zwierzeta.krowa import Krowa
+#from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.cielak import Cielak
 import random
 from src.zwierzeta.drapieznik import Drapieznik
@@ -85,6 +85,8 @@ class Farma:
             nowe_id = self._nowe_id()
             imie = random.choice(IMIONA_KROW)
             cielak = Cielak(id=nowe_id, pozycja=matka.pozycja, imie=imie)
+            #do poprawy, cielak rodzi się "pomiędzy dniami", nie powinien pojawiać się na planszy w momencie narodzin tylko
+            #dodawać do listy dostępnych krów i dopiero następnego dnia dołączać do stada na pastwisku
             self.dodaj_zwierze(cielak)
             narodziny.append(cielak.imie)
         return narodziny
@@ -125,7 +127,7 @@ class Farma:
 
         # czynniki naturalne
         for krowa in self.stado:
-            krowa.starzej_sie_smierc_glodowa_doroslosc()
+            krowa.starzej_sie_smierc_glodowa_doroslosc() #do poprawy, nazwa/rozdzielić funkcje?
 
         # rozmnazanie
         narodziny = self._rozmnazanie()
@@ -190,9 +192,7 @@ class Farma:
         przychod = 0
         for krowa in self.stado:
             przychod += krowa.wartosc_mleka()
-        stan_finansow = self.finanse.rozlicz_dzien(
-            przychod, KOSZT_DZIENNY_FARMY, self.dzien
-        )
+        stan_finansow = self.finanse.rozlicz_dzien(przychod, KOSZT_DZIENNY_FARMY, self.dzien)
 
         # log z dnia:
         najedzone_krowy = []

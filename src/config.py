@@ -1,6 +1,6 @@
 # ***Stale dla calej symulacji***
 ROZMIAR_PLANSZY: tuple[int, int] = (20, 20)
-MAX_DNI: int = 100
+MAX_DNI: int = 1000
 SZANSA_NA_ZDARZENIE: float = 0.10
 
 

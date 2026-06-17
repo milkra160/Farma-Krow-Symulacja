@@ -1,4 +1,3 @@
-
 class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farmy pod koniec dnia
     KOLORY = {
         "zielony": "\033[92m",

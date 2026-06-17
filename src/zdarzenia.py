@@ -60,7 +60,7 @@ class NaglaSusza(ZdarzenieLosoweBase):
         self.oryginalna_baza = config.BAZA_KEPEK_TRAWY
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.05
+        return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
         self.oryginalna_baza = config.BAZA_KEPEK_TRAWY
@@ -82,7 +82,7 @@ class Epidemia(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.05
+        return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
         for krowa in farma.stado:
@@ -104,7 +104,7 @@ class Weterynarz(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.05
+        return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
         if farma.stado:
@@ -130,7 +130,7 @@ class MlekoGMO(ZdarzenieLosoweBase):
         self.oryginalny_przychod = config.PRZYCHOD_Z_KROWY
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.05
+        return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
         self.oryginalny_przychod = config.PRZYCHOD_Z_KROWY
@@ -176,7 +176,7 @@ class Wielkanoc(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.04
+        return True#random.random() < 0.04
 
     def zastosuj(self, farma) -> str:
         martwe = []
@@ -210,7 +210,7 @@ class UFO(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.06
+        return True#random.random() < 0.06
 
     def zastosuj(self, farma) -> str:
         zywe = []
@@ -246,7 +246,7 @@ class Lesniczy(ZdarzenieLosoweBase):
         self.oryginalna_szansa = config.SZANSA_DRAPIEZNIK
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.05
+        return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
         self.oryginalna_szansa = config.SZANSA_DRAPIEZNIK
@@ -269,7 +269,7 @@ class PoraDeszczowa(ZdarzenieLosoweBase):
         self.oryginalne_stany = []
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.05
+        return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
         self.oryginalne_stany = list(farma.pogoda.STANY_POGODY)
@@ -293,7 +293,7 @@ class ZazdrosnaKoza(ZdarzenieLosoweBase):
         self.oryginalne_baza = config.BAZA_KEPEK_TRAWY
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.05
+        return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
         self.oryginalne_baza = config.BAZA_KEPEK_TRAWY
@@ -315,7 +315,7 @@ class CudNadOdra(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.04
+        return True#random.random() < 0.04
 
     def zastosuj(self, farma) -> str:
         dorosle = []
@@ -392,5 +392,5 @@ class ZdarzeniaLosoweMenadzer:
         # zwracamy opisy wszystkich aktualnych zdarzen
         opisy = []
         for zdarzenie in self.aktywne:
-            opisy.append(zdarzenie.opis)
+            opisy.append(f"{zdarzenie.nazwa}: {zdarzenie.opis}")
         return opisy

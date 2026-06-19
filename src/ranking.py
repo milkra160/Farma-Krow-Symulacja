@@ -38,3 +38,5 @@ class Ranking:
                 f"{miejsce}. {wynik['nazwa_farmy']} - "
                 f"{wynik['dni_przezycia']} dni, budzet maks {wynik['maks_budzet']}"
             )
+            miejsce+=1
+

@@ -1,6 +1,7 @@
 import random
 from src.zwierzeta.zwierze import Zwierze
 from src.config import *
+from src import config
 
 
 class Krowa(Zwierze):
@@ -48,13 +49,13 @@ class Krowa(Zwierze):
 
     def wartosc_mleka(self) -> int:
         if self.dorosla:
-            return PRZYCHOD_Z_KROWY
+            return int(config.PRZYCHOD_Z_KROWY)
         return 0
 
     # mechanika ciazy = balans symulacji
     def losuj_ciaze(self):
         if self.dorosla and not self.w_ciazy and self.najedzenie > 60:
-            if random.random() < SZANSA_NA_CIAZE:
+            if random.random() < config.SZANSA_NA_CIAZE:
                 self.w_ciazy = True
                 self.dni_do_porodu = DNI_CIAZY
 

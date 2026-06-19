@@ -60,7 +60,7 @@ class NaglaSusza(ZdarzenieLosoweBase):
         self.oryginalna_baza = config.BAZA_KEPEK_TRAWY
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.05
+        return True
 
     def zastosuj(self, farma) -> str:
         self.oryginalna_baza = config.BAZA_KEPEK_TRAWY
@@ -71,6 +71,8 @@ class NaglaSusza(ZdarzenieLosoweBase):
 
     def cofnij(self, farma) -> None:
         config.BAZA_KEPEK_TRAWY = self.oryginalna_baza
+        farma.pogoda.wymuszony_stan = self.poprzedni_wymuszony
+
 
 
 # --------------------------------------------------------------------
@@ -84,7 +86,7 @@ class Epidemia(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.05
+        return True
 
     def zastosuj(self, farma) -> str:
         for krowa in farma.stado:
@@ -106,7 +108,7 @@ class Weterynarz(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.05
+        return True
 
     def zastosuj(self, farma) -> str:
         if farma.stado:
@@ -133,7 +135,7 @@ class MlekoGMO(ZdarzenieLosoweBase):
         self.oryginalny_przychod = config.PRZYCHOD_Z_KROWY
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.05
+        return True
 
     def zastosuj(self, farma) -> str:
         self.oryginalny_przychod = config.PRZYCHOD_Z_KROWY
@@ -155,7 +157,7 @@ class Meteoryt(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return random.random() < 0.001
+        return random.random() < 0.009
 
     def zastosuj(self, farma) -> str:
         farma.finanse.budzet = 0.0
@@ -179,19 +181,18 @@ class Wielkanoc(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.04
+        return True
 
     def zastosuj(self, farma) -> str:
-        martwe = []
-        for krowa in farma.stado:
-            if krowa.zyje == False:
-                martwe.append(krowa)
-
-        if len(martwe) > 0:
-            wskrzeszona = random.choice(martwe)
+        if len(farma.cmentarz) > 0:
+            wskrzeszona = random.choice(farma.cmentarz)
+            farma.cmentarz.remove(wskrzeszona)
             wskrzeszona.zyje = True
             wskrzeszona.umarla_dzis = False
+            wskrzeszona.zjadla_dzisiaj = False
+            wskrzeszona.przypisana_kepka = None
             wskrzeszona.najedzenie = config.GLOD_START
+            farma.stado.append(wskrzeszona)
             self.opis = f"Zmartwychwstała krowa {wskrzeszona.imie}!"
             return f"{self.nazwa}: {self.opis} ({wskrzeszona.imie} wraca do stada!)"
         else:
@@ -215,7 +216,7 @@ class UFO(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.06
+        return True
 
     def zastosuj(self, farma) -> str:
         zywe = []
@@ -250,15 +251,15 @@ class Lesniczy(ZdarzenieLosoweBase):
         self.oryginalna_szansa = config.SZANSA_DRAPIEZNIK
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.05
+        return True
 
     def zastosuj(self, farma) -> str:
-        self.oryginalna_szansa = config.SZANSA_DRAPIEZNIK
-        config.SZANSA_DRAPIEZNIK = 0.0
+        self.oryginalna_szansa = farma.szansa_drapieznik
+        farma.szansa_drapieznik = 0.0
         return f"{self.nazwa}: {self.opis}"
 
     def cofnij(self, farma) -> None:
-        config.SZANSA_DRAPIEZNIK = self.oryginalna_szansa
+        farma.szansa_drapieznik = self.oryginalna_szansa
 
 
 # -------------------------------------------------------------------------
@@ -273,7 +274,7 @@ class PoraDeszczowa(ZdarzenieLosoweBase):
         self.oryginalne_stany = []
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.05
+        return True
 
     def zastosuj(self, farma) -> str:
         self.poprzedni_wymuszony = farma.pogoda.wymuszony_stan
@@ -296,7 +297,7 @@ class ZazdrosnaKoza(ZdarzenieLosoweBase):
         self.oryginalne_baza = config.BAZA_KEPEK_TRAWY
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.05
+        return True
 
     def zastosuj(self, farma) -> str:
         self.oryginalne_baza = config.BAZA_KEPEK_TRAWY
@@ -318,7 +319,7 @@ class CudNadOdra(ZdarzenieLosoweBase):
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
-        return True#random.random() < 0.04
+        return True
 
     def zastosuj(self, farma) -> str:
         dorosle = []
@@ -341,6 +342,7 @@ class CudNadOdra(ZdarzenieLosoweBase):
             imie = random.choice(config.IMIONA_KROW)
             nowy_cielak = Cielak(nowe_id, matka.pozycja, imie)
             farma.stado.append(nowy_cielak)
+            farma.narodziny_dzis.append(imie)
             self.opis = f"Urodził się cielak {imie} (matka: {matka.imie})"
         else:
             self.opis = "Brak dorosłych krów zdolnych do nagłego porodu"

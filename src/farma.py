@@ -7,6 +7,7 @@ from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.cielak import Cielak
 import random
 from src.zwierzeta.drapieznik import Drapieznik
+from src import config
 
 
 # Farma to klasa glowna symulacji> Zarzadza stadem, pastwiskiem, pogoda
@@ -28,6 +29,8 @@ class Farma:
         self.pogoda = pogoda
         self.finanse = finanse
         self.zdarzenia = zdarzenia
+        self.cmentarz = []        # krowy ktore zdechly (potrzebne dla Wielkanocy)
+        self.narodziny_dzis = []
         self.dzien = 0
         self.szansa_drapieznik = SZANSA_DRAPIEZNIK
         self.maks_drapieznikow = MAKS_DRAPIEZNIKOW
@@ -45,6 +48,7 @@ class Farma:
             else:
                 martwe.append(krowa)
         self.stado = zywe
+        self.cmentarz.extend(martwe)
         return martwe
 
     def liczba_krow(self) -> int:
@@ -130,27 +134,17 @@ class Farma:
         for krowa in self.stado:
             krowa.reset_dnia()
 
-
-        # zapamietujemy id krow PRZED zdarzeniami
-        id_przed_zdarzeniami = []
-        for k in self.stado:
-            id_przed_zdarzeniami.append(k.id)
-
+        # czyscimy liste narodzin ze zdarzen na nowy dzien
+        self.narodziny_dzis = []
         # zdarzenia losowe
         opisy_zdarzen = self.zdarzenia.aktualizuj(self, self.dzien)
-
-        # krowy dodane przez zdarzenia (np. Cud nad Odra) traktujemy jak narodziny
-        narodziny_ze_zdarzen = []
-        for k in self.stado:
-            if k.id not in id_przed_zdarzeniami:
-                narodziny_ze_zdarzen.append(k.imie)
 
         # losowanie nowego stanu pogody
         stan_pogody = self.pogoda.nowy_dzien()
 
         # czyscimy pastwisko i dodajemy nowa trawe
         self.pastwisko.wyczysc()
-        ile_kepek = int(BAZA_KEPEK_TRAWY * self.pogoda.mnoznik_trawy())
+        ile_kepek = int(config.BAZA_KEPEK_TRAWY * self.pogoda.mnoznik_trawy())
         self.pastwisko.generuj_trawke(ile_kepek)
 
         # drapiezniki - losujemy czy sie pojawia
@@ -183,9 +177,9 @@ class Farma:
         #dorastanie cielakow
         dorastajace = self._dorosnij_cielaki()
 
-        # rozmnazanie
+        #rozmnazanie
         narodziny = self._rozmnazanie()
-        narodziny.extend(narodziny_ze_zdarzen)
+        narodziny.extend(self.narodziny_dzis)
 
         # usuwmy martwe krowy i zwracamy do logu
         martwe = self.usun_martwe()

@@ -64,6 +64,8 @@ class NaglaSusza(ZdarzenieLosoweBase):
 
     def zastosuj(self, farma) -> str:
         self.oryginalna_baza = config.BAZA_KEPEK_TRAWY
+        self.poprzedni_wymuszony = farma.pogoda.wymuszony_stan
+        farma.pogoda.wymuszony_stan = "susza"
         config.BAZA_KEPEK_TRAWY = config.BAZA_KEPEK_TRAWY // 2
         return f"{self.nazwa} {self.opis}"
 
@@ -110,9 +112,10 @@ class Weterynarz(ZdarzenieLosoweBase):
         if farma.stado:
             krowa = random.choice(farma.stado)
             krowa.najedzenie = config.GLOD_START
-            return f"{self.nazwa}: {self.opis} ({krowa.imie})"
+            self.opis = f"Krowa {krowa.imie} odzyskuje pełne najedzenie"
         else:
-            return f"{self.nazwa}: Brak krów do wyleczenia"
+            self.opis = "Brak krów do wyleczenia"
+        return self.opis
 
     def cofnij(self, farma) -> None:
         pass
@@ -189,9 +192,11 @@ class Wielkanoc(ZdarzenieLosoweBase):
             wskrzeszona.zyje = True
             wskrzeszona.umarla_dzis = False
             wskrzeszona.najedzenie = config.GLOD_START
+            self.opis = f"Zmartwychwstała krowa {wskrzeszona.imie}!"
             return f"{self.nazwa}: {self.opis} ({wskrzeszona.imie} wraca do stada!)"
-
-        return f"{self.nazwa}: Miał dokonać się cud, ale żadna krowa dotychczas nie umarła."
+        else:
+            self.opis = "Miał być cud, ale żadna krowa dotychczas nie umarła"
+            return f"{self.nazwa}: {self.opis}"
 
     def cofnij(self, farma) -> None:
         pass
@@ -222,11 +227,10 @@ class UFO(ZdarzenieLosoweBase):
             porwana = random.choice(zywe)
             porwana.zyje = False
             porwana.umarla_dzis = True
-            return (
-                f"{self.nazwa}: {self.opis} ({porwana.imie} zniknęła w snopie światła)"
-            )
-
-        return f"{self.nazwa}: Statek UFO przeleciał nad pustym pastwiskiem."
+            self.opis = f"Kosmici porwali krowę {porwana.imie}"
+        else:
+            self.opis = "Statek UFO przeleciał nad pustym pastwiskiem"
+        return self.opis
 
     def cofnij(self, farma) -> None:
         pass
@@ -272,13 +276,12 @@ class PoraDeszczowa(ZdarzenieLosoweBase):
         return True#random.random() < 0.05
 
     def zastosuj(self, farma) -> str:
-        self.oryginalne_stany = list(farma.pogoda.STANY_POGODY)
-        farma.pogoda.STANY_POGODY = ("deszcz",)
-        farma.pogoda.aktualny_stan_pogody = "deszcz"
+        self.poprzedni_wymuszony = farma.pogoda.wymuszony_stan
+        farma.pogoda.wymuszony_stan = "deszcz"
         return f"{self.nazwa}: {self.opis}"
 
     def cofnij(self, farma) -> None:
-        farma.pogoda.STANY_POGODY = tuple(self.oryginalne_stany)
+        farma.pogoda.wymuszony_stan = self.poprzedni_wymuszony
 
 
 # --------------------------------------------------------------------
@@ -335,11 +338,13 @@ class CudNadOdra(ZdarzenieLosoweBase):
                         najwieksze_id = k.id
                 nowe_id = najwieksze_id + 1
 
-            nowy_cielak = Cielak(nowe_id, matka.pozycja, f"Cielak_{nowe_id}")
+            imie = random.choice(config.IMIONA_KROW)
+            nowy_cielak = Cielak(nowe_id, matka.pozycja, imie)
             farma.stado.append(nowy_cielak)
-            return f"{self.nazwa}: {self.opis} (Matka: {matka.imie})"
-
-        return f"{self.nazwa}: Brak dorosłych krów zdolnych do nagłego porodu"
+            self.opis = f"Urodził się cielak {imie} (matka: {matka.imie})"
+        else:
+            self.opis = "Brak dorosłych krów zdolnych do nagłego porodu"
+        return self.opis
 
     def cofnij(self, farma) -> None:
         pass
@@ -373,24 +378,29 @@ class ZdarzeniaLosoweMenadzer:
     def aktualizuj(self, farma, dzien: int) -> list:
         # odliczamy dni aktywnym. te ktore wygasly cofamy i usuwamy
         nadal_aktywne = []
+        opisy = []
         for zdarzenie in self.aktywne:
             zdarzenie.dni_pozostale -= 1
             if zdarzenie.dni_pozostale <= 0:
                 zdarzenie.cofnij(farma)
             else:
                 nadal_aktywne.append(zdarzenie)
+                opisy.append(f"{zdarzenie.nazwa} (pozostało {zdarzenie.dni_pozostale} dni)")
         self.aktywne = nadal_aktywne
 
-        # losujemy jedno zdarzenie z puli i pytamy czy dzis zachodzi
+        #czy trwa jakies dlugie zdarzenie
+        trwa_dlugie = False
+        for zdarzenia in self.aktywne:
+            if zdarzenia.dni_trwania > 1:
+                trwa_dlugie = True
+
         if random.random() < self.szansa_zdarzenia:
-            nowe = random.choice(self.pula)()  # nawiasy bo tworzymy nowy obiekt
-            if nowe.czy_zachodzi(dzien):
+            nowe = random.choice(self.pula)()
+            blokada = nowe.dni_trwania > 1 and trwa_dlugie
+            if nowe.czy_zachodzi(dzien) and not blokada:
                 nowe.dni_pozostale = nowe.dni_trwania
                 nowe.zastosuj(farma)
                 self.aktywne.append(nowe)
+                opisy.append(f"{nowe.nazwa}: {nowe.opis}")
 
-        # zwracamy opisy wszystkich aktualnych zdarzen
-        opisy = []
-        for zdarzenie in self.aktywne:
-            opisy.append(f"{zdarzenie.nazwa}: {zdarzenie.opis}")
         return opisy

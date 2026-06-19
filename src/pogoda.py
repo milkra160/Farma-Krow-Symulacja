@@ -11,12 +11,16 @@ class Pogoda:
         # Stan bazowy
         self.aktualny_stan_pogody = "slonecznie"
         self.poprzedni_stan_pogody = "slonecznie"
+        self.wymuszony_stan = None
         self.historia = []
 
     def nowy_dzien(self):
         self.poprzedni_stan_pogody = self.aktualny_stan_pogody
         self.historia.append(self.poprzedni_stan_pogody)
-        self.aktualny_stan_pogody = random.choice(self.STANY_POGODY)
+        if self.wymuszony_stan is not None:
+            self.aktualny_stan_pogody = self.wymuszony_stan
+        else:
+            self.aktualny_stan_pogody = random.choice(self.STANY_POGODY)
         return self.aktualny_stan_pogody
 
     # Metoda generujaca ilosc trawy w zaleznosci od pogody

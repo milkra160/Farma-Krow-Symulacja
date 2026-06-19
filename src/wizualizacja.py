@@ -5,6 +5,7 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
         "czerwony": "\033[91m",
         "zolty": "\033[33m",
         "szary": "\033[90m",
+        "bialy": "\033[37m",
         "reset": "\033[0m",  # wylaczenie kolorow by nie psuc planszy w dalszych dniach
     }
 
@@ -18,10 +19,15 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
 
     # szuka w logu krowy stojacej na polu x,y zwraca jej slownikalbo None
     def _krowa_na_polu(self, log: dict, x: int, y: int):
+        znaleziona = None
         for krowa in log["stan_krow"]:
             if krowa["pozycja_wizualna"] == (x, y):
-                return krowa
-        return None
+                # martwa krowa ma pierwszenstwo
+                if not krowa["zyje"]:
+                    return krowa
+                if znaleziona is None:
+                    znaleziona = krowa
+        return znaleziona
 
     # decyduje jaki symbol i kolor ma dana komorka
     def _symbol_komorki(self, komorka, log: dict) -> str:
@@ -36,7 +42,7 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
         if komorka.ma_drapieznika:
             return self._koloruj("!", "czerwony")
         if komorka.ma_trawke:
-            return self._koloruj("T", "zolty")
+            return self._koloruj("T", "bialy")
         return self._koloruj(".", "szary")
 
     # buduje cala plansze jako tekst (latwiej z testami)

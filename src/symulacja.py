@@ -1,6 +1,7 @@
 from src.config import *
 import random
 import io
+import sys
 from datetime import date
 from src.pastwisko.pastwisko import Pastwisko
 from src.pogoda import Pogoda
@@ -92,6 +93,9 @@ class Symulacja:
             self.maks_stado = self.farma.liczba_krow()
 
         # warunki zakonczenia
+        if self.farma.liczba_krow() == 0:
+            self.zakoncz("wymarcie stada")
+            return False
         if self.farma.finanse.czy_bankrut():
             self.zakoncz("bankructwo")
             return False
@@ -118,6 +122,7 @@ class Symulacja:
 
             # tryb krokowy, pokazujemy menu i czekamy na uzytkownika
             print("[Enter} Nastepny dzień   [s] +10dni   [a] Do końca  [c] Zakończ")
+            sys.stdout.flush() #kolejna próba naprawienia błędu podwójnej generacji jednym enterem
             wybor = input("> ").strip().lower()
 
             if wybor == "":

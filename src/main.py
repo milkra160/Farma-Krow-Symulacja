@@ -2,6 +2,8 @@ from src.config import *
 from src.symulacja import Symulacja
 import os
 import random
+import sys
+sys.stdout.reconfigure(line_buffering=True) #naprawa błędnego wyświetlania 2 dni na raz przy kliknięciu entera
 
 os.system("")
 
@@ -21,6 +23,11 @@ def zolty(tekst):
     return f"{ZOLTY}{tekst}{RESET}"
 
 
+#funkcja czyszcząca bufor przed każdym inputem w main, naprawia to błąd z wyświetlaniem dnia dwa razy przy
+#pojedynczym wciśnięciu ENTER
+def wczytaj(prompt=""):
+    sys.stdout.flush()
+    return input(prompt)
 
 #pytamy użytkownika o wprowadzenie seedu, jeśli nic nie poda to
 #lostujemy losowy seed, tak żeby w przyszłości mozna było porównywac seedy

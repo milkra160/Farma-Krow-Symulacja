@@ -7,6 +7,15 @@ ZIELONY = "\033[92m"
 ZOLTY = "\033[93m"
 SZARY = "\033[90m"
 RESET = "\033[0m"
+WYBLAKLY_ZIELONY = "\033[2;32m"
+WYBLAKLY_CZERWONY = "\033[2;31m"
+
+
+def wyblakly_zielony(tekst):
+    return f"{WYBLAKLY_ZIELONY}{tekst}{RESET}"
+
+def wyblakly_czerwony(tekst):
+    return f"{WYBLAKLY_CZERWONY}{tekst}{RESET}"
 
 def czerwony(tekst):
     return f"{CZERWONY}{tekst}{RESET}"
@@ -46,8 +55,16 @@ class Logger:
         # finanse (wyrownane w kolumnach)
         finanse = log["finanse"]
         print("FINANSE")
+        print("FINANSE:")
         print(f"   przychód: {finanse['przychod']:>8.0f}      koszt:  {finanse['koszt']:>8.0f}")
-        print(f"   bilans:   {finanse['bilans']:>8.0f}      budżet: {finanse['budzet']:>8.0f}")
+
+        bilans = finanse["bilans"]
+        if bilans >= 0:
+            zmiana = wyblakly_zielony(f"(+{bilans:.0f})")
+        else:
+            zmiana = wyblakly_czerwony(f"({bilans:.0f})")
+
+        print(f"   bilans:   {bilans:>8.0f}      budżet: {finanse['budzet']:>8.0f} {zmiana}")
         print(szary("-" * self.SZEROKOSC))
 
         # STADO: narodziny/dorastanie/zgony

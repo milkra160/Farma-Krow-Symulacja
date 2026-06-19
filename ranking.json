@@ -1,0 +1,20 @@
+[
+  {
+    "nazwa_farmy": "Moja Farma",
+    "data": "2026-06-20",
+    "dni_przezycia": 100,
+    "maks_budzet": 13540,
+    "maks_stado": 17,
+    "powod_konca": "uplynal czas",
+    "parametry_start": {
+      "seed": 436608,
+      "nazwa_farmy": "Moja Farma",
+      "liczba_krow_start": 5,
+      "budzet_start": 500,
+      "szansa_drapieznik": 0.15,
+      "maks_drapieznikow": 2,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.1
+    }
+  }
+]

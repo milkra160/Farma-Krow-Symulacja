@@ -1,49 +1,83 @@
 # klasa Logger formatuje i drukuje dzienny log w terminalu
-class Logger:
-    def drukuj_log(self, log: dict):
-        # naglowek: pogoda i dzien
-        print(f"--- Dzień {log['dzien']} | pogoda: {log['pogoda']} ---")
 
-        # aktywne zdarzenia losowe
+
+#kolory
+CZERWONY = "\033[91m"
+ZIELONY = "\033[92m"
+ZOLTY = "\033[93m"
+SZARY = "\033[90m"
+RESET = "\033[0m"
+
+def czerwony(tekst):
+    return f"{CZERWONY}{tekst}{RESET}"
+
+def zielony(tekst):
+    return f"{ZIELONY}{tekst}{RESET}"
+
+def zolty(tekst):
+    return f"{ZOLTY}{tekst}{RESET}"
+
+def szary(tekst):
+    return f"{SZARY}{tekst}{RESET}"
+
+
+class Logger:
+
+    SZEROKOSC = 56 #szerokosc "logu dnia"
+
+    def drukuj_log(self, log: dict):
+        print()
+
+        # naglowek dnia (wysrodkowany)
+        naglowek = f" DZIEŃ {log['dzien']} | pogoda: {log['pogoda']}"
+        print(zolty(naglowek.center(self.SZEROKOSC, "=")))
+
+        # aktywne zdarzenia losowe (osobna sekcja)
+
         if len(log["zdarzenia"]) > 0:
-            print("Zdarzenia:")
+            print(zolty("ZDARZENIA LOSOWE:"))
             for opis in log["zdarzenia"]:
                 print(f" - {opis}")
+        else:
+            print(szary("ZDARZENIA LOSOWE: brak"))
 
-        # finanse
+        print(szary("-" * self.SZEROKOSC))
+
+        # finanse (wyrownane w kolumnach)
         finanse = log["finanse"]
-        print(
-            f"Finanse: przychód {finanse['przychod']}, koszt {finanse['koszt']}, "
-            f"bilans {finanse['bilans']}, budżet {finanse['budzet']}"
-        )
+        print("FINANSE")
+        print(f"   przychód: {finanse['przychod']:>8.0f}      koszt:  {finanse['koszt']:>8.0f}")
+        print(f"   bilans:   {finanse['bilans']:>8.0f}      budżet: {finanse['budzet']:>8.0f}")
+        print(szary("-" * self.SZEROKOSC))
 
-        # narodziny
+        # STADO: narodziny/dorastanie/zgony
+
         if len(log["narodziny"]) > 0:
-            print(f"Narodziny: {', '.join(log['narodziny'])}")
-
-        # dorastanie
-
+            print(zielony(f"   narodziny:  {', '.join(log['narodziny'])}"))
         if log.get("dorastanie") and len(log["dorastanie"]) > 0:
-            print(f"Dorastanie: {', '.join(log['dorastanie'])} juz jest duża krową")
+            print(f"   dorosły:    {', '.join(log['dorastanie'])}")
+        if len(log["martwe"]) > 0:
+            czesci = []
+            for imie in log["martwe"]:
+                czesci.append(f"{imie} ({log['powod_smierci'][imie]})")
+            print(czerwony(f"   zgony:      {', '.join(czesci)}"))
 
-        # smierc z powodem
-        for imie in log["martwe"]:
-            powod = log["powod_smierci"][imie]
-            print(f"Zdechła: {imie} (powód: {powod})")
+        # statystyki stada
 
-        # statystyka stada
         ile_zjadlo = len(log["zjadly"])
         ile_glodnych = len(log["glodne"])
         rozmiar_stada = ile_zjadlo + ile_glodnych
         print(
-            f"Stado: {rozmiar_stada} krów (najedzonych: {ile_zjadlo}, głodnych: {ile_glodnych})"
+            f"   razem: {rozmiar_stada} krów | "
+            f"najedzonych: {ile_zjadlo} | głodnych: {ile_glodnych}"
         )
-        print()  # pusta linia na koniec dnia
+        print("=" * self.SZEROKOSC)
 
     def drukuj_podsumowanie_koncowe(self, dni: int, powod: str, finanse: dict):
-        print("-" * 30)
-        print("KONIEC SYMULACJI")
-        print(f"Powód zakończenia: {powod}")
-        print(f"Liczba przetrwanych dni: {dni}")
-        print(f"Końcowy budżet: {finanse['budzet']}")
-        print("-" * 30)
+        print() #linijka przerwy / estetyka
+        print(czerwony("-" * 30))
+        print(czerwony("KONIEC SYMULACJI"))
+        print(czerwony(f"Powód zakończenia: {powod}"))
+        print(czerwony(f"Liczba przetrwanych dni: {dni}"))
+        print(czerwony(f"Końcowy budżet: {finanse['budzet']}"))
+        print(czerwony("-" * 30))

@@ -2,7 +2,7 @@ import json
 import os
 
 
-#szablon dla kolorów i późniejszego wyświetlania
+#szablon dla kolorów do późniejszego wyświetlania by ułatwić pisanie kodu
 ZIELONY = "\033[92m"
 ZOLTY = "\033[93m"
 RESET = "\033[0m"
@@ -30,6 +30,17 @@ def _klucz_sortowania(wynik: dict):
 class Ranking:
     def __init__(self, plik: str = "ranking.json"):
         self.plik = plik
+
+
+    def wyswietl_kryteria(self): #kryteria sortowania rankingu
+        print()
+        print(ZIELONY + "=== JAK OCENIAMY WYNIK (kryteria rankingu) ===" + RESET)
+        print("Najlepszy wynik ustalamy po kolei wedlug:")
+        print("  1. Liczba przezytych dni  (im wiecej, tym lepiej)")
+        print("  2. Przy remisie: maksymalny budzet  (im wiecej, tym lepiej)")
+        print("  3. Przy dalszym remisie: maksymalne stado")
+        print("Uwaga: uczciwe porownanie konfiguracji ma sens tylko w obrebie tego samego seeda.")
+
 
     def wczytaj_ranking(self) -> list:
         # zabezpieczenie. Jak nie ma pliku zwracamy pusta liste

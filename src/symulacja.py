@@ -1,5 +1,6 @@
 from src.config import *
 import random
+import io
 from datetime import date
 from src.pastwisko.pastwisko import Pastwisko
 from src.pogoda import Pogoda
@@ -74,6 +75,7 @@ class Symulacja:
             self.farma.dzien, powod, {"budzet": self.farma.finanse.budzet}
         )
         self.ranking.zapisz_wynik(wynik)
+        self.ranking.wyswietl_kryteria()
         self.ranking.wyswietl_dla_seeda(self.parametry.get("seed"))
         self.ranking.wyswietl_top_10()
 

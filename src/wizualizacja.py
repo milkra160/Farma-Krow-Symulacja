@@ -67,4 +67,7 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
     # legenda
     def legenda(self):
         print("Legenda: K=krowa  c=cielak  T=trawa  !=drapieznik  .=puste")
-        print("kolory: zielony=najedzona  pomaranczowy=glodna  czerwony=zginela")
+        najedzona = self._koloruj("najedzona", "zielony")
+        glodna = self._koloruj("głodna", "pomaranczowy")
+        zginela = self._koloruj("zginęła", "czerwony")
+        print(f"kolory krów: {najedzona} {glodna} {zginela}")

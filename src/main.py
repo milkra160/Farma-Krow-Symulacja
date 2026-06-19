@@ -5,24 +5,35 @@ import random
 
 os.system("")
 
+#kolory
 ZIELONY ="\033[92m"
+ZOLTY ="\033[93m"
+CZERWONY="\033[91m"
 RESET ="\033[0m"
 
+
+#funkcja zmieniająca tekst na zielony
 def zielony(tekst):
     return f"{ZIELONY}{tekst}{RESET}"
 
+#funkcja zmieniająca tekst na zolty
+def zolty(tekst):
+    return f"{ZOLTY}{tekst}{RESET}"
+
+
+
 #pytamy użytkownika o wprowadzenie seedu, jeśli nic nie poda to
 #lostujemy losowy seed, tak żeby w przyszłości mozna było porównywac seedy
-
 def zapytaj_o_seed():
     odpowiedz = input("Podaj seed (Enter = losowy): ").strip()
     if odpowiedz == "":
-        seed = random.randomrange(1, 1_000_000)
+        seed = random.randrange(1, 1_000_000)
     else:
         seed = int(odpowiedz)
     random.seed(seed)
-    print(zielony(f"Seed symulacji: {seed}"))
+    print(zolty(f"Seed symulacji: {seed}"))
     return seed
+
 
 # pyta uzytkownika o jeden parametr. Enter = wartosc domyslna
 def zapytaj(tekst, domyslne, typ, opis=""):
@@ -36,9 +47,9 @@ def zapytaj(tekst, domyslne, typ, opis=""):
 #przywitanie użytkownika i opis zmiennych ustwaianych na początku symulacji
 
 def main():
-    print(zielony("=" * 60))
-    print(zielony("                     FARMA KRÓW"))
-    print(zielony("=" * 60))
+    print("=" * 60)
+    print("                     FARMA KRÓW")
+    print("=" * 60)
     print(zielony(
         "Zarządzasz fermą krów mlecznych. 1 tura = 1 dzień.\n"
         "Dorosła krowa daje 20 zł mleka dziennie, a utrzymanie farmy\n"
@@ -52,6 +63,7 @@ def main():
     ))
 
     seed = zapytaj_o_seed()
+    print() #linijka przerwy
 
     parametry = {
         "seed": seed,

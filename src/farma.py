@@ -130,8 +130,20 @@ class Farma:
         for krowa in self.stado:
             krowa.reset_dnia()
 
+
+        # zapamietujemy id krow PRZED zdarzeniami
+        id_przed_zdarzeniami = []
+        for k in self.stado:
+            id_przed_zdarzeniami.append(k.id)
+
         # zdarzenia losowe
         opisy_zdarzen = self.zdarzenia.aktualizuj(self, self.dzien)
+
+        # krowy dodane przez zdarzenia (np. Cud nad Odra) traktujemy jak narodziny
+        narodziny_ze_zdarzen = []
+        for k in self.stado:
+            if k.id not in id_przed_zdarzeniami:
+                narodziny_ze_zdarzen.append(k.imie)
 
         # losowanie nowego stanu pogody
         stan_pogody = self.pogoda.nowy_dzien()
@@ -173,6 +185,7 @@ class Farma:
 
         # rozmnazanie
         narodziny = self._rozmnazanie()
+        narodziny.extend(narodziny_ze_zdarzen)
 
         # usuwmy martwe krowy i zwracamy do logu
         martwe = self.usun_martwe()

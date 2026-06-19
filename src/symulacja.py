@@ -74,6 +74,7 @@ class Symulacja:
             self.farma.dzien, powod, {"budzet": self.farma.finanse.budzet}
         )
         self.ranking.zapisz_wynik(wynik)
+        self.ranking.wyswietl_dla_seeda(self.parametry.get("seed"))
         self.ranking.wyswietl_top_10()
 
     # liczy jeden dzien, potem drukuje log i plansze. Zwraca fasle gdy symulacja ma sie skonczyc

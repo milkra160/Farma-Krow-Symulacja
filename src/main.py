@@ -1,6 +1,7 @@
 from src.config import *
 from src.symulacja import Symulacja
 import os
+import random
 
 os.system("")
 
@@ -9,6 +10,19 @@ RESET ="\033[0m"
 
 def zielony(tekst):
     return f"{ZIELONY}{tekst}{RESET}"
+
+#pytamy użytkownika o wprowadzenie seedu, jeśli nic nie poda to
+#lostujemy losowy seed, tak żeby w przyszłości mozna było porównywac seedy
+
+def zapytaj_o_seed():
+    odpowiedz = input("Podaj seed (Enter = losowy): ").strip()
+    if odpowiedz == "":
+        seed = random.randomrange(1, 1_000_000)
+    else:
+        seed = int(odpowiedz)
+    random.seed(seed)
+    print(zielony(f"Seed symulacji: {seed}"))
+    return seed
 
 # pyta uzytkownika o jeden parametr. Enter = wartosc domyslna
 def zapytaj(tekst, domyslne, typ, opis=""):
@@ -36,7 +50,11 @@ def main():
         "Wielkości ustawione w '[]' to wartości domyślne,\n"
         "naciśnij 'ENTER' by użyć wartości domyślnych\n"
     ))
+
+    seed = zapytaj_o_seed()
+
     parametry = {
+        "seed": seed,
         "nazwa_farmy": zapytaj("Nazwa farmy", "Moja Farma", str,
                                "Nazwa farmy – pojawi się w rankingu."),
         "liczba_krow_start": zapytaj("Liczba krów startowych", 5, int,

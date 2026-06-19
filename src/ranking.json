@@ -17,6 +17,24 @@
     }
   },
   {
+    "nazwa_farmy": "farma moja",
+    "data": "2026-06-19",
+    "dni_przezycia": 100,
+    "maks_budzet": 2910.0,
+    "maks_stado": 17,
+    "powod_konca": "uplynal czas",
+    "parametry_start": {
+      "seed": 1,
+      "nazwa_farmy": "farma moja",
+      "liczba_krow_start": 7,
+      "budzet_start": 560.0,
+      "szansa_drapieznik": 0.21,
+      "maks_drapieznikow": 2,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.1
+    }
+  },
+  {
     "nazwa_farmy": "Siema",
     "data": "2026-06-19",
     "dni_przezycia": 100,
@@ -29,6 +47,42 @@
       "budzet_start": 500.0,
       "szansa_drapieznik": 0.3,
       "maks_drapieznikow": 3,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.2
+    }
+  },
+  {
+    "nazwa_farmy": "Moja Farma",
+    "data": "2026-06-19",
+    "dni_przezycia": 100,
+    "maks_budzet": 1100,
+    "maks_stado": 13,
+    "powod_konca": "uplynal czas",
+    "parametry_start": {
+      "seed": 1337,
+      "nazwa_farmy": "Moja Farma",
+      "liczba_krow_start": 5,
+      "budzet_start": 500,
+      "szansa_drapieznik": 0.15,
+      "maks_drapieznikow": 2,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.1
+    }
+  },
+  {
+    "nazwa_farmy": "siema",
+    "data": "2026-06-19",
+    "dni_przezycia": 53,
+    "maks_budzet": 1020.0,
+    "maks_stado": 6,
+    "powod_konca": "bankructwo",
+    "parametry_start": {
+      "seed": 1,
+      "nazwa_farmy": "siema",
+      "liczba_krow_start": 6,
+      "budzet_start": 550.0,
+      "szansa_drapieznik": 0.3,
+      "maks_drapieznikow": 2,
       "max_dni": 100,
       "szansa_zdarzenia": 0.2
     }
@@ -48,6 +102,24 @@
       "maks_drapieznikow": 2,
       "max_dni": 50,
       "szansa_zdarzenia": 0.25
+    }
+  },
+  {
+    "nazwa_farmy": "siema",
+    "data": "2026-06-19",
+    "dni_przezycia": 5,
+    "maks_budzet": 730,
+    "maks_stado": 5,
+    "powod_konca": "ręczne zakonczenie",
+    "parametry_start": {
+      "seed": 1,
+      "nazwa_farmy": "siema",
+      "liczba_krow_start": 5,
+      "budzet_start": 500,
+      "szansa_drapieznik": 0.15,
+      "maks_drapieznikow": 2,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.1
     }
   }
 ]

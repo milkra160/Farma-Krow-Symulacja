@@ -22,9 +22,9 @@ def zapytaj(tekst, domyslne, typ, opis=""):
 #przywitanie użytkownika i opis zmiennych ustwaianych na początku symulacji
 
 def main():
-    print(zielony("=" * 50))
-    print(zielony("              FARMA KRÓW"))
-    print(zielony("=" * 50))
+    print(zielony("=" * 60))
+    print(zielony("                     FARMA KRÓW"))
+    print(zielony("=" * 60))
     print(zielony(
         "Zarządzasz fermą krów mlecznych. 1 tura = 1 dzień.\n"
         "Dorosła krowa daje 20 zł mleka dziennie, a utrzymanie farmy\n"
@@ -33,6 +33,8 @@ def main():
         "Celem symulacji jest sprawdzenie jakie ustawienie zmiennych\n"
         "początkowych, da jak najlepsze wyniki:\n"
         "(długość czasu trwania, budżet maksymalny i końcowy)\n"
+        "Wielkości ustawione w '[]' to wartości domyślne,\n"
+        "naciśnij 'ENTER' by użyć wartości domyślnych\n"
     ))
     parametry = {
         "nazwa_farmy": zapytaj("Nazwa farmy", "Moja Farma", str,

@@ -3,7 +3,7 @@ from src.finanse import Finanse
 from src.pastwisko.pastwisko import Pastwisko
 from src.pogoda import Pogoda
 from src.zdarzenia import ZdarzeniaLosoweMenadzer
-#from src.zwierzeta.krowa import Krowa
+from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.cielak import Cielak
 import random
 from src.zwierzeta.drapieznik import Drapieznik
@@ -65,6 +65,35 @@ class Farma:
                 najwyzsze = krowa.id
         return najwyzsze + 1
 
+    def _dorosnij_cielaki(self):
+        nowe_stado = []
+        dorastajace_dzisiaj = []
+        for zwierze in self.stado:
+            if zwierze.symbol == "c" and zwierze.dorosla:
+                krowa = Krowa(zwierze.id, zwierze.pozycja, zwierze.imie)
+
+                krowa.wiek = zwierze.wiek
+                krowa.najedzenie = zwierze.najedzenie
+                krowa.dorosla = True
+                krowa.zyje = zwierze.zyje
+                krowa.w_ciazy = zwierze.w_ciazy
+                krowa.dni_do_porodu = zwierze.dni_do_porodu
+                krowa.pozycja_wizualna = zwierze.pozycja_wizualna
+                krowa.przypisana_kepka = zwierze.przypisana_kepka
+                krowa.zjadla_dzisiaj = zwierze.zjadla_dzisiaj
+                krowa.umarla_dzis = zwierze.umarla_dzis
+
+                krowa.symbol = "K"
+                nowe_stado.append(krowa)
+                dorastajace_dzisiaj.append(krowa.imie)
+            else:
+                nowe_stado.append(zwierze)
+
+        self.stado = nowe_stado
+        return dorastajace_dzisiaj
+
+
+
     def _rozmnazanie(
         self,
     ) -> list:  # prywatna metoda, zwraca liste imion nowo narodzonych cielakow
@@ -85,8 +114,9 @@ class Farma:
             nowe_id = self._nowe_id()
             imie = random.choice(IMIONA_KROW)
             cielak = Cielak(id=nowe_id, pozycja=matka.pozycja, imie=imie)
-            #do poprawy, cielak rodzi się "pomiędzy dniami", nie powinien pojawiać się na planszy w momencie narodzin tylko
-            #dodawać do listy dostępnych krów i dopiero następnego dnia dołączać do stada na pastwisku
+            #cielak pojawia sie na wolnej kratce obok matki
+            x,y = matka.pozycja_wizualna
+            cielak.pozycja_wizualna = self.pastwisko._losuj_sasiada(x,y)
             self.dodaj_zwierze(cielak)
             narodziny.append(cielak.imie)
         return narodziny
@@ -99,6 +129,9 @@ class Farma:
         # reset krow na now dzien
         for krowa in self.stado:
             krowa.reset_dnia()
+
+        # zdarzenia losowe
+        opisy_zdarzen = self.zdarzenia.aktualizuj(self, self.dzien)
 
         # losowanie nowego stanu pogody
         stan_pogody = self.pogoda.nowy_dzien()
@@ -116,18 +149,27 @@ class Farma:
                 self.drapiezniki.append(Drapieznik(id=i, pozycja=(0, 0)))
             self.pastwisko.rozmieszcz_drapiezniki(self.drapiezniki)
 
+        # jesli krowa nie zyje przez wejsciwem na pastwisko to np ofiara zdarznia
+        martwe_przed_drapieznikami = []
+        for krowa in self.stado:
+            if not krowa.zyje:
+                martwe_przed_drapieznikami.append(krowa.id)
+
         # przypisujemy krowy do kepek. Krowa je lub ginie od drapieznika
         self.pastwisko.przypisz_krowy(self.stado)
 
         # jesli jjakas krowa juz nie zyje to musi byc ofiara drapieznika
         zabite_przez_drapieznika = []
         for krowa in self.stado:
-            if not krowa.zyje:
+            if not krowa.zyje and krowa.id not in martwe_przed_drapieznikami:
                 zabite_przez_drapieznika.append(krowa.id)
 
         # czynniki naturalne
         for krowa in self.stado:
             krowa.starzej_sie_smierc_glodowa_doroslosc() #do poprawy, nazwa/rozdzielić funkcje?
+
+        #dorastanie cielakow
+        dorastajace = self._dorosnij_cielaki()
 
         # rozmnazanie
         narodziny = self._rozmnazanie()
@@ -152,6 +194,7 @@ class Farma:
                 {
                     "id": krowa.id,
                     "imie": krowa.imie,
+                    "symbol": krowa.symbol,
                     "pozycja_wizualna": krowa.pozycja_wizualna,
                     "pozycja_kepki": pozycja_kepki,
                     "najedzenie": krowa.najedzenie,
@@ -172,6 +215,8 @@ class Farma:
             # smierc glodowa
             if krowa.id in zabite_przez_drapieznika:
                 powod_smierci[krowa.imie] = "drapieznik"
+            elif krowa.id in martwe_przed_drapieznikami:
+                powod_smierci[krowa.imie] = "zdarzenie losowe"
             else:
                 powod_smierci[krowa.imie] = "glod"
 
@@ -184,9 +229,6 @@ class Farma:
         pozycje_drapieznikow = []
         for d in self.drapiezniki:
             pozycje_drapieznikow.append(d.pozycja)
-
-        # zdarzenia losowe
-        opisy_zdarzen = self.zdarzenia.aktualizuj(self, self.dzien)
 
         # finanse
         przychod = 0
@@ -209,6 +251,7 @@ class Farma:
             "narodziny": narodziny,
             "martwe": imiona_martwych_krow,
             "powod_smierci": powod_smierci,
+            "dorastanie": dorastajace,
             "zjadly": najedzone_krowy,
             "glodne": glodne_krowy,
             "drapiezniki": pozycje_drapieznikow,

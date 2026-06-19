@@ -21,6 +21,11 @@ class Logger:
         if len(log["narodziny"]) > 0:
             print(f"Narodziny: {', '.join(log['narodziny'])}")
 
+        # dorastanie
+
+        if log.get("dorastanie") and len(log["dorastanie"]) > 0:
+            print(f"Dorastanie: {', '.join(log['dorastanie'])} juz jest duża krową")
+
         # smierc z powodem
         for imie in log["martwe"]:
             powod = log["powod_smierci"][imie]

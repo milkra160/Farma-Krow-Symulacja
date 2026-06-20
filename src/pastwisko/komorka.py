@@ -14,9 +14,11 @@ class Komorka:
         self.ma_drapieznika = False
         self.drapieznik = None  # Mozliwosc wywolania metody zaatakuj
 
+    # na kratce wyrasta trawa
     def dodaj_trawke(self):
         self.ma_trawke = True
 
+    # trawa zostaje zjedzona / znika przy czyszczeniu pastwiska
     def usun_trawke(self):
         self.ma_trawke = False
 

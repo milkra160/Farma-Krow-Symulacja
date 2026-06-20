@@ -8,10 +8,12 @@ class Drapieznik(Zwierze):
         super().__init__(id, pozycja)
         self.symbol = "!"
 
+    # drapieznik zabija krowe ktora weszla na jego kepke
     def zaatakuj(self, krowa: Krowa) -> bool:
         krowa.zyje = False
         krowa.umarla_dzis = True
         return True
 
+    # drapieznik stoi w miejscu - metoda wymagana tylko przez klase bazowa Zwierze
     def ruch(self):
         pass

@@ -3,7 +3,7 @@ from src.config import *
 
 
 class Pogoda:
-    # Krotka dla kazdej klasy
+    # mozliwe stany pogody - ta sama krotka wspoldzielona przez kazda instancje
 
     STANY_POGODY = ("slonecznie", "deszcz", "susza")
 
@@ -14,6 +14,7 @@ class Pogoda:
         self.wymuszony_stan = None
         self.historia = []
 
+    # losuje stan pogody na dzis (chyba ze zdarzenie wymusza stan), poprzedni idzie do historii
     def nowy_dzien(self):
         self.poprzedni_stan_pogody = self.aktualny_stan_pogody
         self.historia.append(self.poprzedni_stan_pogody)

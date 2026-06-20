@@ -29,12 +29,18 @@ class Farma:
         self.pogoda = pogoda
         self.finanse = finanse
         self.zdarzenia = zdarzenia
-        self.cmentarz = []        # krowy ktore zdechly (potrzebne dla Wielkanocy)
+        self.cmentarz = []  # krowy ktore zdechly (potrzebne dla Wielkanocy)
         self.narodziny_dzis = []
+        # licznik do nadawania UNIKALNYCH id - nigdy nie powtarzamy numeru
+        self.ostatnie_id = 0
+        for krowa in self.stado:
+            if krowa.id > self.ostatnie_id:
+                self.ostatnie_id = krowa.id
         self.dzien = 0
         self.szansa_drapieznik = SZANSA_DRAPIEZNIK
         self.maks_drapieznikow = MAKS_DRAPIEZNIKOW
 
+    # dorzuca nowe zwierze (krowe/cielaka) do stada
     def dodaj_zwierze(self, zwierze):
         self.stado.append(zwierze)
 
@@ -59,16 +65,12 @@ class Farma:
         return not self.finanse.czy_bankrut()
 
     # hermetyzacja. metoda wylacznie uzywana w tej klasie. Zabezpiecza przed
-    # bledem z id w przypadku porodu cielaka
+    # nadaje kolejny, nigdy nie powtarzajacy sie numer id
     def _nowe_id(self) -> int:
-        if len(self.stado) == 0:
-            return 1
-        najwyzsze = 0
-        for krowa in self.stado:
-            if krowa.id > najwyzsze:
-                najwyzsze = krowa.id
-        return najwyzsze + 1
+        self.ostatnie_id += 1
+        return self.ostatnie_id
 
+    # cielaki ktore osiagnely wiek doroslosci zamieniamy na pelne krowy (symbol c -> K)
     def _dorosnij_cielaki(self):
         nowe_stado = []
         dorastajace_dzisiaj = []
@@ -96,9 +98,9 @@ class Farma:
         self.stado = nowe_stado
         return dorastajace_dzisiaj
 
-
-
-    def _rozmnazanie(self,) -> list:  # prywatna metoda, zwraca liste imion nowo narodzonych cielakow
+    def _rozmnazanie(
+        self,
+    ) -> list:  # prywatna metoda, zwraca liste imion nowo narodzonych cielakow
         ciaze_dzis = []
 
         # zbieramy krowie matki ktorym dzis konczy sie ciaza
@@ -121,9 +123,9 @@ class Farma:
             nowe_id = self._nowe_id()
             imie = random.choice(IMIONA_KROW)
             cielak = Cielak(id=nowe_id, pozycja=matka.pozycja, imie=imie)
-            #cielak pojawia sie na wolnej kratce obok matki
-            x,y = matka.pozycja_wizualna
-            cielak.pozycja_wizualna = self.pastwisko._losuj_sasiada(x,y)
+            # cielak pojawia sie na wolnej kratce obok matki
+            x, y = matka.pozycja_wizualna
+            cielak.pozycja_wizualna = self.pastwisko._losuj_sasiada(x, y)
             self.dodaj_zwierze(cielak)
             narodziny.append(f"{cielak.imie} (matka: {matka.imie})")
         return narodziny, ciaze_dzis
@@ -155,7 +157,7 @@ class Farma:
         wolne_kepki = self.pastwisko.kepki_z_trawa()
         if len(wolne_kepki) > 0 and random.random() < self.szansa_drapieznik:
             ile = random.randint(1, self.maks_drapieznikow)
-            ile = min(ile, len(wolne_kepki))   # nie wiecej drapieznikow niz kepek
+            ile = min(ile, len(wolne_kepki))  # nie wiecej drapieznikow niz kepek
             for i in range(ile):
                 self.drapiezniki.append(Drapieznik(id=i, pozycja=(0, 0)))
             self.pastwisko.rozmieszcz_drapiezniki(self.drapiezniki)
@@ -177,12 +179,12 @@ class Farma:
 
         # czynniki naturalne
         for krowa in self.stado:
-            krowa.starzej_sie_smierc_glodowa_doroslosc() #do poprawy, nazwa/rozdzielić funkcje?
+            krowa.starzej_sie_smierc_glodowa_doroslosc()  # do poprawy, nazwa/rozdzielić funkcje?
 
-        #dorastanie cielakow
+        # dorastanie cielakow
         dorastajace = self._dorosnij_cielaki()
 
-        #rozmnazanie
+        # rozmnazanie
         narodziny, ciaze_dzis = self._rozmnazanie()
         narodziny.extend(self.narodziny_dzis)
 
@@ -246,7 +248,9 @@ class Farma:
         przychod = 0
         for krowa in self.stado:
             przychod += krowa.wartosc_mleka()
-        stan_finansow = self.finanse.rozlicz_dzien(przychod, KOSZT_DZIENNY_FARMY, self.dzien)
+        stan_finansow = self.finanse.rozlicz_dzien(
+            przychod, KOSZT_DZIENNY_FARMY, self.dzien
+        )
 
         # log z dnia:
         najedzone_krowy = []

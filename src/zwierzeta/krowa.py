@@ -59,6 +59,7 @@ class Krowa(Zwierze):
                 self.w_ciazy = True
                 self.dni_do_porodu = DNI_CIAZY
 
+    # odliczamy dni do porodu; gdy dojdzie do 0 rodzi sie cielak (zwraca True)
     def aktualizuj_ciaze(self) -> bool:
         if self.w_ciazy:
             self.dni_do_porodu -= 1
@@ -67,10 +68,12 @@ class Krowa(Zwierze):
                 return True  # udany porod
         return False
 
+    # na poczatku doby zerujemy cechy zalezne od dnia i zwalniamy przypisana kepke
     def reset_dnia(self):
         self.zjadla_dzisiaj = False
         self.umarla_dzis = False
         self.przypisana_kepka = None
 
+    # krowa nie chodzi sama po planszy - metoda wymagana przez klase bazowa
     def ruch(self):
         pass

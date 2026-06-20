@@ -1,11 +1,13 @@
 from src.config import *
 
 
+# klasa Finanse pilnuje budzetu farmy i zapisuje historie kazdego dnia
 class Finanse:
     def __init__(self):
         self.budzet = BUDZET_START
         self.historia = []
 
+    # rozlicza dobe: bilans = przychod - koszt, aktualizuje budzet i dopisuje do historii
     def rozlicz_dzien(self, przychod: float, koszt: float, dzien: int):
         bilans = przychod - koszt
         self.budzet += bilans
@@ -22,5 +24,6 @@ class Finanse:
         self.historia.append({"dzien": dzien, "stan": stan_finansow})
         return stan_finansow
 
+    # farma bankrutuje gdy budzet spadnie do zera lub ponizej
     def czy_bankrut(self) -> bool:
         return self.budzet <= 0

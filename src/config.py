@@ -19,17 +19,48 @@ SZANSA_DRAPIEZNIK: float = 0.15
 MAKS_DRAPIEZNIKOW: int = 2
 
 IMIONA_KROW: list = [
-    #męskie
-    "Bogdan", "Tomasz", "Krzysztof", "Stanisław", "Henryk",
-    "Janusz", "Andrzej", "Michał", "Piotr", "Ryszard",
-    "Marek", "Jakub", "Karol", "Maciej", "Wojciech",
-    "Dariusz", "Grzegorz", "Jerzy", "Włodzimierz", "Tadeusz",
-
-    #żeńskie
-    "Anna", "Barbara", "Katarzyna", "Krystyna", "Maria",
-    "Jolanta", "Elżbieta", "Teresa", "Jadwiga", "Zuzanna",
-    "Karolina", "Cecylia", "Magdalena", "Agnieszka", "Dorota",
-    "Krystyna", "Halina", "Danuta", "Irena", "Urszula",
+    # męskie
+    "Bogdan",
+    "Tomasz",
+    "Krzysztof",
+    "Stanisław",
+    "Henryk",
+    "Janusz",
+    "Andrzej",
+    "Michał",
+    "Piotr",
+    "Ryszard",
+    "Marek",
+    "Jakub",
+    "Karol",
+    "Maciej",
+    "Wojciech",
+    "Dariusz",
+    "Grzegorz",
+    "Jerzy",
+    "Włodzimierz",
+    "Tadeusz",
+    # żeńskie
+    "Anna",
+    "Barbara",
+    "Katarzyna",
+    "Krystyna",
+    "Maria",
+    "Jolanta",
+    "Elżbieta",
+    "Teresa",
+    "Jadwiga",
+    "Zuzanna",
+    "Karolina",
+    "Cecylia",
+    "Magdalena",
+    "Agnieszka",
+    "Dorota",
+    "Krystyna",
+    "Halina",
+    "Danuta",
+    "Irena",
+    "Urszula",
 ]
 
 

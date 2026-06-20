@@ -77,12 +77,14 @@ class Symulacja:
             self.farma.dzien, powod, {"budzet": self.farma.finanse.budzet}
         )
 
-        #statystyki z historii + liczniki zebrane w trakcie gry
+        # statystyki z historii + liczniki zebrane w trakcie gry
         historia_pogody = self.farma.pogoda.historia
         historia_finansow = self.farma.finanse.historia
         statystyki = {
             "narodziny": self.suma_narodzin,
             "zgony": self.suma_zgonow,
+            "maks_stado": self.maks_stado,
+            "wszystkie_krowy": self.parametry["liczba_krow_start"] + self.suma_narodzin,
             "zdarzenia": self.farma.zdarzenia.licznik_zdarzen,
             "dni_slonca": historia_pogody.count("slonecznie"),
             "dni_deszczu": historia_pogody.count("deszcz"),
@@ -92,20 +94,22 @@ class Symulacja:
             "budzet_koncowy": self.farma.finanse.budzet,
         }
         self.logger.drukuj_statystyki(statystyki)
+        # wszystkie krowy ktore przewinely sie przez farme (zywe + martwe)
+        wszystkie_krowy = self.farma.stado + self.farma.cmentarz
+        self.logger.drukuj_wszystkie_krowy(wszystkie_krowy)
 
         self.ranking.zapisz_wynik(wynik)
         self.ranking.wyswietl_kryteria()
         self.ranking.wyswietl_dla_seeda(self.parametry.get("seed"))
         self.ranking.wyswietl_top_10()
 
-
     # liczy jeden dzien, potem drukuje log i plansze. Zwraca fasle gdy symulacja ma sie skonczyc
     def uruchom_dzien(self) -> bool:
         log = self.farma.nowy_dzien()
         self.logger.drukuj_log(log)
         self.wizualizacja.rysuj_plansze(self.farma.pastwisko, log)
-        self.suma_narodzin += len(log["narodziny"])  #do statystyk
-        self.suma_zgonow += len(log["martwe"]) #do statystyk
+        self.suma_narodzin += len(log["narodziny"])  # do statystyk
+        self.suma_zgonow += len(log["martwe"])  # do statystyk
 
         # aktualizujemy rekordy do rankingu
         if self.farma.finanse.budzet > self.maks_budzet:
@@ -143,7 +147,7 @@ class Symulacja:
 
             # tryb krokowy, pokazujemy menu i czekamy na uzytkownika
             print("[Enter} Nastepny dzień   [s] +10dni   [a] Do końca  [c] Zakończ")
-            sys.stdout.flush() #kolejna próba naprawienia błędu podwójnej generacji jednym enterem
+            sys.stdout.flush()  # kolejna próba naprawienia błędu podwójnej generacji jednym enterem
             wybor = input("> ").strip().lower()
 
             if wybor == "":

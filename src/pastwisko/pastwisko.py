@@ -17,9 +17,11 @@ class Pastwisko:
                 rzad.append(Komorka(x, y))
             self.siatka.append(rzad)
 
+    # zwraca komorke o wspolrzednych x,y (siatka jest indeksowana [y][x])
     def pobierz_komorke(self, x: int, y: int) -> Komorka:
         return self.siatka[y][x]
 
+    # losuje unikalne pola i sadzi na nich trawe, zwraca liste wybranych pozycji
     def generuj_trawke(self, ilosc_kepek: int) -> list:
         wszystkie_pozycje = []
         for y in range(self.wysokosc):
@@ -34,6 +36,7 @@ class Pastwisko:
             self.pobierz_komorke(x, y).dodaj_trawke()
         return wybrane_pozycje
 
+    # zbiera wszystkie kratki na ktorych aktualnie rosnie trawa
     def kepki_z_trawa(self) -> list:
         wynik = []
         for rzad in self.siatka:

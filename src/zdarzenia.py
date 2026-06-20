@@ -3,6 +3,7 @@ import random
 from src import config
 
 
+# bazowa klasa zdarzenia losowego - kazde zdarzenie potrafi zajsc, zdarzyc sie, i cofac sie
 class ZdarzenieLosoweBase(ABC):
     def __init__(self):
         self.nazwa = ""
@@ -28,6 +29,7 @@ class ZdarzenieLosoweBase(ABC):
     # ZDARZENIA LOSOWE
 
 
+# Walentynki - zwiekszaja szanse na ciaże 0 50%, 14 dnia symulacji
 class Walentynki(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -51,6 +53,7 @@ class Walentynki(ZdarzenieLosoweBase):
 # -------------------------------------------------------------
 
 
+# Nagła Susza - zmiejsza liczbe generowanych kepek trawy o polowe przez 3 dni
 class NaglaSusza(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -74,10 +77,10 @@ class NaglaSusza(ZdarzenieLosoweBase):
         farma.pogoda.wymuszony_stan = self.poprzedni_wymuszony
 
 
-
 # --------------------------------------------------------------------
 
 
+# Epidemia - krowy choruja, wszystkie krowy traca 30 pkt najedzenia
 class Epidemia(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -100,21 +103,39 @@ class Epidemia(ZdarzenieLosoweBase):
 # ----------------------------------------------------------------------
 
 
+# Weterynarz - leczy kilka krow do pelna (jednorazowo)
 class Weterynarz(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
         self.nazwa = "Weterynarz 💉"
-        self.opis = "Jedna losowa krowa odzyskuje pełne najedzenie"
+        self.opis = "Kilka losowych krów odzyskuje pełne najedzenie"
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
         return True
 
     def zastosuj(self, farma) -> str:
-        if farma.stado:
-            krowa = random.choice(farma.stado)
-            krowa.najedzenie = config.GLOD_START
-            self.opis = f"Krowa {krowa.imie} odzyskuje pełne najedzenie"
+        # bierzemy tylko zywe krowy - tylko je da sie leczyc
+        zywe = []
+        for krowa in farma.stado:
+            if krowa.zyje == True:
+                zywe.append(krowa)
+
+        if len(zywe) > 0:
+            # weterynarz leczy kilka krow na raz (2-4), ale nie wiecej niz jest w stadzie
+            ile = random.randint(2, 4)
+            if ile > len(zywe):
+                ile = len(zywe)
+
+            # mieszamy stado i bierzemy (bez powtorzen)
+            random.shuffle(zywe)
+            imiona = []
+            for i in range(ile):
+                krowa = zywe[i]
+                krowa.najedzenie = config.GLOD_START
+                imiona.append(krowa.imie)
+
+            self.opis = f"Pełne najedzenie odzyskują: {', '.join(imiona)}"
         else:
             self.opis = "Brak krów do wyleczenia"
         return self.opis
@@ -126,6 +147,7 @@ class Weterynarz(ZdarzenieLosoweBase):
 # --------------------------------------------------------------------
 
 
+# MlekoGMO - Przychód z mleka zwiekszony o 30% przez 5 dni
 class MlekoGMO(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -149,6 +171,7 @@ class MlekoGMO(ZdarzenieLosoweBase):
 # --------------------------------------------------------------------
 
 
+# Meteoryt - kompletnie niszczy symulacje
 class Meteoryt(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -173,6 +196,7 @@ class Meteoryt(ZdarzenieLosoweBase):
 # -------------------------------------------------------------
 
 
+# Wielkanoc - jedna losowa krowa sie odradza
 class Wielkanoc(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -240,6 +264,7 @@ class UFO(ZdarzenieLosoweBase):
 # ------------------------------------------------------------------------
 
 
+# Lesniczy - brak drapieznikow na pastwisku przez 3 dni
 class Lesniczy(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -265,6 +290,7 @@ class Lesniczy(ZdarzenieLosoweBase):
 # -------------------------------------------------------------------------
 
 
+# Pora Deszczowa - pogoda to wyłącznie deszcze przez 3 dni
 class PoraDeszczowa(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -288,6 +314,7 @@ class PoraDeszczowa(ZdarzenieLosoweBase):
 # --------------------------------------------------------------------
 
 
+# Zazdrosna Koza - brak trawy tego dnia
 class ZazdrosnaKoza(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -311,6 +338,7 @@ class ZazdrosnaKoza(ZdarzenieLosoweBase):
 # --------------------------------------------------------------
 
 
+# Cud nad Odra - krowa natychmiast rodzi cielaka
 class CudNadOdra(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
@@ -331,13 +359,7 @@ class CudNadOdra(ZdarzenieLosoweBase):
             matka = random.choice(dorosle)
             from src.zwierzeta.cielak import Cielak
 
-            nowe_id = 1
-            najwieksze_id = 0
-            if len(farma.stado) > 0:
-                for k in farma.stado:
-                    if k.id > najwieksze_id:
-                        najwieksze_id = k.id
-                nowe_id = najwieksze_id + 1
+            nowe_id = farma._nowe_id()
 
             imie = random.choice(config.IMIONA_KROW)
             nowy_cielak = Cielak(nowe_id, matka.pozycja, imie)
@@ -387,10 +409,12 @@ class ZdarzeniaLosoweMenadzer:
                 zdarzenie.cofnij(farma)
             else:
                 nadal_aktywne.append(zdarzenie)
-                opisy.append(f"{zdarzenie.nazwa} (pozostało {zdarzenie.dni_pozostale} dni)")
+                opisy.append(
+                    f"{zdarzenie.nazwa} (pozostało {zdarzenie.dni_pozostale} dni)"
+                )
         self.aktywne = nadal_aktywne
 
-        #czy trwa jakies dlugie zdarzenie
+        # czy trwa jakies dlugie zdarzenie
         trwa_dlugie = False
         for zdarzenia in self.aktywne:
             if zdarzenia.dni_trwania > 1:

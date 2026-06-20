@@ -1,5 +1,3 @@
-from src.zwierzeta import krowa
-from src.zwierzeta.drapieznik import Drapieznik
 from src.zwierzeta.krowa import Krowa
 
 
@@ -14,7 +12,7 @@ class Komorka:
         self.ma_trawke = False
         self.zajeta_przez = None
         self.ma_drapieznika = False
-        self.drapieznik = None  # Mozliwosc wywolania metody czy_zabija
+        self.drapieznik = None  # Mozliwosc wywolania metody zaatakuj
 
     def dodaj_trawke(self):
         self.ma_trawke = True
@@ -34,7 +32,7 @@ class Komorka:
         krowa.przypisana_kepka = self  # komorka
 
         if self.ma_drapieznika:
-            self.drapieznik.czy_zabija(krowa)
+            self.drapieznik.zaatakuj(krowa)
             return "smierc"
         if self.ma_trawke:
             krowa.jedz()

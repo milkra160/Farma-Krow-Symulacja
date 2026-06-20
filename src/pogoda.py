@@ -24,11 +24,12 @@ class Pogoda:
         return self.aktualny_stan_pogody
 
     # Metoda generujaca ilosc trawy w zaleznosci od pogody
-    # Zdarzenie losowe wywolujace balans i mozliwosc smierci glodowej
+
     def mnoznik_trawy(self):
-        if self.aktualny_stan_pogody == "deszcz":
+        # trawa rosnie wg pogody z DNIA POPRZEDNIEGO (opoznienie o 1 dzien)
+        if self.poprzedni_stan_pogody == "deszcz":
             return MNOZNIK_DESZCZ
-        if self.aktualny_stan_pogody == "susza":
+        if self.poprzedni_stan_pogody == "susza":
             return MNOZNIK_SUSZA
         return MNOZNIK_SLONCE
 

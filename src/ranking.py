@@ -8,15 +8,11 @@ ZOLTY = "\033[93m"
 RESET = "\033[0m"
 
 
-# pomocnik do sortowania. Zwraca to po czym sortujemy (liczbe dni przezycia)
-def _pomocnik_dni_przezycia(wynik: dict) -> int:
-    return wynik["dni_przezycia"]
-
 # szablon dla wyświetlania rankingu w formie estetycznej tabeli
 _SZABLON = (
-    "{lp:<4}{nazwa:<16}{seed:<7}{dni:<6}"
-    "{budzet_maks:<13}{stado_maks:<12}{krowy:<7}"
-    "{budzet_st:<13}{drap:<7}{koniec:<20}"
+    "{lp:<4}{nazwa:<13}{seed:<8}{dni:<5}"
+    "{budzet_maks:<12}{stado_maks:<11}{krowy:<6}"
+    "{budzet_st:<11}{drap:<6}{koniec:<13}"
 )
 
 def _klucz_sortowania(wynik: dict):
@@ -46,10 +42,15 @@ class Ranking:
         # zabezpieczenie. Jak nie ma pliku zwracamy pusta liste
         if not os.path.exists(self.plik):
             return []
-        with open(self.plik, "r", encoding="utf-8") as f:
-            dane = json.load(f)
+        try:
+            with open(self.plik, "r", encoding="utf-8") as f:
+                dane = json.load(f)
+        except (json.JSONDecodeError, ValueError):
+            return []
+        if not isinstance(dane,list):
+            return []
         # sortujemy malejaco po dniach przezycia
-        dane.sort(key=_pomocnik_dni_przezycia, reverse=True)
+        dane.sort(key=_klucz_sortowania, reverse=True)
         return dane
 
     def zapisz_wynik(self, wynik: dict):
@@ -109,7 +110,7 @@ class Ranking:
         ranking = self.wczytaj_ranking()
 
         print()
-        print(ZIELONY + "=== TOP 10 (wszykie seedy razem) ===" + RESET)
+        print(ZIELONY + "=== TOP 10 (wszystkie seedy razem) ===" + RESET)
         print()
 
         if not ranking:

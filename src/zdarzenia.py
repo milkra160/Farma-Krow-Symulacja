@@ -342,7 +342,7 @@ class CudNadOdra(ZdarzenieLosoweBase):
             imie = random.choice(config.IMIONA_KROW)
             nowy_cielak = Cielak(nowe_id, matka.pozycja, imie)
             farma.stado.append(nowy_cielak)
-            farma.narodziny_dzis.append(imie)
+            farma.narodziny_dzis.append(f"{imie} (matka: {matka.imie})")
             self.opis = f"Urodził się cielak {imie} (matka: {matka.imie})"
         else:
             self.opis = "Brak dorosłych krów zdolnych do nagłego porodu"
@@ -358,9 +358,9 @@ class CudNadOdra(ZdarzenieLosoweBase):
 
 class ZdarzeniaLosoweMenadzer:
     def __init__(self, pula=None, szansa_zdarzenia: float = config.SZANSA_NA_ZDARZENIE):
+        self.licznik_zdarzen = 0
         if pula is None:
             pula = [
-                Walentynki,
                 NaglaSusza,
                 Epidemia,
                 Weterynarz,
@@ -396,12 +396,21 @@ class ZdarzeniaLosoweMenadzer:
             if zdarzenia.dni_trwania > 1:
                 trwa_dlugie = True
 
+        # Walentynki to zdarzenie kalendarzowe - 50% szansy dokladnie w dniu 14
+        if dzien == 14 and random.random() < 0.5:
+            walentynki = Walentynki()
+            walentynki.dni_pozostale = walentynki.dni_trwania
+            walentynki.zastosuj(farma)
+            self.aktywne.append(walentynki)
+            opisy.append(f"{walentynki.nazwa}: {walentynki.opis}")
+
         if random.random() < self.szansa_zdarzenia:
             nowe = random.choice(self.pula)()
             blokada = nowe.dni_trwania > 1 and trwa_dlugie
             if nowe.czy_zachodzi(dzien) and not blokada:
                 nowe.dni_pozostale = nowe.dni_trwania
                 nowe.zastosuj(farma)
+                self.licznik_zdarzen += 1
                 self.aktywne.append(nowe)
                 opisy.append(f"{nowe.nazwa}: {nowe.opis}")
 

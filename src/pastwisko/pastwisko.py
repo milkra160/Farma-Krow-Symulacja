@@ -1,6 +1,6 @@
 from src.pastwisko.komorka import Komorka
 import random
-from src.zwierzeta.krowa import Krowa
+
 
 
 # klasa Pastwisko to model planszy 2D zbudowanej z komorek
@@ -26,6 +26,7 @@ class Pastwisko:
             for x in range(self.szerokosc):
                 wszystkie_pozycje.append((x, y))
 
+        ilosc_kepek = max(0, min(ilosc_kepek, len(wszystkie_pozycje)))
         wybrane_pozycje = random.sample(wszystkie_pozycje, ilosc_kepek)
         # uzywamy random.sample by uniknac powtorzen
         # random.choice moglby powodowac powtorzenia
@@ -88,7 +89,7 @@ class Pastwisko:
         for kepka in self.kepki_z_trawa():
             if kepka.czy_wolna():
                 wolne_kepki.append(kepka)
-            random.shuffle(wolne_kepki)
+        random.shuffle(wolne_kepki)
 
         # przydzielamy kepki do krow. Kazda krowa dostaje kepke dopoki ich starcza
         for i in range(len(zywe)):

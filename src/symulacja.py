@@ -1,6 +1,5 @@
 from src.config import *
 import random
-import io
 import sys
 from datetime import date
 from src.pastwisko.pastwisko import Pastwisko
@@ -28,6 +27,8 @@ class Symulacja:
         # statystuki zbierane przez cala gre do rankingu
         self.maks_budzet = 0
         self.maks_stado = 0
+        self.suma_narodzin = 0
+        self.suma_zgonow = 0
 
     # tworzymy wszystkie komponenty i stado startowe w prywatnej metodzie
     def _przygotuj(self, parametry: dict):
@@ -75,16 +76,36 @@ class Symulacja:
         self.logger.drukuj_podsumowanie_koncowe(
             self.farma.dzien, powod, {"budzet": self.farma.finanse.budzet}
         )
+
+        #statystyki z historii + liczniki zebrane w trakcie gry
+        historia_pogody = self.farma.pogoda.historia
+        historia_finansow = self.farma.finanse.historia
+        statystyki = {
+            "narodziny": self.suma_narodzin,
+            "zgony": self.suma_zgonow,
+            "zdarzenia": self.farma.zdarzenia.licznik_zdarzen,
+            "dni_slonca": historia_pogody.count("slonecznie"),
+            "dni_deszczu": historia_pogody.count("deszcz"),
+            "dni_suszy": historia_pogody.count("susza"),
+            "suma_przychodow": sum(w["stan"]["przychod"] for w in historia_finansow),
+            "suma_kosztow": sum(w["stan"]["koszt"] for w in historia_finansow),
+            "budzet_koncowy": self.farma.finanse.budzet,
+        }
+        self.logger.drukuj_statystyki(statystyki)
+
         self.ranking.zapisz_wynik(wynik)
         self.ranking.wyswietl_kryteria()
         self.ranking.wyswietl_dla_seeda(self.parametry.get("seed"))
         self.ranking.wyswietl_top_10()
+
 
     # liczy jeden dzien, potem drukuje log i plansze. Zwraca fasle gdy symulacja ma sie skonczyc
     def uruchom_dzien(self) -> bool:
         log = self.farma.nowy_dzien()
         self.logger.drukuj_log(log)
         self.wizualizacja.rysuj_plansze(self.farma.pastwisko, log)
+        self.suma_narodzin += len(log["narodziny"])  #do statystyk
+        self.suma_zgonow += len(log["martwe"]) #do statystyk
 
         # aktualizujemy rekordy do rankingu
         if self.farma.finanse.budzet > self.maks_budzet:

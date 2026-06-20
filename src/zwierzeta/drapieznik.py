@@ -8,7 +8,7 @@ class Drapieznik(Zwierze):
         super().__init__(id, pozycja)
         self.symbol = "!"
 
-    def czy_zabija(self, krowa: Krowa) -> bool:
+    def zaatakuj(self, krowa: Krowa) -> bool:
         krowa.zyje = False
         krowa.umarla_dzis = True
         return True

@@ -6,6 +6,7 @@ CZERWONY = "\033[91m"
 ZIELONY = "\033[92m"
 ZOLTY = "\033[93m"
 SZARY = "\033[90m"
+ROZOWY = "\033[95m"
 RESET = "\033[0m"
 WYBLAKLY_ZIELONY = "\033[2;32m"
 WYBLAKLY_CZERWONY = "\033[2;31m"
@@ -28,6 +29,9 @@ def zolty(tekst):
 
 def szary(tekst):
     return f"{SZARY}{tekst}{RESET}"
+
+def rozowy(tekst):
+    return f"{ROZOWY}{tekst}{RESET}"
 
 
 class Logger:
@@ -52,9 +56,13 @@ class Logger:
 
         print(szary("-" * self.SZEROKOSC))
 
+        #iloesc kepek trawy
+        ile_kepek = len(log["kepki_trawy"])
+        print(f"KĘPKI TRAWY: {ile_kepek}")
+        print(szary("-" * self.SZEROKOSC))
+
         # finanse (wyrownane w kolumnach)
         finanse = log["finanse"]
-        print("FINANSE")
         print("FINANSE:")
         print(f"   przychód: {finanse['przychod']:>8.0f}      koszt:  {finanse['koszt']:>8.0f}")
 
@@ -72,7 +80,7 @@ class Logger:
         if len(log["narodziny"]) > 0:
             print(zielony(f"   narodziny:  {', '.join(log['narodziny'])}"))
         if log.get("dorastanie") and len(log["dorastanie"]) > 0:
-            print(f"   dorosły:    {', '.join(log['dorastanie'])}")
+            print(f"   stała się dziś dorosła:    {', '.join(log['dorastanie'])}")
         if len(log["martwe"]) > 0:
             czesci = []
             for imie in log["martwe"]:
@@ -80,7 +88,8 @@ class Logger:
             print(czerwony(f"   zgony:      {', '.join(czesci)}"))
 
         # statystyki stada
-
+        if log.get("ciaze") and len(log["ciaze"]) > 0:
+            print(rozowy(f"   ciąża:      {', '.join(log['ciaze'])}"))
         ile_zjadlo = len(log["zjadly"])
         ile_glodnych = len(log["glodne"])
         rozmiar_stada = ile_zjadlo + ile_glodnych
@@ -98,3 +107,16 @@ class Logger:
         print(czerwony(f"Liczba przetrwanych dni: {dni}"))
         print(czerwony(f"Końcowy budżet: {finanse['budzet']}"))
         print(czerwony("-" * 30))
+
+    def drukuj_statystyki(self, s: dict):
+        print()  # pusta linia dla estetyki
+        print(czerwony("=== STATYSTYKI KOŃCOWE ==="))
+        print(f"Łączne narodziny:   {s['narodziny']}")
+        print(f"Łączne zgony:       {s['zgony']}")
+        print(f"Zdarzenia losowe:   {s['zdarzenia']}")
+        print(f"Pogoda: słońce {s['dni_slonca']} / deszcz {s['dni_deszczu']} / susza {s['dni_suszy']}")
+        print(
+            f"Finanse: przychód {s['suma_przychodow']:.0f} zł, "
+            f"koszt {s['suma_kosztow']:.0f} zł, "
+            f"budżet końcowy {s['budzet_koncowy']:.0f} zł"
+        )

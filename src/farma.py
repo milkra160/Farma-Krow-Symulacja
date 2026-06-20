@@ -98,19 +98,22 @@ class Farma:
 
 
 
-    def _rozmnazanie(
-        self,
-    ) -> list:  # prywatna metoda, zwraca liste imion nowo narodzonych cielakow
-        # losujemy ciaze
-        for krowa in self.stado:
-            if krowa.zyje:
-                krowa.losuj_ciaze()
+    def _rozmnazanie(self,) -> list:  # prywatna metoda, zwraca liste imion nowo narodzonych cielakow
+        ciaze_dzis = []
 
         # zbieramy krowie matki ktorym dzis konczy sie ciaza
         matki = []
         for krowa in self.stado:
             if krowa.zyje and krowa.aktualizuj_ciaze():
                 matki.append(krowa)
+
+        # losujemy ciaze
+        for krowa in self.stado:
+            if krowa.zyje:
+                byla_w_ciazy = krowa.w_ciazy
+                krowa.losuj_ciaze()
+                if krowa.w_ciazy and not byla_w_ciazy:
+                    ciaze_dzis.append(f"{krowa.imie} (za {krowa.dni_do_porodu} dni)")
 
         # rodzimy cielaki
         narodziny = []
@@ -122,8 +125,8 @@ class Farma:
             x,y = matka.pozycja_wizualna
             cielak.pozycja_wizualna = self.pastwisko._losuj_sasiada(x,y)
             self.dodaj_zwierze(cielak)
-            narodziny.append(cielak.imie)
-        return narodziny
+            narodziny.append(f"{cielak.imie} (matka: {matka.imie})")
+        return narodziny, ciaze_dzis
 
     # Najwazniejsza i glowna metoda nowy_dzien!! jedna doba symulacji. Zwraca logi dnia
     def nowy_dzien(self) -> dict:
@@ -149,8 +152,10 @@ class Farma:
 
         # drapiezniki - losujemy czy sie pojawia
         self.drapiezniki = []
-        if random.random() < self.szansa_drapieznik:
+        wolne_kepki = self.pastwisko.kepki_z_trawa()
+        if len(wolne_kepki) > 0 and random.random() < self.szansa_drapieznik:
             ile = random.randint(1, self.maks_drapieznikow)
+            ile = min(ile, len(wolne_kepki))   # nie wiecej drapieznikow niz kepek
             for i in range(ile):
                 self.drapiezniki.append(Drapieznik(id=i, pozycja=(0, 0)))
             self.pastwisko.rozmieszcz_drapiezniki(self.drapiezniki)
@@ -178,7 +183,7 @@ class Farma:
         dorastajace = self._dorosnij_cielaki()
 
         #rozmnazanie
-        narodziny = self._rozmnazanie()
+        narodziny, ciaze_dzis = self._rozmnazanie()
         narodziny.extend(self.narodziny_dzis)
 
         # usuwmy martwe krowy i zwracamy do logu
@@ -266,5 +271,6 @@ class Farma:
             "kepki_trawy": pozycje_trawy,
             "finanse": stan_finansow,
             "zdarzenia": opisy_zdarzen,
+            "ciaze": ciaze_dzis,
         }
         return log

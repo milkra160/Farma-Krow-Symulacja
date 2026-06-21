@@ -144,6 +144,8 @@ def main():
             "krów, żeby wyjść na zero.\n"
             "Celem symulacji jest sprawdzenie jakie ustawienie zmiennych\n"
             "początkowych, da jak najlepsze wyniki:\n"
+            "Pogoda poprzedniego dnia wpływa na to ile kępek trawy którymi\n"
+            "żywią się krowy, pojawi się dnia następnego\n"
             "(długość czasu trwania, budżet maksymalny i końcowy)\n"
             "Wielkości ustawione w '[]' to wartości domyślne,\n"
             "naciśnij 'ENTER' by użyć wartości domyślnych\n"

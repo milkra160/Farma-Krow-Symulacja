@@ -1,19 +1,19 @@
 # klasa Logger formatuje i drukuje dzienny log w terminalu
 
-
+SZEROKOSC = 56
 # kolory
 CZERWONY = "\033[91m"
 ZIELONY = "\033[92m"
 ZOLTY = "\033[93m"
 SZARY = "\033[90m"
 ROZOWY = "\033[95m"
+NIEBIESKI = "\033[96m"
 RESET = "\033[0m"
 WYBLAKLY_ZIELONY = "\033[2;32m"
 WYBLAKLY_CZERWONY = "\033[2;31m"
 
 
-def _po_id(krowa):
-    return krowa.id
+
 
 
 def wyblakly_zielony(tekst):
@@ -43,6 +43,15 @@ def szary(tekst):
 def rozowy(tekst):
     return f"{ROZOWY}{tekst}{RESET}"
 
+def niebieski(tekst):
+    return f"{NIEBIESKI}{tekst}{RESET}"
+
+def naglowek(tytul):
+    return zolty(f" {tytul} ".center(SZEROKOSC, "="))
+
+def linia():
+    return szary("-" * SZEROKOSC)
+
 
 class Logger:
     SZEROKOSC = 56  # szerokosc "logu dnia"
@@ -51,8 +60,8 @@ class Logger:
         print()
 
         # naglowek dnia (wysrodkowany)
-        naglowek = f" DZIEŃ {log['dzien']} | pogoda: {log['pogoda']}"
-        print(zolty(naglowek.center(self.SZEROKOSC, "=")))
+        # naglowek dnia (wspolny styl)
+        print(zolty(naglowek(f"DZIEŃ {log['dzien']} | pogoda: {log['pogoda']}")))
 
         # aktywne zdarzenia losowe (osobna sekcja)
 
@@ -99,6 +108,9 @@ class Logger:
             for imie in log["martwe"]:
                 czesci.append(f"{imie} ({log['powod_smierci'][imie]})")
             print(czerwony(f"   zgony:      {', '.join(czesci)}"))
+
+        if log.get("zmartwychwstania") and len(log["zmartwychwstania"]) > 0:
+            print(niebieski(f"   zmartwychwstanie: {', '.join(log['zmartwychwstania'])}"))
 
         # statystyki stada
         if log.get("ciaze") and len(log["ciaze"]) > 0:
@@ -147,22 +159,23 @@ class Logger:
             return czerwony(pasek)
 
     def drukuj_podsumowanie_koncowe(self, dni: int, powod: str, finanse: dict):
-        print()  # linijka przerwy / estetyka
-        print(czerwony("-" * 30))
-        print(czerwony("KONIEC SYMULACJI"))
-        print(czerwony(f"Powód zakończenia: {powod}"))
-        print(czerwony(f"Liczba przetrwanych dni: {dni}"))
-        print(czerwony(f"Końcowy budżet: {finanse['budzet']}"))
-        print(czerwony("-" * 30))
+        print()
+        print(naglowek("KONIEC SYMULACJI"))
+        print(f"   powód zakończenia:  {powod}")
+        print(f"   przetrwane dni:     {dni}")
+        print(f"   końcowy budżet:     {finanse['budzet']:.0f} zł")
+        print("=" * SZEROKOSC)
 
     def drukuj_statystyki(self, s: dict):
         print()  # pusta linia dla estetyki
         print(czerwony("=== STATYSTYKI KOŃCOWE ==="))
         print(f"Łączne narodziny:   {s['narodziny']}")
+        print(f"Łączne zmartwychwstania: {s['zmartwychwstania']}")
         print(f"Łączne zgony:       {s['zgony']}")
         print(f"Krów łącznie na farmie: {s['wszystkie_krowy']}")
-        print(f"Maksymalne stado naraz: {s['maks_stado']} krów")
+        print(f"Maksmalne stado: {s['maks_stado']} krów (dzień {s['maks_stado_dzien']})")
         print(f"Zdarzenia losowe:   {s['zdarzenia']}")
+        print(linia())
         print(
             f"Pogoda: słońce {s['dni_slonca']} / deszcz {s['dni_deszczu']} / susza {s['dni_suszy']}"
         )
@@ -171,18 +184,4 @@ class Logger:
             f"koszt {s['suma_kosztow']:.0f} zł, "
             f"budżet końcowy {s['budzet_koncowy']:.0f} zł"
         )
-
-    # wypisuje wszystkie krowy ktore przewinely sie przez farme (zywe + martwe)
-    def drukuj_wszystkie_krowy(self, krowy: list):
-        print()  # pusta linia dla estetyki
-        print(czerwony("=== WSZYSTKIE KROWY W SYMULACJI ==="))
-        print(f"Razem przez farme przewinelo sie: {len(krowy)} krow")
-
-        # sortujemy po id rosnaco, zeby lista byla uporzadkowana
-        krowy_po_id = sorted(krowy, key=_po_id)
-        for krowa in krowy_po_id:
-            if krowa.zyje:
-                status = zielony("żywa")
-            else:
-                status = czerwony("martwa")
-            print(f"   #{krowa.id} {krowa.imie} ({status})")
+        print("=" * SZEROKOSC)

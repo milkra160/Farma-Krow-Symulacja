@@ -31,6 +31,8 @@ class Farma:
         self.zdarzenia = zdarzenia
         self.cmentarz = []  # krowy ktore zdechly (potrzebne dla Wielkanocy)
         self.narodziny_dzis = []
+        self.zmartwychwstania_dzis = []
+        self.do_wyleczenia = []
         # licznik do nadawania UNIKALNYCH id - nigdy nie powtarzamy numeru
         self.ostatnie_id = 0
         for krowa in self.stado:
@@ -139,8 +141,11 @@ class Farma:
         for krowa in self.stado:
             krowa.reset_dnia()
 
-        # czyscimy liste narodzin ze zdarzen na nowy dzien
+        # czyscimy liste zdarzen na nowy dzien
         self.narodziny_dzis = []
+        self.zmartwychwstania_dzis = []
+        self.do_wyleczenia = []
+
         # zdarzenia losowe
         opisy_zdarzen = self.zdarzenia.aktualizuj(self, self.dzien)
 
@@ -180,6 +185,11 @@ class Farma:
         # czynniki naturalne
         for krowa in self.stado:
             krowa.starzej_sie_smierc_glodowa_doroslosc()  # do poprawy, nazwa/rozdzielić funkcje?
+
+        #weterynarz dobija do pelna najedzenia na koniec dnia ( po dziennym ubytku)
+        for krowa in self.do_wyleczenia:
+            if krowa.zyje:
+                krowa.najedzenie = GLOD_START
 
         # dorastanie cielakow
         dorastajace = self._dorosnij_cielaki()
@@ -265,6 +275,7 @@ class Farma:
             "dzien": self.dzien,
             "pogoda": stan_pogody,
             "narodziny": narodziny,
+            "zmartwychwstania": self.zmartwychwstania_dzis,
             "martwe": imiona_martwych_krow,
             "powod_smierci": powod_smierci,
             "dorastanie": dorastajace,

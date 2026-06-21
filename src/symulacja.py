@@ -27,8 +27,10 @@ class Symulacja:
         # statystuki zbierane przez cala gre do rankingu
         self.maks_budzet = 0
         self.maks_stado = 0
+        self.maks_stado_dzien = 0 #ktorego dnia stado bylo najwieksze
         self.suma_narodzin = 0
         self.suma_zgonow = 0
+        self.suma_zmartwychwstan = 0
 
     # tworzymy wszystkie komponenty i stado startowe w prywatnej metodzie
     def _przygotuj(self, parametry: dict):
@@ -82,8 +84,10 @@ class Symulacja:
         historia_finansow = self.farma.finanse.historia
         statystyki = {
             "narodziny": self.suma_narodzin,
+            "zmartwychwstania": self.suma_zmartwychwstan,
             "zgony": self.suma_zgonow,
             "maks_stado": self.maks_stado,
+            "maks_stado_dzien": self.maks_stado_dzien,
             "wszystkie_krowy": self.parametry["liczba_krow_start"] + self.suma_narodzin,
             "zdarzenia": self.farma.zdarzenia.licznik_zdarzen,
             "dni_slonca": historia_pogody.count("slonecznie"),
@@ -94,9 +98,6 @@ class Symulacja:
             "budzet_koncowy": self.farma.finanse.budzet,
         }
         self.logger.drukuj_statystyki(statystyki)
-        # wszystkie krowy ktore przewinely sie przez farme (zywe + martwe)
-        wszystkie_krowy = self.farma.stado + self.farma.cmentarz
-        self.logger.drukuj_wszystkie_krowy(wszystkie_krowy)
 
         self.ranking.zapisz_wynik(wynik)
         self.ranking.wyswietl_kryteria()
@@ -110,12 +111,14 @@ class Symulacja:
         self.wizualizacja.rysuj_plansze(self.farma.pastwisko, log)
         self.suma_narodzin += len(log["narodziny"])  # do statystyk
         self.suma_zgonow += len(log["martwe"])  # do statystyk
+        self.suma_zmartwychwstan += len(log["zmartwychwstania"])  # do statystyk
 
         # aktualizujemy rekordy do rankingu
         if self.farma.finanse.budzet > self.maks_budzet:
             self.maks_budzet = self.farma.finanse.budzet
         if self.farma.liczba_krow() > self.maks_stado:
             self.maks_stado = self.farma.liczba_krow()
+            self.maks_stado_dzien = self.farma.dzien
 
         # warunki zakonczenia
         if self.farma.liczba_krow() == 0:

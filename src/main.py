@@ -3,6 +3,7 @@ from src.symulacja import Symulacja
 import os
 import random
 import sys
+from src.logger import zielony,czerwony,zolty,niebieski,naglowek
 
 os.system("")
 
@@ -133,24 +134,21 @@ def zapytaj(tekst, domyslne, typ, opis="", minimum=None, maksimum=None):
 
 
 def main():
-    print("=" * 60)
-    print("                     FARMA KRÓW")
-    print("=" * 60)
+    print()
+    print(naglowek("FARMA KRÓW"))
     print(
         zielony(
-            "Zarządzasz fermą krów mlecznych. 1 tura = 1 dzień.\n"
+            "Zarządzasz farmą krów mlecznych — 1 tura = 1 dzień.\n"
             "Dorosła krowa daje 20 zł mleka dziennie, a utrzymanie farmy\n"
-            "kosztuje 50 zł dziennie. Czyli potrzebujesz min. 3 dorosłych\n"
-            "krów, żeby wyjść na zero.\n"
-            "Celem symulacji jest sprawdzenie jakie ustawienie zmiennych\n"
-            "początkowych, da jak najlepsze wyniki:\n"
-            "Pogoda poprzedniego dnia wpływa na to ile kępek trawy którymi\n"
-            "żywią się krowy, pojawi się dnia następnego\n"
-            "(długość czasu trwania, budżet maksymalny i końcowy)\n"
-            "Wielkości ustawione w '[]' to wartości domyślne,\n"
-            "naciśnij 'ENTER' by użyć wartości domyślnych\n"
+            "kosztuje 50 zł dziennie (potrzebujesz min. 3 dorosłych krów,\n"
+            "żeby wyjść na zero).\n\n"
+            "Pogoda z poprzedniego dnia decyduje, ile kępek trawy wyrośnie\n"
+            "następnego dnia. Celem jest dobranie ustawień startowych tak,\n"
+            "by farma przetrwała jak najdłużej i była jak najbogatsza.\n\n"
+            "Wartości w nawiasach '[]' to domyślne — wciśnij ENTER, by je przyjąć."
         )
     )
+    print(naglowek("USTAWIENIA STARTOWE"))
 
     seed = zapytaj_o_seed()
     print()  # linijka przerwy

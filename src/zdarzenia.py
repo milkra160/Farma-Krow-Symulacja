@@ -133,6 +133,7 @@ class Weterynarz(ZdarzenieLosoweBase):
             for i in range(ile):
                 krowa = zywe[i]
                 krowa.najedzenie = config.GLOD_START
+                farma.do_wyleczenia.append(krowa)
                 imiona.append(krowa.imie)
 
             self.opis = f"Pełne najedzenie odzyskują: {', '.join(imiona)}"
@@ -217,6 +218,7 @@ class Wielkanoc(ZdarzenieLosoweBase):
             wskrzeszona.przypisana_kepka = None
             wskrzeszona.najedzenie = config.GLOD_START
             farma.stado.append(wskrzeszona)
+            farma.zmartwychwstania_dzis.append(wskrzeszona.imie)
             self.opis = f"Zmartwychwstała krowa {wskrzeszona.imie}!"
             return f"{self.nazwa}: {self.opis} ({wskrzeszona.imie} wraca do stada!)"
         else:

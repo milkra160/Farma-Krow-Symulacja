@@ -16,5 +16,23 @@
       "max_dni": 100,
       "szansa_zdarzenia": 0.1
     }
+  },
+  {
+    "nazwa_farmy": "pozytywna farma sesyjna",
+    "data": "2026-06-21",
+    "dni_przezycia": 75,
+    "maks_budzet": 630,
+    "maks_stado": 5,
+    "powod_konca": "bankructwo",
+    "parametry_start": {
+      "seed": 0,
+      "nazwa_farmy": "pozytywna farma sesyjna",
+      "liczba_krow_start": 5,
+      "budzet_start": 500,
+      "szansa_drapieznik": 0.1,
+      "maks_drapieznikow": 2,
+      "max_dni": 150,
+      "szansa_zdarzenia": 0.3
+    }
   }
 ]

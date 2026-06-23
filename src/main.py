@@ -142,6 +142,7 @@ def main():
             "Dorosła krowa daje 20 zł mleka dziennie, a utrzymanie farmy\n"
             "kosztuje 50 zł dziennie (potrzebujesz min. 3 dorosłych krów,\n"
             "żeby wyjść na zero).\n\n"
+            "Cielak nie daje mleka do póki nie stanie się dorosły\n"
             "Pogoda z poprzedniego dnia decyduje, ile kępek trawy wyrośnie\n"
             "następnego dnia. Celem jest dobranie ustawień startowych tak,\n"
             "by farma przetrwała jak najdłużej i była jak najbogatsza.\n\n"

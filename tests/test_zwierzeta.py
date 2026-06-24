@@ -111,10 +111,10 @@ def test_czy_drapieznik_ma_symbol_wykrzyknik():
 def test_drapieznik_zabija_krowe():
     k = Krowa(id=1, pozycja=(3, 3), imie="Łaciat")
     d = Drapieznik(id=2, pozycja=(3, 3))
-    wynik = d.czy_zabija(k)
-    assert wynik == True
-    assert k.zyje == False
-    assert k.umarla_dzis == True
+    wynik = d.zaatakuj(k)
+    assert wynik is True
+    assert k.zyje is False
+    assert k.umarla_dzis is True
 
 
 # Sprawdzamy czy nie ma bledu z ruchem drapieznika( musi miec ruch bo dziedziczy po zwierzeciu)

@@ -27,7 +27,7 @@ def przykladowy_log():
 def test_czy_log_zawiera_pogodei_naglowek(capsys):
     Logger().drukuj_log(przykladowy_log())
     wynik = capsys.readouterr().out
-    assert "Dzień 5" in wynik
+    assert "DZIEŃ 5" in wynik
     assert "deszcz" in wynik
 
 
@@ -43,7 +43,7 @@ def test_czy_log_pokazuje_smierc_z_powodem(capsys):
 def test_czy_log_drukuje_statystyki_stada(capsys):
     Logger().drukuj_log(przykladowy_log())
     wynik = capsys.readouterr().out
-    assert "Stado: 3" in wynik  # 2 najedzone i 1 glodna
+    assert "razem: 3" in wynik  # 2 najedzone + 1 glodna
 
 
 def test_czy_log_bez_zdarzen_pomija_naglowek(capsys):

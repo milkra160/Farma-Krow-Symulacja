@@ -15,17 +15,17 @@ def test_nowy_dzien_zwraca_jeden_z_trzech_stanow():
 
 def test_mnoznik_deszcz():
     p = Pogoda()
-    p.aktualny_stan_pogody = "deszcz"
+    p.poprzedni_stan_pogody = "deszcz"
     assert p.mnoznik_trawy() == MNOZNIK_DESZCZ
 
 
 def test_mnoznik_susza():
     p = Pogoda()
-    p.aktualny_stan_pogody = "susza"
+    p.poprzedni_stan_pogody = "susza"
     assert p.mnoznik_trawy() == MNOZNIK_SUSZA
 
 
 def test_mnoznik_slonce():
     p = Pogoda()
-    p.aktualny_stan = "slonecznie"
+    p.poprzedni_stan_pogody = "slonecznie"
     assert p.mnoznik_trawy() == MNOZNIK_SLONCE

@@ -47,7 +47,7 @@ def test_czy_symulacja_konczy_sie_po_uplywie_czasu():
 
 def test_czy_bankructwo_konczy_symulacje():
     s = zrob_symulacje()
-    s._przygotuj(parametry(max_dni=100, krowy=0, budzet=60.0))
+    s._przygotuj(parametry(max_dni=100, krowy=1, budzet=60.0))
     start_symulacji(s)
     assert s.farma.finanse.czy_bankrut()
     assert s.ranking.wczytaj_ranking()[0]["powod_konca"] == "bankructwo"

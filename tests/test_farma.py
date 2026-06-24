@@ -36,12 +36,17 @@ def test_dodaj_zwierze():
     assert martwe[0] is b
 
 
-def test_dodaj_nowe_id():
+def test_czy_nowe_id_jest_ciagle_nowe():
     f = zrob_farme()
     assert f._nowe_id() == 1
-    f.dodaj_zwierze(Krowa(id=1, pozycja=(0, 0), imie="A"))
-    f.dodaj_zwierze(Krowa(id=5, pozycja=(0, 0), imie="B"))
-    assert f._nowe_id() == 6
+    assert f._nowe_id() == 2
+    assert f._nowe_id() == 3
+
+
+def test_czy_nowe_id_uwzglednia_stado_startowe():
+    f = zrob_farme([Krowa(id=1, pozycja=(0, 0), imie="A"),
+                    Krowa(id=5, pozycja=(0, 0), imie="B")])
+    assert f._nowe_id() == 6  #licznik startuje od najwyzszego id w stadzie
 
 
 def test_czy_farma_jest_aktywna():

@@ -2,7 +2,7 @@ from src.config import *
 from src.finanse import Finanse
 from src.pastwisko.pastwisko import Pastwisko
 from src.pogoda import Pogoda
-from src.zdarzenia import ZdarzeniaLosoweMenadzer
+from src.zdarzenia import ZdarzeniaLosoweMenadzer, Lesniczy
 from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.cielak import Cielak
 import random
@@ -33,7 +33,15 @@ class Farma:
         self.narodziny_dzis = []
         self.zmartwychwstania_dzis = []
         self.do_wyleczenia = []
-        # licznik do nadawania UNIKALNYCH id - nigdy nie powtarzamy numeru
+        #zakupy zrobione w sklepie od ostatniego dnia (pokazujemy je w logu najblizszego dnia)
+        self.zakupy_dzis = []
+        #ile dni jeszcze stoi plot chroniacy przed drapieznikami (0 = brak plotu)
+        self.plot_dni_pozostale = 0
+        #kolumny w ktorych drapieznik przedarl sie przez plot - dziury zostaja do konca plotu
+        self.plot_dziury = []
+        #czy plot stal wczoraj - dzieki temu komunikat o zniszczeniu pada dzien po wygasnieciu
+        self.plot_stal_wczoraj = False
+        # icznik do nadawania UNIKALNYCH id - nigdy nie powtarzamy numeru
         self.ostatnie_id = 0
         for krowa in self.stado:
             if krowa.id > self.ostatnie_id:
@@ -71,6 +79,12 @@ class Farma:
     def _nowe_id(self) -> int:
         self.ostatnie_id += 1
         return self.ostatnie_id
+
+    # szansa na drapieznika. Zalezy tez od plotu
+    def _szansa_na_drapieznika(self, plot_aktywny: bool) -> float:
+        if plot_aktywny:
+            return self.szansa_drapieznik * config.PLOT_MNOZNIK_SZANSY
+        return self.szansa_drapieznik
 
     # cielaki ktore osiagnely wiek doroslosci zamieniamy na pelne krowy (symbol c -> K)
     def _dorosnij_cielaki(self):
@@ -157,15 +171,34 @@ class Farma:
         ile_kepek = int(config.BAZA_KEPEK_TRAWY * self.pogoda.mnoznik_trawy())
         self.pastwisko.generuj_trawke(ile_kepek)
 
-        # drapiezniki - losujemy czy sie pojawia
+        # plot, jesli stoi, zmniejsza szanse na drapieznika i odliczamy mu dzien.
+        # Komunikat o zniszczeniu pada dopiero w dniu, w ktorym plotu juz nie ma
+        plot_aktywny = self.plot_dni_pozostale > 0
+        if plot_aktywny:
+            self.plot_dni_pozostale -= 1
+        plot_zniszczony = self.plot_stal_wczoraj and not plot_aktywny
+        if plot_zniszczony:
+            self.plot_dziury = []  # nie ma plotu - nie ma dziur
+        self.plot_stal_wczoraj = plot_aktywny
+
+        # drapiezniki - losujemy czy sie pojawia. Plot tnie szanse, ale jej nie zeruje -
+        #drapieznik moze i tak  wkrasc sie przez dziure w plocie
         self.drapiezniki = []
+        drapieznik_przez_dziure = False
         wolne_kepki = self.pastwisko.kepki_z_trawa()
-        if len(wolne_kepki) > 0 and random.random() < self.szansa_drapieznik:
+        if len(wolne_kepki) > 0 and random.random() < self._szansa_na_drapieznika(plot_aktywny):
             ile = random.randint(1, self.maks_drapieznikow)
             ile = min(ile, len(wolne_kepki))  # nie wiecej drapieznikow niz kepek
             for i in range(ile):
                 self.drapiezniki.append(Drapieznik(id=i, pozycja=(0, 0)))
             self.pastwisko.rozmieszcz_drapiezniki(self.drapiezniki)
+            if plot_aktywny:
+                drapieznik_przez_dziure = True  # przedarl sie mimo stojacego plotu
+                # dziura po nim zostaje w plocie az plot zniknie
+                for d in self.drapiezniki:
+                    kolumna = d.pozycja[0]
+                    if kolumna not in self.plot_dziury:
+                        self.plot_dziury.append(kolumna)
 
         # jesli krowa nie zyje przez wejsciwem na pastwisko to np ofiara zdarznia
         martwe_przed_drapieznikami = []
@@ -254,10 +287,16 @@ class Farma:
         for d in self.drapiezniki:
             pozycje_drapieznikow.append(d.pozycja)
 
-        # finanse
+        # czy wujek lesniczy pilnuje pastwiska. jesli tak to rysujemy jego postac
+        lesniczy_aktywny = False
+        for z in self.zdarzenia.aktywne:
+            if isinstance(z, Lesniczy):
+                lesniczy_aktywny = True
+
+        # finanse - kazde zwierze liczy swoj przychod polimorficznie
         przychod = 0
         for krowa in self.stado:
-            przychod += krowa.wartosc_mleka()
+            przychod += krowa.wartosc_produktu()
         stan_finansow = self.finanse.rozlicz_dzien(
             przychod, KOSZT_DZIENNY_FARMY, self.dzien
         )
@@ -287,5 +326,14 @@ class Farma:
             "finanse": stan_finansow,
             "zdarzenia": opisy_zdarzen,
             "ciaze": ciaze_dzis,
+            "zakupy": self.zakupy_dzis,
+            "plot_aktywny": plot_aktywny,
+            "plot_dni": self.plot_dni_pozostale,
+            "plot_zniszczony": plot_zniszczony,
+            "plot_dziury": list(self.plot_dziury),
+            "drapieznik_przez_dziure": drapieznik_przez_dziure,
+            "lesniczy_aktywny": lesniczy_aktywny,
         }
+        # zakupy zostaly juz zapisane do logu = czyscimy bufor na kolejny dzien
+        self.zakupy_dzis = []
         return log

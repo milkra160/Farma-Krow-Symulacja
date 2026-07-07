@@ -1,56 +1,27 @@
 import random
-from src.zwierzeta.zwierze import Zwierze
+from src.zwierzeta.zwierze_hodowlane import ZwierzeHodowlane
 from src.config import *
 from src import config
 
 
-class Krowa(Zwierze):
+class Krowa(ZwierzeHodowlane):
     def __init__(self, id: int, pozycja: tuple, imie: str):
-        super().__init__(id, pozycja)
-        # Ustawienie poziomow glodu i przypisanie konkretnych zmiennych dla krowy
-        # by zbalansowac przebieg symulacji
-        self.imie = imie
-        self.wiek = 0
-        self.najedzenie = GLOD_START
+        super().__init__(id, pozycja, imie)
+        self.symbol = "K"
 
-        # mechanika ciazy
-        self.dorosla = False
+        # mechanika ciazy (specyficzna dla krowy)
         self.w_ciazy = False
         self.dni_do_porodu = 0
 
-        self.zjadla_dzisiaj = False
-        self.umarla_dzis = False
-        self.symbol = "K"
-
-        # zmienne potrzebne do rozmieszczania krów
-        self.przypisana_kepka = (
-            None  # przygotowanie miejsca gdzie będzie przypisana kępka trawy
-        )
-        self.pozycja_wizualna = (0, 0)  # domyślne współżędne pozycji wizualnej krowy
-
-    def starzej_sie_smierc_glodowa_doroslosc(self):
-        # Balansowanie przebiegu symulacji przez glod i smierc krow
-        self.wiek += 1
-        self.najedzenie -= GLOD_DZIENNY_UBYTEK
-        if self.wiek >= WIEK_DOROSLOSCI:
-            self.dorosla = True
-        if self.najedzenie <= 0:
-            self.zyje = False
-            self.umarla_dzis = True
-
-    def jedz(self):
-        # Minimum zapobiega przekroczeniu limitu najedzenia przez krowe
-        self.najedzenie = min(self.najedzenie + GLOD_Z_JEDZENIA, GLOD_START)
-        self.zjadla_dzisiaj = True
-
-    # metoda ktora tworzy komunikat zwiastujacy mozliwa przyszla smierc glodowa lub katastrofe
-    def czy_glodna(self) -> bool:
-        return self.najedzenie < 40
-
-    def wartosc_mleka(self) -> int:
+    # przychod krowy to mleko - tylko dorosla krowa je produkuje
+    def wartosc_produktu(self) -> int:
         if self.dorosla:
             return int(config.PRZYCHOD_Z_KROWY)
         return 0
+
+    # alias dla czytelnosci i zgodnosci ze starym kodem/testami (mleko to produkt krowy)
+    def wartosc_mleka(self) -> int:
+        return self.wartosc_produktu()
 
     # mechanika ciazy = balans symulacji
     def losuj_ciaze(self):
@@ -67,13 +38,3 @@ class Krowa(Zwierze):
                 self.w_ciazy = False
                 return True  # udany porod
         return False
-
-    # na poczatku doby zerujemy cechy zalezne od dnia i zwalniamy przypisana kepke
-    def reset_dnia(self):
-        self.zjadla_dzisiaj = False
-        self.umarla_dzis = False
-        self.przypisana_kepka = None
-
-    # krowa nie chodzi sama po planszy - metoda wymagana przez klase bazowa
-    def ruch(self):
-        pass

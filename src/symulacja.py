@@ -8,9 +8,10 @@ from src.finanse import Finanse
 from src.zdarzenia import ZdarzeniaLosoweMenadzer
 from src.farma import Farma
 from src.zwierzeta.krowa import Krowa
-from src.logger import Logger
+from src.logger import Logger, zielony, czerwony, zolty
 from src.wizualizacja import Wizualizacja
 from src.ranking import Ranking
+from src.sklep import Sklep
 
 
 # Klasa symulacja - spina farme, logger, wizualizacje  i ranking
@@ -21,6 +22,7 @@ class Symulacja:
         self.wizualizacja = Wizualizacja()
         self.logger = Logger()
         self.ranking = Ranking()
+        self.sklep = Sklep()
         self.parametry = None
         self.max_dni = MAX_DNI
         self.tryb_auto = False
@@ -31,6 +33,8 @@ class Symulacja:
         self.suma_narodzin = 0
         self.suma_zgonow = 0
         self.suma_zmartwychwstan = 0
+        # liczniki zakupow w sklepie (do statystyk koncowych)
+        self.kupione = {"zwierze": 0, "pasza": 0, "ulepszenie": 0}
 
     # tworzymy wszystkie komponenty i stado startowe w prywatnej metodzie
     def _przygotuj(self, parametry: dict):
@@ -96,6 +100,9 @@ class Symulacja:
             "suma_przychodow": sum(w["stan"]["przychod"] for w in historia_finansow),
             "suma_kosztow": sum(w["stan"]["koszt"] for w in historia_finansow),
             "budzet_koncowy": self.farma.finanse.budzet,
+            "kupione_zwierzeta": self.kupione["zwierze"],
+            "kupione_pasze": self.kupione["pasza"],
+            "kupione_ulepszenia": self.kupione["ulepszenie"],
         }
         self.logger.drukuj_statystyki(statystyki)
 
@@ -149,7 +156,9 @@ class Symulacja:
                 continue
 
             # tryb krokowy, pokazujemy menu i czekamy na uzytkownika
-            print("[Enter} Nastepny dzień   [s] +10dni   [a] Do końca  [c] Zakończ")
+            print(
+                "[Enter} Nastepny dzień   [s] +10dni   [a] Do końca  [k] Sklep  [c] Zakończ"
+            )
             sys.stdout.flush()  # kolejna próba naprawienia błędu podwójnej generacji jednym enterem
             wybor = input("> ").strip().lower()
 
@@ -160,6 +169,9 @@ class Symulacja:
             elif wybor == "a":
                 self.tryb_auto = True
                 dalej = self.uruchom_dzien()
+            elif wybor == "k":
+                self._otworz_sklep()  # sklep nie zabiera dnia - po zakupach wracamy do menu
+                continue
             elif wybor == "c":
                 self.zakoncz("ręczne zakonczenie")
                 break
@@ -169,6 +181,43 @@ class Symulacja:
 
             if not dalej:
                 break
+
+    # terminalowy sterownik sklepu. Cala logika zakupu siedzi w klasie Sklep,
+    # tutaj tylko wyswietlamy katalog i czytamy wybor - pygame podepnie sie pod te same metody
+    def _otworz_sklep(self):
+        while True:
+            print(zolty("=== SKLEP ==="))
+            print(f"Budżet: {self.farma.finanse.budzet:.0f} zł")
+            dostepne = self.sklep.dostepne_towary(self.farma)
+            for i in range(len(dostepne)):
+                towar = dostepne[i]
+                print(f"  [{i + 1}] {towar.nazwa} - {towar.cena} zł  ({towar.opis})")
+            print("  [w] Wyjście ze sklepu")
+
+            sys.stdout.flush()
+            wybor = input("sklep > ").strip().lower()
+            if wybor == "w" or wybor == "":
+                break
+
+            # sprawdzamy czy uzytkownik podal poprawny numer towaru
+            try:
+                indeks = int(wybor) - 1
+            except ValueError:
+                print(czerwony("Podaj numer towaru albo [w] by wyjść"))
+                continue
+            if indeks < 0 or indeks >= len(dostepne):
+                print(czerwony("Nie ma towaru o tym numerze"))
+                continue
+
+            towar = dostepne[indeks]
+            udalo_sie, komunikat = self.sklep.kup(towar, self.farma)
+            if udalo_sie:
+                print(zielony(komunikat))
+                # ksiegujemy zakup: licznik do statystyk + bufor do logu najblizszego dnia
+                self.kupione[towar.kategoria] += 1
+                self.farma.zakupy_dzis.append(komunikat)
+            else:
+                print(czerwony(komunikat))
 
     def start(self, parametry: dict):
         self._przygotuj(parametry)

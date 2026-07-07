@@ -74,3 +74,12 @@ BAZA_KEPEK_TRAWY: int = 12
 # finanse
 BUDZET_START: float = 500
 KOSZT_DZIENNY_FARMY: int = 50
+
+# sklep - ceny towarow
+CENA_DOROSLEJ_KROWY: int = 200
+CENA_CIELAKA: int = 100
+CENA_PASZY: int = 40  # worek paszy dolewa najedzenia calemu stadu
+PASZA_NAJEDZENIE: int = 40  #ile najedzenia dodaje jeden worek paszy
+CENA_PLOTU: int = 150  # plot zmniejsza szanse na drapieznika przez kilka dni
+PLOT_DNI_TRWANIA: int = 7  #ile dni stoi plot zanim sie zniszczy
+PLOT_MNOZNIK_SZANSY: float = 0.25  # plot zostawia 25% szansy - reszta drapieznikow odpada

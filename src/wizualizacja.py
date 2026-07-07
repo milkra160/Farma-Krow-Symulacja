@@ -6,6 +6,7 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
         "zolty": "\033[33m",
         "szary": "\033[90m",
         "bialy": "\033[37m",
+        "niebieski": "\033[96m",
         "reset": "\033[0m",  # wylaczenie kolorow by nie psuc planszy w dalszych dniach
     }
 
@@ -46,22 +47,64 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
         return self._koloruj(".", "szary")
 
     # buduje cala plansze jako tekst (latwiej z testami)
+    # gdy plot chroni farme rysujemy podwojna, zolta ramke zamiast zwyklej
     def _zbuduj_plansze(self, pastwisko, log: dict) -> str:
         szerokosc = pastwisko.szerokosc
-        linie = []
-        linie.append("+" + "-" * szerokosc + "+")  # gorna ramka
+        if log.get("plot_aktywny"):
+            # gorna ramka ma dziury tam gdzie drapieznik przedarl sie przez plot.
+            # Dziury zostaja do konca trwania plotu (lista kolumn w logu)
+            gorne_znaki = ["═"] * szerokosc
+            for kolumna in log.get("plot_dziury", []):
+                if 0 <= kolumna < szerokosc:
+                    gorne_znaki[kolumna] = " "  # dziura w plocie
+            gorna = self._koloruj("╔" + "".join(gorne_znaki) + "╗", "zolty")
+            dolna = self._koloruj("╚" + "═" * szerokosc + "╝", "zolty")
+            pion = self._koloruj("║", "zolty")
+        else:
+            gorna = "+" + "-" * szerokosc + "+"
+            dolna = gorna
+            pion = "|"
+
+        linie = [gorna]
         for rzad in pastwisko.siatka:
-            linia = "|"
+            linia = pion
             for komorka in rzad:
                 linia += self._symbol_komorki(komorka, log)
-            linia += "|"
+            linia += pion
             linie.append(linia)
-        linie.append("+" + "-" * szerokosc + "+")  # dolna ramka
+        linie.append(dolna)
+
+        # gdy wujek lesniczy pilnuje pastwiska - doklejamy jego ludzika obok planszy
+        if log.get("lesniczy_aktywny"):
+            self._dorysuj_lesniczego(linie)
         return "\n".join(linie)
+
+    #postac lesniczego
+    def _dorysuj_lesniczego(self, linie: list):
+        ludzik = self._koloruj("\uc6c3", "zielony")  #maly ludzik-stickman
+        # linie[0] to gorna ramka - ludzika stawiamy obok pierwszego wiersza pastwiska
+        if len(linie) > 1:
+            linie[1] += "   " + ludzik
 
     # glowna metoda, rysuje plansze na ekranie
     def rysuj_plansze(self, pastwisko, log: dict):
         print(self._zbuduj_plansze(pastwisko, log))
+        # podpis tlumaczacy zolta ramke - wprost pod plansza, ktorej dotyczy
+        if log.get("plot_aktywny"):
+            dni = log["plot_dni"]
+            if dni == 0:
+                tekst = "🚧 Płot chroni farmę — ostatni dzień, jutro się rozpadnie"
+            else:
+                slowo = "dzień" if dni == 1 else "dni"
+                tekst = f"🚧 Płot chroni farmę — jeszcze {dni} {slowo}"
+            print(self._koloruj(tekst, "zolty"))
+        # alert gdy drapieznik przedarl sie przez plot - tlumaczy dziure w ramce
+        if log.get("drapieznik_przez_dziure"):
+            print(
+                self._koloruj(
+                    "🕳️  Drapieżnik wkradł się przez dziurę w płocie!", "czerwony"
+                )
+            )
         self.legenda()
 
     # legenda

@@ -74,6 +74,16 @@ class Logger:
 
         print(szary("-" * self.SZEROKOSC))
 
+        # twoje dzialania: zakupy zrobione w sklepie + status plotu
+        zakupy = log.get("zakupy", [])
+        if len(zakupy) > 0 or log.get("plot_zniszczony"):
+            print(zielony("TWOJE DZIAŁANIA:"))
+            for zakup in zakupy:
+                print(f"   🛒 {zakup}")
+            if log.get("plot_zniszczony"):
+                print(czerwony("   🚧 Płot się zniszczył!"))
+            print(szary("-" * self.SZEROKOSC))
+
         # iloesc kepek trawy
         ile_kepek = len(log["kepki_trawy"])
         print(f"KĘPKI TRAWY: {ile_kepek}")
@@ -183,5 +193,11 @@ class Logger:
             f"Finanse: przychód {s['suma_przychodow']:.0f} zł, "
             f"koszt {s['suma_kosztow']:.0f} zł, "
             f"budżet końcowy {s['budzet_koncowy']:.0f} zł"
+        )
+        print(linia())
+        print(
+            f"Zakupy w sklepie: zwierzęta {s['kupione_zwierzeta']}, "
+            f"worki paszy {s['kupione_pasze']}, "
+            f"ulepszenia {s['kupione_ulepszenia']}"
         )
         print("=" * SZEROKOSC)

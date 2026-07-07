@@ -27,3 +27,11 @@ class Finanse:
     # farma bankrutuje gdy budzet spadnie do zera lub ponizej
     def czy_bankrut(self) -> bool:
         return self.budzet <= 0
+
+    # wydaje kase w sklepie. Zwraca True gdy sie udalo. Nie pozwalamy zejsc do zera
+    # (to od razu oznaczaloby bankructwo), wiec wymagamy zeby cos zostalo w budzecie
+    def wydaj(self, kwota: float) -> bool:
+        if kwota >= self.budzet:
+            return False
+        self.budzet -= kwota
+        return True

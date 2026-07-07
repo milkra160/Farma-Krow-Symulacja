@@ -4,6 +4,7 @@ from src.pogoda import Pogoda
 from src.finanse import Finanse
 from src.zdarzenia import ZdarzeniaLosoweMenadzer
 from src.zwierzeta.krowa import Krowa
+from src.zdarzenia import Lesniczy
 
 
 # pomocnicza metoda tworzy farme
@@ -136,3 +137,21 @@ def test_czy_nowy_dzien_zwraca_poprawny_log_krow():
         "umarla_dzis",
     ]:
         assert klucz in krowa_log
+
+
+def test_lesniczy_aktywny_trafia_do_logu():
+    f = stworz_farme()
+    f.zdarzenia.szansa_zdarzenia = 0  # bez losowych zdarzen - testujemy tylko lesniczego
+    lesniczy = Lesniczy()
+    lesniczy.dni_pozostale = lesniczy.dni_trwania
+    lesniczy.zastosuj(f)
+    f.zdarzenia.aktywne.append(lesniczy)
+    log = f.nowy_dzien()
+    assert log["lesniczy_aktywny"] is True
+
+
+def test_bez_lesniczego_flaga_jest_false():
+    f = stworz_farme()
+    f.zdarzenia.szansa_zdarzenia = 0
+    log = f.nowy_dzien()
+    assert log["lesniczy_aktywny"] is False

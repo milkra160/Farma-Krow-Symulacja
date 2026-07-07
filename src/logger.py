@@ -107,6 +107,21 @@ class Logger:
         )
         print(szary("-" * self.SZEROKOSC))
 
+        # kociol serowarski - ile mleka owczego dodano dzis, ile sera powstalo i ile sera dojrzeje
+        # nastepnego dnia (mleko dojrzewa w ser z opoznieniem)
+        kociol = log.get("kociol")
+        if kociol and kociol["aktywny"]:
+            print("KOCIOŁ SEROWARSKI:")
+            if kociol["ser_dzis"] > 0:
+                print(zielony(f"   ser gotowy dzisiaj: +{kociol['ser_dzis']} zł"))
+            if kociol["mleko_dzis"] > 0:
+                print(f"   mleko owcze dodane do kotła: {kociol['mleko_dzis']}")
+            if kociol["ser_jutro"] > 0:
+                print(f"   ser gotowy jutro: +{kociol['ser_jutro']} zł")
+            if kociol["partie_w_kotle"] == 0 and kociol["ser_dzis"] == 0:
+                print(szary("   kocioł pusty — czeka na mleko owcze"))
+            print(szary("-" * self.SZEROKOSC))
+
         # STADO: narodziny/dorastanie/zgony
 
         if len(log["narodziny"]) > 0:
@@ -125,30 +140,27 @@ class Logger:
         # statystyki stada
         if log.get("ciaze") and len(log["ciaze"]) > 0:
             print(rozowy(f"   ciąża:      {', '.join(log['ciaze'])}"))
-        ile_zjadlo = len(log["zjadly"])
-        ile_glodnych = len(log["glodne"])
-        rozmiar_stada = ile_zjadlo + ile_glodnych
-        print(
-            f"   razem: {rozmiar_stada} krów | "
-            f"najedzonych: {ile_zjadlo} | głodnych: {ile_glodnych}"
-        )
-        # aktualnie zywe krowy z paskiem najedzenia
-        zywe = []
-        for k in log["stan_krow"]:
-            if k["zyje"]:
-                zywe.append(k)
 
-        if len(zywe) > 0:
-            print(szary("-" * self.SZEROKOSC))
-            print("ŻYWE KROWY:")
-            for k in zywe:
-                symbol = "K"
-                if k["symbol"] == "c":
-                    symbol = "c"
-                print(
-                    f"   {symbol} {k['imie']:<12} {self._pasek_glodu(k['najedzenie'])} {k['najedzenie']:>3}/100"
-                )
+        # osobne tabele dla krow i owiec - ta sama forma, kazdy gatunek liczony niezaleznie
+        self._sekcja_gatunku(log, "krowa", "ŻYWE KROWY")
+        self._sekcja_gatunku(log, "owca", "ŻYWE OWCE")
         print("=" * self.SZEROKOSC)
+
+    # wypisuje jeden gatunek: licznik najedzonych/glodnych + tabele zywych z paskiem najedzenia.
+    # Ta sama forma dla krow i owiec - rozdzielamy je po polu "gatunek" ze stanu zwierzat.
+    def _sekcja_gatunku(self, log: dict, gatunek: str, tytul: str):
+        zwierzeta = [k for k in log["stan_krow"] if k.get("gatunek") == gatunek]
+        if len(zwierzeta) == 0:
+            return
+        zywe = [k for k in zwierzeta if k["zyje"]]
+        najedzone = sum(1 for k in zywe if k["zjadla"])
+        glodne = len(zywe) - najedzone
+        print(szary("-" * self.SZEROKOSC))
+        print(f"{tytul}: {len(zywe)} | najedzonych: {najedzone} | głodnych: {glodne}")
+        for k in zywe:
+            print(
+                f"   {k['symbol']} {k['imie']:<12} {self._pasek_glodu(k['najedzenie'])} {k['najedzenie']:>3}/100"
+            )
 
     # rysuje pasek najedzenia krowy (0-100), kolor zalezy od poziomu glodu
     def _pasek_glodu(self, najedzenie: int) -> str:
@@ -183,7 +195,8 @@ class Logger:
         print(f"Łączne zmartwychwstania: {s['zmartwychwstania']}")
         print(f"Łączne zgony:       {s['zgony']}")
         print(f"Krów łącznie na farmie: {s['wszystkie_krowy']}")
-        print(f"Maksmalne stado: {s['maks_stado']} krów (dzień {s['maks_stado_dzien']})")
+        print(f"Maksmalne stado: {s['maks_stado']} zwierząt (dzień {s['maks_stado_dzien']})")
+        print(f"Stado na koniec: {s['krowy_koncowe']} krów | {s['owce_koncowe']} owiec")
         print(f"Zdarzenia losowe:   {s['zdarzenia']}")
         print(linia())
         print(

@@ -4,7 +4,9 @@ from src.pogoda import Pogoda
 from src.finanse import Finanse
 from src.zdarzenia import ZdarzeniaLosoweMenadzer
 from src.zwierzeta.krowa import Krowa
+from src.zwierzeta.owca import Owca
 from src.zdarzenia import Lesniczy
+from src.config import KOCIOL_DNI_NA_SER, PRZYCHOD_Z_SERA, PRZYCHOD_Z_OWCY
 
 
 # pomocnicza metoda tworzy farme
@@ -155,3 +157,68 @@ def test_bez_lesniczego_flaga_jest_false():
     f.zdarzenia.szansa_zdarzenia = 0
     log = f.nowy_dzien()
     assert log["lesniczy_aktywny"] is False
+
+
+#  Kociol serowarski *******************************************
+
+
+# pomocnik: farma z jedna dorosla owca i wlaczonym kotlem, bez losowosci
+def farma_z_owca_i_kotlem():
+    owca = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    owca.dorosla = True
+    f = zrob_farme([owca])
+    f.zdarzenia.szansa_zdarzenia = 0
+    f.szansa_drapieznik = 0
+    f.kociol = True
+    return f
+
+
+def test_ser_splywa_dopiero_po_dojrzeniu_w_kotle():
+    f = farma_z_owca_i_kotlem()
+    # przez pierwsze KOCIOL_DNI_NA_SER dni mleko dojrzewa - jeszcze zadnego sera
+    for _ in range(KOCIOL_DNI_NA_SER):
+        log = f.nowy_dzien()
+        assert log["kociol"]["ser_dzis"] == 0
+        assert log["finanse"]["przychod"] == 0
+    # nastepnego dnia pierwsza partia jest gotowa - splywa ser wart wiecej niz mleko
+    log = f.nowy_dzien()
+    assert log["kociol"]["ser_dzis"] == PRZYCHOD_Z_SERA
+    assert log["finanse"]["przychod"] == PRZYCHOD_Z_SERA
+    assert PRZYCHOD_Z_SERA > PRZYCHOD_Z_OWCY  # ser oplaca sie bardziej niz samo mleko
+
+
+def test_kociol_zapowiada_ile_sera_dojrzeje_jutro():
+    # dzien przed pierwszym serem kociol powinien juz zapowiadac wartosc partii dojrzewajacej jutro
+    f = farma_z_owca_i_kotlem()
+    for _ in range(KOCIOL_DNI_NA_SER - 1):
+        log = f.nowy_dzien()
+        assert log["kociol"]["ser_dzis"] == 0  # ser jeszcze nie splynal
+    log = f.nowy_dzien()  # ostatni dzien dojrzewania pierwszej partii
+    assert log["kociol"]["ser_dzis"] == 0
+    assert log["kociol"]["ser_jutro"] == PRZYCHOD_Z_SERA  # jutro splynie ser wart tyle
+    log = f.nowy_dzien()
+    assert log["kociol"]["ser_dzis"] == PRZYCHOD_Z_SERA  # i faktycznie splywa
+
+
+def test_ser_powstaje_nawet_po_smierci_owcy():
+    # mleko wrzucone do kotla dojrzewa niezaleznie od owcy - ser splywa nawet gdy owca juz nie zyje
+    f = farma_z_owca_i_kotlem()
+    owca = f.stado[0]
+    for _ in range(KOCIOL_DNI_NA_SER):  # 3 dni mleka = 3 partie czekaja w kotle
+        f.nowy_dzien()
+    owca.zyje = False  # owca umiera zanim ktorakolwiek partia dojrzala
+    log = f.nowy_dzien()
+    assert sum(1 for z in f.stado if z.gatunek == "owca") == 0  # brak owiec w stadzie
+    assert log["kociol"]["ser_dzis"] == PRZYCHOD_Z_SERA  # a ser i tak splywa
+    assert log["finanse"]["przychod"] == PRZYCHOD_Z_SERA
+
+
+def test_bez_kotla_owca_daje_tylko_mleko():
+    owca = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    owca.dorosla = True
+    f = zrob_farme([owca])
+    f.zdarzenia.szansa_zdarzenia = 0
+    f.szansa_drapieznik = 0
+    log = f.nowy_dzien()
+    assert log["kociol"]["aktywny"] is False
+    assert log["finanse"]["przychod"] == PRZYCHOD_Z_OWCY

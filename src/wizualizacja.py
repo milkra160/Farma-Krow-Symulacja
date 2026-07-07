@@ -77,6 +77,9 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
         # gdy wujek lesniczy pilnuje pastwiska - doklejamy jego ludzika obok planszy
         if log.get("lesniczy_aktywny"):
             self._dorysuj_lesniczego(linie)
+        # gdy na farmie stoi kociol serowarski - doklejamy jego szary kwadracik obok planszy
+        if log.get("kociol", {}).get("aktywny"):
+            self._dorysuj_kociol(linie)
         return "\n".join(linie)
 
     #postac lesniczego
@@ -85,6 +88,16 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
         # linie[0] to gorna ramka - ludzika stawiamy obok pierwszego wiersza pastwiska
         if len(linie) > 1:
             linie[1] += "   " + ludzik
+
+    # symbol kotla serowarskiego obok planszy (jak ludzik lesniczego): garnek z serem \ud83e\uded5, a nad nim
+    # unosi sie dym \ud83d\udca8, zeby bylo widac, ze ser sie robi. Dym rysujemy w wierszach nad kotlem, z
+    # rosnacym wcieciem ku gorze - dzieki temu wyglada, jakby leniwie znosilo go w bok.
+    def _dorysuj_kociol(self, linie: list):
+        if len(linie) <= 4:
+            return
+        linie[2] += "     \U0001F4A8"
+        linie[3] += "    \U0001F4A8"
+        linie[4] += "   \U0001FED5"
 
     # glowna metoda, rysuje plansze na ekranie
     def rysuj_plansze(self, pastwisko, log: dict):
@@ -109,8 +122,11 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
 
     # legenda
     def legenda(self):
-        print("Legenda: K=krowa  c=cielak  T=trawa  !=drapieznik  .=puste")
-        najedzona = self._koloruj("najedzona", "zielony")
-        glodna = self._koloruj("głodna", "pomaranczowy")
-        zginela = self._koloruj("zginęła", "czerwony")
-        print(f"kolory krów: {najedzona} {glodna} {zginela}")
+        print(
+            "Legenda: K=krowa  c=cielak  O=owca  J=jagnię  "
+            "T=trawa  !=drapieznik  .=puste"
+        )
+        najedzone = self._koloruj("najedzone", "zielony")
+        glodne = self._koloruj("głodne", "pomaranczowy")
+        zginely = self._koloruj("zginęły", "czerwony")
+        print(f"kolory zwierząt: {najedzone} {glodne} {zginely}")

@@ -11,7 +11,14 @@ def przykladowy_log():
         "zjadly": ["Łaciata", "Andrzej"],
         "glodne": ["Hiszpan"],
         "drapiezniki": [(3, 4)],
-        "stan_krow": [],
+        "stan_krow": [
+            {"symbol": "K", "gatunek": "krowa", "imie": "Łaciata",
+             "najedzenie": 80, "zjadla": True, "zyje": True},
+            {"symbol": "K", "gatunek": "krowa", "imie": "Andrzej",
+             "najedzenie": 70, "zjadla": True, "zyje": True},
+            {"symbol": "K", "gatunek": "krowa", "imie": "Hiszpan",
+             "najedzenie": 20, "zjadla": False, "zyje": True},
+        ],
         "kepki_trawy": [(1, 1), (2, 2)],
         "finanse": {
             "budzet": 120,
@@ -43,7 +50,9 @@ def test_czy_log_pokazuje_smierc_z_powodem(capsys):
 def test_czy_log_drukuje_statystyki_stada(capsys):
     Logger().drukuj_log(przykladowy_log())
     wynik = capsys.readouterr().out
-    assert "razem: 3" in wynik  # 2 najedzone + 1 glodna
+    assert "ŻYWE KROWY: 3" in wynik  # 3 zywe krowy
+    assert "najedzonych: 2" in wynik  # 2 najedzone
+    assert "głodnych: 1" in wynik  # 1 glodna
 
 
 def test_czy_log_bez_zdarzen_pomija_naglowek(capsys):

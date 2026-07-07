@@ -3,8 +3,6 @@ from src.finanse import Finanse
 from src.pastwisko.pastwisko import Pastwisko
 from src.pogoda import Pogoda
 from src.zdarzenia import ZdarzeniaLosoweMenadzer, Lesniczy
-from src.zwierzeta.krowa import Krowa
-from src.zwierzeta.cielak import Cielak
 import random
 from src.zwierzeta.drapieznik import Drapieznik
 from src import config
@@ -41,6 +39,10 @@ class Farma:
         self.plot_dziury = []
         #czy plot stal wczoraj - dzieki temu komunikat o zniszczeniu pada dzien po wygasnieciu
         self.plot_stal_wczoraj = False
+        # kociol serowarski (kupowany w sklepie, jeden na farme) przerabia mleko owcze na ser
+        self.kociol = False
+        # partie mleka dojrzewajace w kotle: kazda to [dni_do_gotowe, wartosc_sera_w_zl]
+        self.kociol_kolejka = []
         # icznik do nadawania UNIKALNYCH id - nigdy nie powtarzamy numeru
         self.ostatnie_id = 0
         for krowa in self.stado:
@@ -86,33 +88,63 @@ class Farma:
             return self.szansa_drapieznik * config.PLOT_MNOZNIK_SZANSY
         return self.szansa_drapieznik
 
-    # cielaki ktore osiagnely wiek doroslosci zamieniamy na pelne krowy (symbol c -> K)
-    def _dorosnij_cielaki(self):
+    # mlode (cielak c -> krowa K, jagnie J -> owca O), ktore osiagnely wiek doroslosci,
+    # zamieniamy na dorosle osobniki ich gatunku. Kazde mlode samo wie, w co dorasta.
+    def _dorosnij_mlode(self):
         nowe_stado = []
         dorastajace_dzisiaj = []
         for zwierze in self.stado:
-            if zwierze.symbol == "c" and zwierze.dorosla:
-                krowa = Krowa(zwierze.id, zwierze.pozycja, zwierze.imie)
-
-                krowa.wiek = zwierze.wiek
-                krowa.najedzenie = zwierze.najedzenie
-                krowa.dorosla = True
-                krowa.zyje = zwierze.zyje
-                krowa.w_ciazy = zwierze.w_ciazy
-                krowa.dni_do_porodu = zwierze.dni_do_porodu
-                krowa.pozycja_wizualna = zwierze.pozycja_wizualna
-                krowa.przypisana_kepka = zwierze.przypisana_kepka
-                krowa.zjadla_dzisiaj = zwierze.zjadla_dzisiaj
-                krowa.umarla_dzis = zwierze.umarla_dzis
-
-                krowa.symbol = "K"
-                nowe_stado.append(krowa)
-                dorastajace_dzisiaj.append(krowa.imie)
+            if zwierze.mlode and zwierze.dorosla:
+                dorosly = zwierze.stworz_dorosla_wersje()
+                nowe_stado.append(dorosly)
+                dorastajace_dzisiaj.append(dorosly.imie)
             else:
                 nowe_stado.append(zwierze)
 
         self.stado = nowe_stado
         return dorastajace_dzisiaj
+
+    # Obsluga kotla serowarskiego na jedna dobe. Najpierw dojrzewaja partie juz w kotle (te,
+    # ktorym skonczyl sie czas, wychodza jako gotowy ser), a dzisiejsze mleko owcze wchodzi jako
+    # nowa partia z licznikiem KOCIOL_DNI_NA_SER. Pipeline jest rownolegly: mleko z kazdego dnia
+    # dojrzewa niezaleznie, wiec ser splywa codziennie, tyle ze z opoznieniem. Zwraca stan do logu.
+    def _przetworz_kociol(self, mleko_owcze_dzis: int) -> dict:
+        ser_dzis = 0
+        if not self.kociol:
+            return {
+                "aktywny": False,
+                "mleko_dzis": 0,
+                "ser_dzis": 0,
+                "ser_jutro": 0,
+                "partie_w_kotle": 0,
+            }
+
+        # dojrzewanie partii juz w kotle - te z licznikiem 0 zamieniamy na gotowy ser
+        pozostale = []
+        for partia in self.kociol_kolejka:
+            partia[0] -= 1
+            if partia[0] <= 0:
+                ser_dzis += partia[1]
+            else:
+                pozostale.append(partia)
+        self.kociol_kolejka = pozostale
+
+        # dzisiejsze mleko owcze wchodzi do kotla jako nowa partia
+        if mleko_owcze_dzis > 0:
+            wartosc = mleko_owcze_dzis * config.PRZYCHOD_Z_SERA
+            self.kociol_kolejka.append([config.KOCIOL_DNI_NA_SER, wartosc])
+
+        # ile sera dojrzeje nastepnego dnia = suma partii, ktorym zostal jeszcze jeden dzien.
+        # Dzieki temu gracz z gory wie, ile pieniedzy da kociol jutro.
+        ser_jutro = sum(partia[1] for partia in self.kociol_kolejka if partia[0] == 1)
+
+        return {
+            "aktywny": True,
+            "mleko_dzis": mleko_owcze_dzis,
+            "ser_dzis": ser_dzis,
+            "ser_jutro": ser_jutro,
+            "partie_w_kotle": len(self.kociol_kolejka),
+        }
 
     def _rozmnazanie(
         self,
@@ -133,17 +165,17 @@ class Farma:
                 if krowa.w_ciazy and not byla_w_ciazy:
                     ciaze_dzis.append(f"{krowa.imie} (za {krowa.dni_do_porodu} dni)")
 
-        # rodzimy cielaki
+        # rodzimy mlode - kazda matka rodzi mlode swojego gatunku (cielaka lub jagnie)
         narodziny = []
         for matka in matki:
             nowe_id = self._nowe_id()
             imie = random.choice(IMIONA_KROW)
-            cielak = Cielak(id=nowe_id, pozycja=matka.pozycja, imie=imie)
-            # cielak pojawia sie na wolnej kratce obok matki
+            mlode = matka.stworz_mlode(nowe_id, matka.pozycja, imie)
+            # mlode pojawia sie na wolnej kratce obok matki
             x, y = matka.pozycja_wizualna
-            cielak.pozycja_wizualna = self.pastwisko._losuj_sasiada(x, y)
-            self.dodaj_zwierze(cielak)
-            narodziny.append(f"{cielak.imie} (matka: {matka.imie})")
+            mlode.pozycja_wizualna = self.pastwisko._losuj_sasiada(x, y)
+            self.dodaj_zwierze(mlode)
+            narodziny.append(f"{mlode.imie} (matka: {matka.imie})")
         return narodziny, ciaze_dzis
 
     # Najwazniejsza i glowna metoda nowy_dzien!! jedna doba symulacji. Zwraca logi dnia
@@ -224,8 +256,8 @@ class Farma:
             if krowa.zyje:
                 krowa.najedzenie = GLOD_START
 
-        # dorastanie cielakow
-        dorastajace = self._dorosnij_cielaki()
+        # dorastanie mlodych (cielaki -> krowy, jagnieta -> owce)
+        dorastajace = self._dorosnij_mlode()
 
         # rozmnazanie
         narodziny, ciaze_dzis = self._rozmnazanie()
@@ -252,6 +284,7 @@ class Farma:
                     "id": krowa.id,
                     "imie": krowa.imie,
                     "symbol": krowa.symbol,
+                    "gatunek": krowa.gatunek,
                     "pozycja_wizualna": krowa.pozycja_wizualna,
                     "pozycja_kepki": pozycja_kepki,
                     "najedzenie": krowa.najedzenie,
@@ -293,10 +326,20 @@ class Farma:
             if isinstance(z, Lesniczy):
                 lesniczy_aktywny = True
 
-        # finanse - kazde zwierze liczy swoj przychod polimorficznie
+        # finanse - kazde zwierze liczy swoj przychod polimorficznie.
+        # Wyjatek: gdy stoi kociol, mleko doroslych owiec nie idzie na sprzedaz wprost, tylko
+        # trafia do kotla, gdzie po kilku dniach dojrzeje w wart wiecej ser.
         przychod = 0
-        for krowa in self.stado:
-            przychod += krowa.wartosc_produktu()
+        mleko_owcze_dzis = 0
+        for zwierze in self.stado:
+            if self.kociol and zwierze.produkuje_mleko_owcze():
+                mleko_owcze_dzis += 1
+            else:
+                przychod += zwierze.wartosc_produktu()
+
+        stan_kotla = self._przetworz_kociol(mleko_owcze_dzis)
+        przychod += stan_kotla["ser_dzis"]
+
         stan_finansow = self.finanse.rozlicz_dzien(
             przychod, KOSZT_DZIENNY_FARMY, self.dzien
         )
@@ -324,6 +367,7 @@ class Farma:
             "stan_krow": stan_krow,
             "kepki_trawy": pozycje_trawy,
             "finanse": stan_finansow,
+            "kociol": stan_kotla,
             "zdarzenia": opisy_zdarzen,
             "ciaze": ciaze_dzis,
             "zakupy": self.zakupy_dzis,

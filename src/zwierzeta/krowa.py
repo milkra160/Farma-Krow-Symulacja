@@ -1,17 +1,13 @@
-import random
 from src.zwierzeta.zwierze_hodowlane import ZwierzeHodowlane
-from src.config import *
 from src import config
 
 
 class Krowa(ZwierzeHodowlane):
+    gatunek = "krowa"
+
     def __init__(self, id: int, pozycja: tuple, imie: str):
         super().__init__(id, pozycja, imie)
         self.symbol = "K"
-
-        # mechanika ciazy (specyficzna dla krowy)
-        self.w_ciazy = False
-        self.dni_do_porodu = 0
 
     # przychod krowy to mleko - tylko dorosla krowa je produkuje
     def wartosc_produktu(self) -> int:
@@ -23,18 +19,8 @@ class Krowa(ZwierzeHodowlane):
     def wartosc_mleka(self) -> int:
         return self.wartosc_produktu()
 
-    # mechanika ciazy = balans symulacji
-    def losuj_ciaze(self):
-        if self.dorosla and not self.w_ciazy and self.najedzenie > 60:
-            if random.random() < config.SZANSA_NA_CIAZE:
-                self.w_ciazy = True
-                self.dni_do_porodu = DNI_CIAZY
+    # potomkiem krowy jest cielak (import lokalny, bo cielak dziedziczy po krowie)
+    def stworz_mlode(self, id: int, pozycja: tuple, imie: str):
+        from src.zwierzeta.cielak import Cielak
 
-    # odliczamy dni do porodu; gdy dojdzie do 0 rodzi sie cielak (zwraca True)
-    def aktualizuj_ciaze(self) -> bool:
-        if self.w_ciazy:
-            self.dni_do_porodu -= 1
-            if self.dni_do_porodu == 0:
-                self.w_ciazy = False
-                return True  # udany porod
-        return False
+        return Cielak(id=id, pozycja=pozycja, imie=imie)

@@ -146,6 +146,15 @@ def main():
             "Pogoda z poprzedniego dnia decyduje, ile kępek trawy wyrośnie\n"
             "następnego dnia. Celem jest dobranie ustawień startowych tak,\n"
             "by farma przetrwała jak najdłużej i była jak najbogatsza.\n\n"
+            "OWCE (do kupienia wyłącznie w sklepie): wolniej głodnieją niż\n"
+            "krowy, więc żyją dłużej, ale ich mleko jest mało warte (5 zł).\n"
+            "Opłacają się dopiero po kupieniu KOTŁA SEROWARSKIEGO (jeden na\n"
+            "farmę): kocioł przerabia mleko owcze na ser — mleko dojrzewa\n"
+            "w kotle 3 dni, po czym powstaje ser wart 30 zł za owcę (o 10 zł\n"
+            "więcej niż krowa). Owce dają mleko codziennie, więc ser powstaje\n"
+            "co dzień, tyle że z 3-dniowym opóźnieniem.\n\n"
+            "SKLEP: każdy kolejny zakup tego samego towaru jest droższy —\n"
+            "warto różnicować zakupy.\n\n"
             "Wartości w nawiasach '[]' to domyślne — wciśnij ENTER, by je przyjąć."
         )
     )

@@ -86,6 +86,9 @@ class Symulacja:
         # statystyki z historii + liczniki zebrane w trakcie gry
         historia_pogody = self.farma.pogoda.historia
         historia_finansow = self.farma.finanse.historia
+        # ile krow, a ile owiec zostalo w stadzie na koniec gry
+        krowy_koncowe = sum(1 for z in self.farma.stado if z.gatunek == "krowa")
+        owce_koncowe = sum(1 for z in self.farma.stado if z.gatunek == "owca")
         statystyki = {
             "narodziny": self.suma_narodzin,
             "zmartwychwstania": self.suma_zmartwychwstan,
@@ -103,6 +106,8 @@ class Symulacja:
             "kupione_zwierzeta": self.kupione["zwierze"],
             "kupione_pasze": self.kupione["pasza"],
             "kupione_ulepszenia": self.kupione["ulepszenie"],
+            "krowy_koncowe": krowy_koncowe,
+            "owce_koncowe": owce_koncowe,
         }
         self.logger.drukuj_statystyki(statystyki)
 

@@ -339,6 +339,24 @@
     }
   },
   {
+    "nazwa_farmy": "Moja Farma",
+    "data": "2026-07-07",
+    "dni_przezycia": 13,
+    "maks_budzet": 800,
+    "maks_stado": 10,
+    "powod_konca": "ręczne zakonczenie",
+    "parametry_start": {
+      "seed": 103338,
+      "nazwa_farmy": "Moja Farma",
+      "liczba_krow_start": 5,
+      "budzet_start": 500,
+      "szansa_drapieznik": 0.15,
+      "maks_drapieznikow": 2,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.1
+    }
+  },
+  {
     "nazwa_farmy": "siema",
     "data": "2026-06-19",
     "dni_przezycia": 5,

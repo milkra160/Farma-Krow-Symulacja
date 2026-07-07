@@ -75,11 +75,30 @@ BAZA_KEPEK_TRAWY: int = 12
 BUDZET_START: float = 500
 KOSZT_DZIENNY_FARMY: int = 50
 
+# Stale dla owiec (dostepne wylacznie w sklepie)
+# Owca wolniej glodnieje niz krowa (krowa traci 20/dzien), wiec zyje dluzej przy tej samej trawie.
+OWCA_GLOD_DZIENNY_UBYTEK: int = 12
+# Mleko owcze sprzedawane wprost jest malo warte - oplaca sie dopiero po przerobieniu na ser.
+PRZYCHOD_Z_OWCY: int = 5
+# Ser z mleka jednej owcy. Ma byc o 10 zl korzystniejszy od krowy (PRZYCHOD_Z_KROWY = 20).
+PRZYCHOD_Z_SERA: int = 30
+# Kociol serowarski potrzebuje tylu dni, by mleko owcze dojrzalo w ser.
+KOCIOL_DNI_NA_SER: int = 3
+
 # sklep - ceny towarow
 CENA_DOROSLEJ_KROWY: int = 200
 CENA_CIELAKA: int = 100
+CENA_DOROSLEJ_OWCY: int = 120
+CENA_KOTLA: int = 600  # kociol serowarski - jeden na farme
 CENA_PASZY: int = 40  # worek paszy dolewa najedzenia calemu stadu
 PASZA_NAJEDZENIE: int = 40  #ile najedzenia dodaje jeden worek paszy
 CENA_PLOTU: int = 150  # plot zmniejsza szanse na drapieznika przez kilka dni
 PLOT_DNI_TRWANIA: int = 7  #ile dni stoi plot zanim sie zniszczy
 PLOT_MNOZNIK_SZANSY: float = 0.25  # plot zostawia 25% szansy - reszta drapieznikow odpada
+
+# sklep - wzrost ceny towaru po kazdym jego zakupie (balans - kolejne sztuki drozeja)
+WZROST_CENY_KROWY: int = 20
+WZROST_CENY_CIELAKA: int = 10
+WZROST_CENY_OWCY: int = 15
+WZROST_CENY_PASZY: int = 5
+WZROST_CENY_PLOTU: int = 20

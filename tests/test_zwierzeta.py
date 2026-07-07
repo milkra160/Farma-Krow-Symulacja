@@ -1,6 +1,8 @@
 from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.drapieznik import Drapieznik
 from src.zwierzeta.cielak import Cielak
+from src.zwierzeta.owca import Owca
+from src.zwierzeta.jagnie import Jagnie
 from src.config import *
 from src.pastwisko.komorka import Komorka
 
@@ -98,6 +100,69 @@ def test_cielak_dziedziczy_starzenie():
     c = Cielak(id=2, pozycja=(1, 1), imie="Mały")
     c.starzej_sie_smierc_glodowa_doroslosc()
     assert c.wiek == 1
+
+
+#  Owca *********************************************************
+
+
+def test_owca_ma_symbol_O_i_gatunek():
+    o = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    assert o.symbol == "O"
+    assert o.gatunek == "owca"
+
+
+def test_owca_wolniej_glodnieje_niz_krowa():
+    o = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    o.starzej_sie_smierc_glodowa_doroslosc()
+    assert o.najedzenie == GLOD_START - OWCA_GLOD_DZIENNY_UBYTEK
+    assert OWCA_GLOD_DZIENNY_UBYTEK < GLOD_DZIENNY_UBYTEK  # owca traci mniej niz krowa
+
+
+def test_dorosla_owca_daje_male_mleko():
+    o = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    o.dorosla = False
+    assert o.wartosc_produktu() == 0
+    o.dorosla = True
+    assert o.wartosc_produktu() == PRZYCHOD_Z_OWCY
+
+
+def test_tylko_dorosla_owca_produkuje_mleko_owcze():
+    o = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    assert o.produkuje_mleko_owcze() is False  # jeszcze niedorosla
+    o.dorosla = True
+    assert o.produkuje_mleko_owcze() is True
+
+
+def test_owca_rodzi_jagnie():
+    o = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    mlode = o.stworz_mlode(2, (0, 0), "Mania")
+    assert isinstance(mlode, Jagnie)
+
+
+#  Jagnie *******************************************************
+
+
+def test_jagnie_ma_symbol_J_i_jest_mlode():
+    j = Jagnie(id=2, pozycja=(1, 1), imie="Mania")
+    assert j.symbol == "J"
+    assert j.mlode is True
+    assert j.gatunek == "owca"
+
+
+def test_jagnie_nie_produkuje_mleka():
+    j = Jagnie(id=2, pozycja=(1, 1), imie="Mania")
+    assert j.wartosc_produktu() == 0
+
+
+def test_jagnie_dorasta_na_owce_z_zachowanym_stanem():
+    j = Jagnie(id=2, pozycja=(1, 1), imie="Mania")
+    j.najedzenie = 55
+    j.dorosla = True
+    dorosla = j.stworz_dorosla_wersje()
+    assert isinstance(dorosla, Owca)
+    assert not isinstance(dorosla, Jagnie)
+    assert dorosla.najedzenie == 55
+    assert dorosla.imie == "Mania"
 
 
 #  Drapieznik *******************************************************

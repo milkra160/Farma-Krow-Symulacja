@@ -29,7 +29,7 @@ class Symulacja:
         # statystuki zbierane przez cala gre do rankingu
         self.maks_budzet = 0
         self.maks_stado = 0
-        self.maks_stado_dzien = 0 #ktorego dnia stado bylo najwieksze
+        self.maks_stado_dzien = 0  # ktorego dnia stado bylo najwieksze
         self.suma_narodzin = 0
         self.suma_zgonow = 0
         self.suma_zmartwychwstan = 0
@@ -89,6 +89,7 @@ class Symulacja:
         # ile krow, a ile owiec zostalo w stadzie na koniec gry
         krowy_koncowe = sum(1 for z in self.farma.stado if z.gatunek == "krowa")
         owce_koncowe = sum(1 for z in self.farma.stado if z.gatunek == "owca")
+        kury_koncowe = sum(1 for z in self.farma.stado if z.gatunek == "kura")
         statystyki = {
             "narodziny": self.suma_narodzin,
             "zmartwychwstania": self.suma_zmartwychwstan,
@@ -108,6 +109,7 @@ class Symulacja:
             "kupione_ulepszenia": self.kupione["ulepszenie"],
             "krowy_koncowe": krowy_koncowe,
             "owce_koncowe": owce_koncowe,
+            "kury_koncowe": kury_koncowe,
         }
         self.logger.drukuj_statystyki(statystyki)
 

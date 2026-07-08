@@ -3,6 +3,7 @@ from src.zwierzeta.drapieznik import Drapieznik
 from src.zwierzeta.cielak import Cielak
 from src.zwierzeta.owca import Owca
 from src.zwierzeta.jagnie import Jagnie
+from src.zwierzeta.kura import Kura
 from src.config import *
 from src.pastwisko.komorka import Komorka
 
@@ -163,6 +164,41 @@ def test_jagnie_dorasta_na_owce_z_zachowanym_stanem():
     assert not isinstance(dorosla, Jagnie)
     assert dorosla.najedzenie == 55
     assert dorosla.imie == "Mania"
+
+
+#  Kura *********************************************************
+
+
+def test_kura_daje_jajka_i_nie_je_trawy():
+    k = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    assert k.gatunek == "kura"
+    assert k.je_trawe() is False  # karmi sie z kurnika, nie z trawy
+    assert k.wartosc_produktu() == PRZYCHOD_Z_KURY
+
+
+def test_kura_pada_ze_starosci_po_ustalonym_czasie():
+    k = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    for _ in range(KURA_DNI_ZYCIA):
+        k.starzej_sie_smierc_glodowa_doroslosc()
+        assert k.zyje is True  # przez caly okres zycia zyje
+    k.starzej_sie_smierc_glodowa_doroslosc()  # dzien po limicie
+    assert k.zyje is False
+    assert k.umarla_dzis is True
+
+
+def test_kura_nie_umiera_z_glodu():
+    k = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    k.najedzenie = 0  # nawet z zerowym najedzeniem
+    k.starzej_sie_smierc_glodowa_doroslosc()
+    assert k.zyje is True  # kura nie umiera z glodu, tylko ze starosci
+
+
+def test_kura_smierc_dozwolona_tylko_ze_starosci():
+    k = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    k.wiek = 3
+    assert k.smierc_dozwolona() is False  # mloda - smierc od zdarzenia sie nie liczy
+    k.wiek = KURA_DNI_ZYCIA + 1
+    assert k.smierc_dozwolona() is True  # przekroczyla wiek zycia
 
 
 #  Drapieznik *******************************************************

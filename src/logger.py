@@ -13,9 +13,6 @@ WYBLAKLY_ZIELONY = "\033[2;32m"
 WYBLAKLY_CZERWONY = "\033[2;31m"
 
 
-
-
-
 def wyblakly_zielony(tekst):
     return f"{WYBLAKLY_ZIELONY}{tekst}{RESET}"
 
@@ -43,11 +40,14 @@ def szary(tekst):
 def rozowy(tekst):
     return f"{ROZOWY}{tekst}{RESET}"
 
+
 def niebieski(tekst):
     return f"{NIEBIESKI}{tekst}{RESET}"
 
+
 def naglowek(tytul):
     return zolty(f" {tytul} ".center(SZEROKOSC, "="))
+
 
 def linia():
     return szary("-" * SZEROKOSC)
@@ -135,7 +135,9 @@ class Logger:
             print(czerwony(f"   zgony:      {', '.join(czesci)}"))
 
         if log.get("zmartwychwstania") and len(log["zmartwychwstania"]) > 0:
-            print(niebieski(f"   zmartwychwstanie: {', '.join(log['zmartwychwstania'])}"))
+            print(
+                niebieski(f"   zmartwychwstanie: {', '.join(log['zmartwychwstania'])}")
+            )
 
         # statystyki stada
         if log.get("ciaze") and len(log["ciaze"]) > 0:
@@ -144,6 +146,9 @@ class Logger:
         # osobne tabele dla krow i owiec - ta sama forma, kazdy gatunek liczony niezaleznie
         self._sekcja_gatunku(log, "krowa", "ŻYWE KROWY")
         self._sekcja_gatunku(log, "owca", "ŻYWE OWCE")
+        if log.get("kurnik_zniknal"):
+            print(szary("Kurnik opustoszał — padła ostatnia kura"))
+        self._sekcja_kury(log)
         print("=" * self.SZEROKOSC)
 
     # wypisuje jeden gatunek: licznik najedzonych/glodnych + tabele zywych z paskiem najedzenia.
@@ -162,10 +167,23 @@ class Logger:
                 f"   {k['symbol']} {k['imie']:<12} {self._pasek_glodu(k['najedzenie'])} {k['najedzenie']:>3}/100"
             )
 
+    # osobna sekcja dla kur: nie maja paska glodu (kurnik je karmi), wiec zamiast najedzenia
+    # pokazujemy ile z ustalonej dlugosci zycia juz uplynelo - widac, ktora kura zaraz padnie
+    def _sekcja_kury(self, log: dict):
+        kury = [k for k in log["stan_krow"] if k.get("gatunek") == "kura"]
+        if len(kury) == 0:
+            return
+        zywe = [k for k in kury if k["zyje"]]
+        dni_zycia = log.get("kura_dni_zycia", 7)
+        print(szary("-" * self.SZEROKOSC))
+        print(f"ŻYWE KURY: {len(zywe)}  (kurnik czynny)")
+        for k in zywe:
+            print(f"   \U0001F414 {k['imie']:<12} wiek {k['wiek']}/{dni_zycia} dni")
+
     # rysuje pasek najedzenia krowy (0-100), kolor zalezy od poziomu glodu
     def _pasek_glodu(self, najedzenie: int) -> str:
         dlugosc = 10
-        pelne = najedzenie * dlugosc // 100  #ile kratek wypelnic(najedzenie 0-100)
+        pelne = najedzenie * dlugosc // 100  # ile kratek wypelnic(najedzenie 0-100)
         if pelne > dlugosc:
             pelne = dlugosc
         if pelne < 0:
@@ -195,8 +213,13 @@ class Logger:
         print(f"Łączne zmartwychwstania: {s['zmartwychwstania']}")
         print(f"Łączne zgony:       {s['zgony']}")
         print(f"Krów łącznie na farmie: {s['wszystkie_krowy']}")
-        print(f"Maksmalne stado: {s['maks_stado']} zwierząt (dzień {s['maks_stado_dzien']})")
-        print(f"Stado na koniec: {s['krowy_koncowe']} krów | {s['owce_koncowe']} owiec")
+        print(
+            f"Maksmalne stado: {s['maks_stado']} zwierząt (dzień {s['maks_stado_dzien']})"
+        )
+        print(
+            f"Stado na koniec: {s['krowy_koncowe']} krów | "
+            f"{s['owce_koncowe']} owiec | {s['kury_koncowe']} kur"
+        )
         print(f"Zdarzenia losowe:   {s['zdarzenia']}")
         print(linia())
         print(

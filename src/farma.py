@@ -31,18 +31,23 @@ class Farma:
         self.narodziny_dzis = []
         self.zmartwychwstania_dzis = []
         self.do_wyleczenia = []
-        #zakupy zrobione w sklepie od ostatniego dnia (pokazujemy je w logu najblizszego dnia)
+        # zakupy zrobione w sklepie od ostatniego dnia (pokazujemy je w logu najblizszego dnia)
         self.zakupy_dzis = []
-        #ile dni jeszcze stoi plot chroniacy przed drapieznikami (0 = brak plotu)
+        # ile dni jeszcze stoi plot chroniacy przed drapieznikami (0 = brak plotu)
         self.plot_dni_pozostale = 0
-        #kolumny w ktorych drapieznik przedarl sie przez plot - dziury zostaja do konca plotu
+        # kolumny w ktorych drapieznik przedarl sie przez plot - dziury zostaja do konca plotu
         self.plot_dziury = []
-        #czy plot stal wczoraj - dzieki temu komunikat o zniszczeniu pada dzien po wygasnieciu
+        # czy plot stal wczoraj - dzieki temu komunikat o zniszczeniu pada dzien po wygasnieciu
         self.plot_stal_wczoraj = False
         # kociol serowarski (kupowany w sklepie, jeden na farme) przerabia mleko owcze na ser
         self.kociol = False
         # partie mleka dojrzewajace w kotle: kazda to [dni_do_gotowe, wartosc_sera_w_zl]
         self.kociol_kolejka = []
+        # ile dni jeszcze dziala antena zaglaszajaca sygnal UFO (0 = brak anteny)
+        self.antena_dni_pozostale = 0
+        # kurnik pojawia sie sam z pierwsza kura i znika, gdy padnie ostatnia. Ta flaga pamieta,
+        # czy wczoraj byly kury - dzieki temu komunikat o zniknieciu kurnika pada we wlasciwym dniu
+        self.mial_kury_wczoraj = False
         # icznik do nadawania UNIKALNYCH id - nigdy nie powtarzamy numeru
         self.ostatnie_id = 0
         for krowa in self.stado:
@@ -82,11 +87,19 @@ class Farma:
         self.ostatnie_id += 1
         return self.ostatnie_id
 
-    # szansa na drapieznika. Zalezy tez od plotu
+    # liczba zywych kur w stadzie (kury wabia drapiezniki i maja wlasna sekcje w logu)
+    def _liczba_kur(self) -> int:
+        return sum(1 for z in self.stado if z.gatunek == "kura" and z.zyje)
+
+    # szansa na drapieznika. Samo posiadanie kur ja podnosi (glosne, wabia drapiezniki) - liczy sie
+    # fakt, a nie liczba kur. Plot obniza szanse.
     def _szansa_na_drapieznika(self, plot_aktywny: bool) -> float:
+        szansa = self.szansa_drapieznik
+        if self._liczba_kur() > 0:
+            szansa += config.KURA_WZROST_SZANSY_DRAPIEZNIKA
         if plot_aktywny:
-            return self.szansa_drapieznik * config.PLOT_MNOZNIK_SZANSY
-        return self.szansa_drapieznik
+            szansa *= config.PLOT_MNOZNIK_SZANSY
+        return min(szansa, 1.0)
 
     # mlode (cielak c -> krowa K, jagnie J -> owca O), ktore osiagnely wiek doroslosci,
     # zamieniamy na dorosle osobniki ich gatunku. Kazde mlode samo wie, w co dorasta.
@@ -213,12 +226,20 @@ class Farma:
             self.plot_dziury = []  # nie ma plotu - nie ma dziur
         self.plot_stal_wczoraj = plot_aktywny
 
+        # antena, jesli dziala, blokuje dzis zdarzenie UFO (sprawdzane wyzej w zdarzeniach na
+        # jeszcze nieodliczonej wartosci) i odliczamy jej dzien
+        antena_aktywna = self.antena_dni_pozostale > 0
+        if antena_aktywna:
+            self.antena_dni_pozostale -= 1
+
         # drapiezniki - losujemy czy sie pojawia. Plot tnie szanse, ale jej nie zeruje -
-        #drapieznik moze i tak  wkrasc sie przez dziure w plocie
+        # drapieznik moze i tak  wkrasc sie przez dziure w plocie
         self.drapiezniki = []
         drapieznik_przez_dziure = False
         wolne_kepki = self.pastwisko.kepki_z_trawa()
-        if len(wolne_kepki) > 0 and random.random() < self._szansa_na_drapieznika(plot_aktywny):
+        if len(wolne_kepki) > 0 and random.random() < self._szansa_na_drapieznika(
+            plot_aktywny
+        ):
             ile = random.randint(1, self.maks_drapieznikow)
             ile = min(ile, len(wolne_kepki))  # nie wiecej drapieznikow niz kepek
             for i in range(ile):
@@ -238,8 +259,16 @@ class Farma:
             if not krowa.zyje:
                 martwe_przed_drapieznikami.append(krowa.id)
 
-        # przypisujemy krowy do kepek. Krowa je lub ginie od drapieznika
-        self.pastwisko.przypisz_krowy(self.stado)
+        # przypisujemy do kepek tylko zwierzeta pasace sie na trawie - kury jedza z kurnika,
+        # wiec nie zajmuja kepek
+        self.pastwisko.przypisz_krowy([z for z in self.stado if z.je_trawe()])
+
+        # kury nie pasa sie, ale wedruja po farmie - dostaja losowa pozycje na planszy
+        for kura in self.stado:
+            if kura.zyje and not kura.je_trawe():
+                x = random.randint(0, self.pastwisko.szerokosc - 1)
+                y = random.randint(0, self.pastwisko.wysokosc - 1)
+                kura.pozycja_wizualna = (x, y)
 
         # jesli jjakas krowa juz nie zyje to musi byc ofiara drapieznika
         zabite_przez_drapieznika = []
@@ -251,10 +280,17 @@ class Farma:
         for krowa in self.stado:
             krowa.starzej_sie_smierc_glodowa_doroslosc()  # do poprawy, nazwa/rozdzielić funkcje?
 
-        #weterynarz dobija do pelna najedzenia na koniec dnia ( po dziennym ubytku)
+        # weterynarz dobija do pelna najedzenia na koniec dnia ( po dziennym ubytku)
         for krowa in self.do_wyleczenia:
             if krowa.zyje:
                 krowa.najedzenie = GLOD_START
+
+        # kury moga zginac wylacznie ze starosci - jesli cos innego (zdarzenie) je "zabilo",
+        # wracaja do zycia. Zdarzenie moglo je zaatakowac, ale nie moze ich usmiercic.
+        for zwierze in self.stado:
+            if not zwierze.zyje and not zwierze.smierc_dozwolona():
+                zwierze.zyje = True
+                zwierze.umarla_dzis = False
 
         # dorastanie mlodych (cielaki -> krowy, jagnieta -> owce)
         dorastajace = self._dorosnij_mlode()
@@ -265,6 +301,11 @@ class Farma:
 
         # usuwmy martwe krowy i zwracamy do logu
         martwe = self.usun_martwe()
+
+        # kurnik istnieje dopoki zyje choc jedna kura; znika, gdy padnie ostatnia
+        kurnik_aktywny = self._liczba_kur() > 0
+        kurnik_zniknal = self.mial_kury_wczoraj and not kurnik_aktywny
+        self.mial_kury_wczoraj = kurnik_aktywny
         # zbieramy wszystkie krowy by zbudowac dla nich pelny raport stan_krow
         wszystkie_krowy_dzis = []
         for krowa in self.stado:
@@ -307,6 +348,8 @@ class Farma:
                 powod_smierci[krowa.imie] = "drapieznik"
             elif krowa.id in martwe_przed_drapieznikami:
                 powod_smierci[krowa.imie] = "zdarzenie losowe"
+            elif krowa.gatunek == "kura":
+                powod_smierci[krowa.imie] = "starość"
             else:
                 powod_smierci[krowa.imie] = "glod"
 
@@ -377,6 +420,11 @@ class Farma:
             "plot_dziury": list(self.plot_dziury),
             "drapieznik_przez_dziure": drapieznik_przez_dziure,
             "lesniczy_aktywny": lesniczy_aktywny,
+            "antena_aktywna": antena_aktywna,
+            "antena_dni": self.antena_dni_pozostale,
+            "kurnik_aktywny": kurnik_aktywny,
+            "kurnik_zniknal": kurnik_zniknal,
+            "kura_dni_zycia": config.KURA_DNI_ZYCIA,
         }
         # zakupy zostaly juz zapisane do logu = czyscimy bufor na kolejny dzien
         self.zakupy_dzis = []

@@ -34,9 +34,12 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
     def _symbol_komorki(self, komorka, log: dict) -> str:
         krowa = self._krowa_na_polu(log, komorka.x, komorka.y)
         if krowa is not None:
-            litera = krowa.get("symbol", "K")  # K krowa, c cielak
+            litera = krowa.get("symbol", "K")  # K krowa, c cielak, O owca, J jagnie, h kura
             if not krowa["zyje"]:
                 return self._koloruj(litera, "czerwony")
+            # kura nie pasie sie na trawie, wiec jej kolor nie zalezy od najedzenia - zawsze zolty
+            if krowa.get("gatunek") == "kura":
+                return self._koloruj(litera, "zolty")
             if krowa["zjadla"]:
                 return self._koloruj(litera, "zielony")
             return self._koloruj(litera, "pomaranczowy")
@@ -77,28 +80,49 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
         # gdy wujek lesniczy pilnuje pastwiska - doklejamy jego ludzika obok planszy
         if log.get("lesniczy_aktywny"):
             self._dorysuj_lesniczego(linie)
-        # gdy na farmie stoi kociol serowarski - doklejamy jego szary kwadracik obok planszy
+        # gdy na farmie stoi kociol serowarski - doklejamy jego garnek z serem obok planszy
         if log.get("kociol", {}).get("aktywny"):
             self._dorysuj_kociol(linie)
+        # gdy dziala antena zaglaszajaca - doklejamy jej maszt obok planszy
+        if log.get("antena_aktywna"):
+            self._dorysuj_antene(linie)
+        # gdy stoi kurnik (sa kury) - doklejamy jego domek z kura obok planszy
+        if log.get("kurnik_aktywny"):
+            self._dorysuj_kurnik(linie)
         return "\n".join(linie)
 
-    #postac lesniczego
+    # postac lesniczego
     def _dorysuj_lesniczego(self, linie: list):
-        ludzik = self._koloruj("\uc6c3", "zielony")  #maly ludzik-stickman
+        ludzik = self._koloruj("\uc6c3", "zielony")  # maly ludzik-stickman
         # linie[0] to gorna ramka - ludzika stawiamy obok pierwszego wiersza pastwiska
         if len(linie) > 1:
             linie[1] += "   " + ludzik
 
-    # symbol kotla serowarskiego obok planszy (jak ludzik lesniczego): garnek z serem \ud83e\uded5, a nad nim
-    # unosi sie dym \ud83d\udca8, zeby bylo widac, ze ser sie robi. Dym rysujemy w wierszach nad kotlem, z
+    # symbol kotla serowarskiego obok planszy (jak ludzik lesniczego): garnek z serem, a nad nim
+    # unosi sie dym, zeby bylo widac, ze ser sie robi. Dym rysujemy w wierszach nad kotlem, z
     # rosnacym wcieciem ku gorze - dzieki temu wyglada, jakby leniwie znosilo go w bok.
     def _dorysuj_kociol(self, linie: list):
         if len(linie) <= 4:
             return
-        linie[2] += "     \U0001F4A8"
-        linie[3] += "    \U0001F4A8"
-        linie[4] += "   \U0001FED5"
+        linie[2] += "     \U0001f4a8"  # dym
+        linie[3] += "    \U0001f4a8"  # dym
+        linie[4] += "   \U0001fed5"  # garnek z serem
 
+    # symbol anteny zaglaszajacej obok planszy: szary kwadrat (urzadzenie) z masztem
+    # Rysujemy nizej niz kociol, zeby oba znaki sie nie nakladaly.
+    def _dorysuj_antene(self, linie: list):
+        if len(linie) <= 7:
+            return
+        maszt = self._koloruj("\\|/", "szary")
+        urzadzenie = self._koloruj("\u25a6", "szary")
+        linie[6] += "  " + maszt
+        linie[7] += "   " + urzadzenie
+
+    # symbol kurnika obok planszy: domek z kura znoszaca jajko. Rysujemy najnizej, pod anten\u0105.
+    def _dorysuj_kurnik(self, linie: list):
+        if len(linie) <= 10:
+            return
+        linie[9] += "  \U0001F3E0"  # domek - kurnik
     # glowna metoda, rysuje plansze na ekranie
     def rysuj_plansze(self, pastwisko, log: dict):
         print(self._zbuduj_plansze(pastwisko, log))
@@ -118,12 +142,21 @@ class Wizualizacja:  # klasa wizualizacja zajmuje sie rysowaniem stopklatki farm
                     "🕳️  Drapieżnik wkradł się przez dziurę w płocie!", "czerwony"
                 )
             )
+        # podpis tlumaczacy maszt anteny obok planszy
+        if log.get("antena_aktywna"):
+            dni = log.get("antena_dni", 0)
+            if dni == 0:
+                tekst = "\U0001f4e1 Antena zagłusza UFO — ostatni dzień"
+            else:
+                slowo = "dzień" if dni == 1 else "dni"
+                tekst = f"\U0001f4e1 Antena zagłusza UFO — jeszcze {dni} {slowo}"
+            print(self._koloruj(tekst, "niebieski"))
         self.legenda()
 
     # legenda
     def legenda(self):
         print(
-            "Legenda: K=krowa  c=cielak  O=owca  J=jagnię  "
+            "Legenda: K=krowa  c=cielak  O=owca  J=jagnię  h=kura  "
             "T=trawa  !=drapieznik  .=puste"
         )
         najedzone = self._koloruj("najedzone", "zielony")

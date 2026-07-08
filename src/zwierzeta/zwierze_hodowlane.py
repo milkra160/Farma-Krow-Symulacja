@@ -19,7 +19,9 @@ class ZwierzeHodowlane(Zwierze):
         self.wiek = 0
         self.najedzenie = GLOD_START
         self.dorosla = False
-        self.mlode = False  # True dla mlodych (cielak, jagnie) az dorosna i staja sie dorosle
+        self.mlode = (
+            False  # True dla mlodych (cielak, jagnie) az dorosna i staja sie dorosle
+        )
 
         # mechanika ciazy wspolna dla kazdego gatunku hodowlanego
         self.w_ciazy = False
@@ -60,6 +62,17 @@ class ZwierzeHodowlane(Zwierze):
     # tylko dorosla owca nadpisuje to na True. Dzieki temu Farma nie musi rozpoznawac klas.
     def produkuje_mleko_owcze(self) -> bool:
         return False
+
+    # czy zwierze pasie sie na trawie. Domyslnie tak; kura (karmiona z kurnika) nadpisuje to na
+    # False, dzieki czemu nie zajmuje kepek trawy (choc i tak chodzi po planszy).
+    def je_trawe(self) -> bool:
+        return True
+
+    # czy smierc zwierzecia jest trwala. Wiekszosc zwierzat moze zginac z dowolnego powodu (glod,
+    # drapieznik, zdarzenie). Kura nadpisuje to tak, by ginac WYLACZNIE ze starosci - kazda inna
+    # smierc (np. od zdarzenia) jest cofana przez Farme.
+    def smierc_dozwolona(self) -> bool:
+        return True
 
     # na poczatku doby zerujemy cechy zalezne od dnia i zwalniamy przypisana kepke
     def reset_dnia(self):

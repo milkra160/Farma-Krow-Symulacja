@@ -36,6 +36,24 @@
     }
   },
   {
+    "nazwa_farmy": "Moja Farma",
+    "data": "2026-07-08",
+    "dni_przezycia": 100,
+    "maks_budzet": 9933,
+    "maks_stado": 15,
+    "powod_konca": "uplynal czas",
+    "parametry_start": {
+      "seed": 92407,
+      "nazwa_farmy": "Moja Farma",
+      "liczba_krow_start": 5,
+      "budzet_start": 500,
+      "szansa_drapieznik": 0.15,
+      "maks_drapieznikow": 2,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.1
+    }
+  },
+  {
     "nazwa_farmy": "siema",
     "data": "2026-06-21",
     "dni_przezycia": 87,
@@ -69,6 +87,24 @@
       "maks_drapieznikow": 2,
       "max_dni": 150,
       "szansa_zdarzenia": 0.3
+    }
+  },
+  {
+    "nazwa_farmy": "Moja Farma",
+    "data": "2026-07-08",
+    "dni_przezycia": 15,
+    "maks_budzet": 1290,
+    "maks_stado": 8,
+    "powod_konca": "ręczne zakonczenie",
+    "parametry_start": {
+      "seed": 729107,
+      "nazwa_farmy": "Moja Farma",
+      "liczba_krow_start": 5,
+      "budzet_start": 500,
+      "szansa_drapieznik": 0.15,
+      "maks_drapieznikow": 2,
+      "max_dni": 100,
+      "szansa_zdarzenia": 0.1
     }
   }
 ]

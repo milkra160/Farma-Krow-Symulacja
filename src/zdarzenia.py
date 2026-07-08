@@ -23,6 +23,11 @@ class ZdarzenieLosoweBase(ABC):
     def cofnij(self, farma) -> None:
         pass
 
+    # czy jakies zabezpieczenie na farmie blokuje to zdarzenie (np. antena blokuje UFO).
+    # Domyslnie nic nie blokuje - konkretne zdarzenie nadpisuje te metode.
+    def zablokowane(self, farma) -> bool:
+        return False
+
     def __str__(self) -> str:
         return f"{self.nazwa} (pozostało: {self.dni_pozostale} dni)"
 
@@ -80,12 +85,12 @@ class NaglaSusza(ZdarzenieLosoweBase):
 # --------------------------------------------------------------------
 
 
-# Epidemia - krowy choruja, wszystkie krowy traca 30 pkt najedzenia
+# Epidemia - zwierzeta choruja, cale stado traci 30 pkt najedzenia
 class Epidemia(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
         self.nazwa = "Epidemia 🦠"
-        self.opis = "Wszystkie krowy tracą 30 pkt najedzenia natychmiast"
+        self.opis = "Całe stado traci 30 pkt najedzenia natychmiast"
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
@@ -103,26 +108,27 @@ class Epidemia(ZdarzenieLosoweBase):
 # ----------------------------------------------------------------------
 
 
-# Weterynarz - leczy kilka krow do pelna (jednorazowo)
+# Weterynarz - leczy kilka zwierzat do pelna najedzenia (jednorazowo)
 class Weterynarz(ZdarzenieLosoweBase):
     def __init__(self):
         super().__init__()
         self.nazwa = "Weterynarz 💉"
-        self.opis = "Kilka losowych krów odzyskuje pełne najedzenie"
+        self.opis = "Kilka losowych zwierząt odzyskuje pełne najedzenie"
         self.dni_trwania = 1
 
     def czy_zachodzi(self, dzien: int) -> bool:
         return True
 
     def zastosuj(self, farma) -> str:
-        # bierzemy tylko zywe krowy - tylko je da sie leczyc
+        # leczymy tylko zywe zwierzeta, ktore moga zglodniec - kury karmi kurnik,
+        # wiec najedzenie ich nie dotyczy i weterynarz je pomija
         zywe = []
-        for krowa in farma.stado:
-            if krowa.zyje == True:
-                zywe.append(krowa)
+        for zwierze in farma.stado:
+            if zwierze.zyje == True and zwierze.je_trawe():
+                zywe.append(zwierze)
 
         if len(zywe) > 0:
-            # weterynarz leczy kilka krow na raz (2-4), ale nie wiecej niz jest w stadzie
+            # weterynarz leczy kilka zwierzat na raz (2-4), ale nie wiecej niz jest w stadzie
             ile = random.randint(2, 4)
             if ile > len(zywe):
                 ile = len(zywe)
@@ -131,14 +137,14 @@ class Weterynarz(ZdarzenieLosoweBase):
             random.shuffle(zywe)
             imiona = []
             for i in range(ile):
-                krowa = zywe[i]
-                krowa.najedzenie = config.GLOD_START
-                farma.do_wyleczenia.append(krowa)
-                imiona.append(krowa.imie)
+                zwierze = zywe[i]
+                zwierze.najedzenie = config.GLOD_START
+                farma.do_wyleczenia.append(zwierze)
+                imiona.append(zwierze.imie)
 
             self.opis = f"Pełne najedzenie odzyskują: {', '.join(imiona)}"
         else:
-            self.opis = "Brak krów do wyleczenia"
+            self.opis = "Brak zwierząt do wyleczenia"
         return self.opis
 
     def cofnij(self, farma) -> None:
@@ -217,12 +223,15 @@ class Wielkanoc(ZdarzenieLosoweBase):
             wskrzeszona.zjadla_dzisiaj = False
             wskrzeszona.przypisana_kepka = None
             wskrzeszona.najedzenie = config.GLOD_START
+            # zmartwychwstanie = nowe zycie: zerujemy wiek, dzieki czemu kura dostaje pelny
+            # nowy cykl zycia, a nie ginie zaraz znowu ze starosci
+            wskrzeszona.wiek = 0
             farma.stado.append(wskrzeszona)
             farma.zmartwychwstania_dzis.append(wskrzeszona.imie)
-            self.opis = f"Zmartwychwstała krowa {wskrzeszona.imie}!"
+            self.opis = f"Zmartwychwstała {wskrzeszona.gatunek} {wskrzeszona.imie}!"
             return f"{self.nazwa}: {self.opis} ({wskrzeszona.imie} wraca do stada!)"
         else:
-            self.opis = "Miał być cud, ale żadna krowa dotychczas nie umarła"
+            self.opis = "Miał być cud, ale żadne zwierzę dotychczas nie umarło"
             return f"{self.nazwa}: {self.opis}"
 
     def cofnij(self, farma) -> None:
@@ -244,19 +253,31 @@ class UFO(ZdarzenieLosoweBase):
     def czy_zachodzi(self, dzien: int) -> bool:
         return True
 
+    # antena zaglaszajaca zaklóca sygnal UFO - dopoki dziala, kosmici nie przylatuja
+    def zablokowane(self, farma) -> bool:
+        return farma.antena_dni_pozostale > 0
+
     def zastosuj(self, farma) -> str:
         zywe = []
         for krowa in farma.stado:
             if krowa.zyje == True:
                 zywe.append(krowa)
 
-        if len(zywe) > 0:
-            porwana = random.choice(zywe)
-            porwana.zyje = False
-            porwana.umarla_dzis = True
-            self.opis = f"Kosmici porwali krowę {porwana.imie}"
-        else:
+        if len(zywe) == 0:
             self.opis = "Statek UFO przeleciał nad pustym pastwiskiem"
+            return self.opis
+
+        cel = random.choice(zywe)
+        # kura to potomek dinozaurow - kosmici sie jej boja i uciekaja z pustymi rekami
+        if cel.gatunek == "kura":
+            self.opis = (
+                "UFO przestraszyło się potomka dinozaurów i uciekło - nikogo nie porwano"
+            )
+            return self.opis
+
+        cel.zyje = False
+        cel.umarla_dzis = True
+        self.opis = f"Kosmici porwali krowę {cel.imie}"
         return self.opis
 
     def cofnij(self, farma) -> None:
@@ -353,23 +374,21 @@ class CudNadOdra(ZdarzenieLosoweBase):
 
     def zastosuj(self, farma) -> str:
         dorosle = []
-        for krowa in farma.stado:
-            if krowa.zyje == True and krowa.dorosla == True:
-                dorosle.append(krowa)
+        for zwierze in farma.stado:
+            if zwierze.zyje == True and zwierze.dorosla == True:
+                dorosle.append(zwierze)
 
         if len(dorosle) > 0:
             matka = random.choice(dorosle)
-            from src.zwierzeta.cielak import Cielak
-
             nowe_id = farma._nowe_id()
-
             imie = random.choice(config.IMIONA_KROW)
-            nowy_cielak = Cielak(nowe_id, matka.pozycja, imie)
-            farma.stado.append(nowy_cielak)
+            # matka rodzi mlode swojego gatunku (krowa -> cielak, owca -> jagnie)
+            mlode = matka.stworz_mlode(nowe_id, matka.pozycja, imie)
+            farma.stado.append(mlode)
             farma.narodziny_dzis.append(f"{imie} (matka: {matka.imie})")
-            self.opis = f"Urodził się cielak {imie} (matka: {matka.imie})"
+            self.opis = f"Urodziło się młode {imie} (matka: {matka.imie})"
         else:
-            self.opis = "Brak dorosłych krów zdolnych do nagłego porodu"
+            self.opis = "Brak dorosłych zwierząt zdolnych do nagłego porodu"
         return self.opis
 
     def cofnij(self, farma) -> None:
@@ -433,7 +452,12 @@ class ZdarzeniaLosoweMenadzer:
         if random.random() < self.szansa_zdarzenia:
             nowe = random.choice(self.pula)()
             blokada = nowe.dni_trwania > 1 and trwa_dlugie
-            if nowe.czy_zachodzi(dzien) and not blokada:
+            if nowe.zablokowane(farma):
+                # zabezpieczenie na farmie (antena) nie dopuscilo zdarzenia - dajemy o tym znac
+                opisy.append(
+                    f"📡 Antena zagłuszyła sygnał - {nowe.nazwa} nie doszło do skutku"
+                )
+            elif nowe.czy_zachodzi(dzien) and not blokada:
                 nowe.dni_pozostale = nowe.dni_trwania
                 nowe.zastosuj(farma)
                 self.licznik_zdarzen += 1

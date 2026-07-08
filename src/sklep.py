@@ -4,6 +4,7 @@ from src import config
 from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.cielak import Cielak
 from src.zwierzeta.owca import Owca
+from src.zwierzeta.kura import Kura
 
 
 # bazowa klasa towaru w sklepie - kazdy towar ma nazwe, opis, cene i potrafi sie "zastosowac"
@@ -17,7 +18,9 @@ class Towar(ABC):
         self.cena = 0  # aktualna cena (rosnie z kazdym kolejnym zakupem tego towaru)
         self.wzrost_ceny = 0  # o ile drozeje po kazdym zakupie (0 = cena stala)
         self.kupiony_razy = 0  # ile razy juz kupiono ten towar (do balansu cen)
-        self.kategoria = ""  # "zwierze" / "pasza" / "ulepszenie" - do statystyk koncowych
+        self.kategoria = (
+            ""  # "zwierze" / "pasza" / "ulepszenie" - do statystyk koncowych
+        )
 
     # niektore towary maja sens tylko w pewnych warunkach (np. plot dopiero gdy grozi drapieznik)
     def dostepny(self, farma) -> bool:
@@ -114,7 +117,9 @@ class Plot(Towar):
     def __init__(self):
         super().__init__()
         self.nazwa = "Plot 🚧"
-        self.opis = f"Zmniejsza szanse na drapieznika przez {config.PLOT_DNI_TRWANIA} dni"
+        self.opis = (
+            f"Zmniejsza szanse na drapieznika przez {config.PLOT_DNI_TRWANIA} dni"
+        )
         self.cena_bazowa = config.CENA_PLOTU
         self.cena = config.CENA_PLOTU
         self.wzrost_ceny = config.WZROST_CENY_PLOTU
@@ -125,6 +130,28 @@ class Plot(Towar):
         farma.plot_dni_pozostale = config.PLOT_DNI_TRWANIA
         farma.plot_dziury = []  # nowy plot jest bez dziur
         return f"Postawiono plot - mniejsza szansa na drapieznika przez {config.PLOT_DNI_TRWANIA} dni"
+
+
+# --------------------------------------------------------------------
+
+
+# Antena zaglaszajaca - przez kilka dni blokuje zdarzenie UFO (kosmici nie porywaja krow).
+# Postawienie nowej anteny odnawia ochrone na pelne ANTENA_DNI_TRWANIA dni.
+class KupAntene(Towar):
+    def __init__(self):
+        super().__init__()
+        self.nazwa = "Antena zaglaszajaca 📡"
+        self.opis = f"Blokuje porwania UFO przez {config.ANTENA_DNI_TRWANIA} dni"
+        self.cena_bazowa = config.CENA_ANTENY
+        self.cena = config.CENA_ANTENY
+        self.wzrost_ceny = config.WZROST_CENY_ANTENY
+        self.kategoria = "ulepszenie"
+
+    def zastosuj(self, farma) -> str:
+        farma.antena_dni_pozostale = config.ANTENA_DNI_TRWANIA
+        return (
+            f"Postawiono antene - UFO zablokowane przez {config.ANTENA_DNI_TRWANIA} dni"
+        )
 
 
 # --------------------------------------------------------------------
@@ -149,6 +176,31 @@ class KupDoroslaOwce(Towar):
         owca.wiek = config.WIEK_DOROSLOSCI
         farma.dodaj_zwierze(owca)
         return f"Kupiono dorosla owce {imie}"
+
+
+# --------------------------------------------------------------------
+
+
+# Kura - nie je trawy (karmi ja kurnik), znosi jajka o duzej wartosci, ale zyje tylko kilka dni
+# i jako glosna, latwa ofiara podnosi szanse na drapieznika dla calego stada.
+class KupKure(Towar):
+    def __init__(self):
+        super().__init__()
+        self.nazwa = "Kura 🐔"
+        self.opis = (
+            f"Znosi jajka za {config.PRZYCHOD_Z_KURY} zl/dzien przez "
+            f"{config.KURA_DNI_ZYCIA} dni. Nie je trawy, ale wabi drapiezniki"
+        )
+        self.cena_bazowa = config.CENA_KURY
+        self.cena = config.CENA_KURY
+        self.wzrost_ceny = config.WZROST_CENY_KURY
+        self.kategoria = "zwierze"
+
+    def zastosuj(self, farma) -> str:
+        imie = random.choice(config.IMIONA_KROW)
+        kura = Kura(id=farma._nowe_id(), pozycja=(0, 0), imie=imie)
+        farma.dodaj_zwierze(kura)
+        return f"Kupiono kure {imie}"
 
 
 # --------------------------------------------------------------------
@@ -179,7 +231,7 @@ class KupKociolSerowarski(Towar):
 
 # --------------------------------------------------------------------
 # Sklep zarzadza katalogiem towarow i przeprowadza transakcje.
-#Jest niezalezny od interfejsu
+# Jest niezalezny od interfejsu
 
 
 class Sklep:
@@ -189,9 +241,11 @@ class Sklep:
                 KupDoroslaKrowe(),
                 KupCielaka(),
                 KupDoroslaOwce(),
+                KupKure(),
                 KupKociolSerowarski(),
                 WorekPaszy(),
                 Plot(),
+                KupAntene(),
             ]
         self.katalog = katalog
 

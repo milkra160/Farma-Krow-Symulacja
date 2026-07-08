@@ -3,7 +3,7 @@ from src.symulacja import Symulacja
 import os
 import random
 import sys
-from src.logger import zielony,czerwony,zolty,niebieski,naglowek
+from src.logger import zielony, czerwony, zolty, niebieski, naglowek
 
 os.system("")
 

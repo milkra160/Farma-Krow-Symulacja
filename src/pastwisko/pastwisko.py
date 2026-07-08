@@ -2,7 +2,6 @@ from src.pastwisko.komorka import Komorka
 import random
 
 
-
 # klasa Pastwisko to model planszy 2D zbudowanej z komorek
 class Pastwisko:
     def __init__(self, szerokosc: int, wysokosc: int):

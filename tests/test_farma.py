@@ -5,8 +5,16 @@ from src.finanse import Finanse
 from src.zdarzenia import ZdarzeniaLosoweMenadzer
 from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.owca import Owca
+from src.zwierzeta.kura import Kura
 from src.zdarzenia import Lesniczy
-from src.config import KOCIOL_DNI_NA_SER, PRZYCHOD_Z_SERA, PRZYCHOD_Z_OWCY
+from src.config import (
+    KOCIOL_DNI_NA_SER,
+    PRZYCHOD_Z_SERA,
+    PRZYCHOD_Z_OWCY,
+    PRZYCHOD_Z_KURY,
+    KURA_DNI_ZYCIA,
+    KURA_WZROST_SZANSY_DRAPIEZNIKA,
+)
 
 
 # pomocnicza metoda tworzy farme
@@ -47,9 +55,10 @@ def test_czy_nowe_id_jest_ciagle_nowe():
 
 
 def test_czy_nowe_id_uwzglednia_stado_startowe():
-    f = zrob_farme([Krowa(id=1, pozycja=(0, 0), imie="A"),
-                    Krowa(id=5, pozycja=(0, 0), imie="B")])
-    assert f._nowe_id() == 6  #licznik startuje od najwyzszego id w stadzie
+    f = zrob_farme(
+        [Krowa(id=1, pozycja=(0, 0), imie="A"), Krowa(id=5, pozycja=(0, 0), imie="B")]
+    )
+    assert f._nowe_id() == 6  # licznik startuje od najwyzszego id w stadzie
 
 
 def test_czy_farma_jest_aktywna():
@@ -143,7 +152,9 @@ def test_czy_nowy_dzien_zwraca_poprawny_log_krow():
 
 def test_lesniczy_aktywny_trafia_do_logu():
     f = stworz_farme()
-    f.zdarzenia.szansa_zdarzenia = 0  # bez losowych zdarzen - testujemy tylko lesniczego
+    f.zdarzenia.szansa_zdarzenia = (
+        0  # bez losowych zdarzen - testujemy tylko lesniczego
+    )
     lesniczy = Lesniczy()
     lesniczy.dni_pozostale = lesniczy.dni_trwania
     lesniczy.zastosuj(f)
@@ -157,6 +168,111 @@ def test_bez_lesniczego_flaga_jest_false():
     f.zdarzenia.szansa_zdarzenia = 0
     log = f.nowy_dzien()
     assert log["lesniczy_aktywny"] is False
+
+
+def test_antena_odlicza_dzien_i_trafia_do_logu():
+    f = stworz_farme()
+    f.zdarzenia.szansa_zdarzenia = 0
+    f.antena_dni_pozostale = 3
+    log = f.nowy_dzien()
+    assert log["antena_aktywna"] is True
+    assert f.antena_dni_pozostale == 2  # ubyl jeden dzien
+
+
+#  Kury i kurnik ***********************************************
+
+
+def test_posiadanie_kur_zwieksza_szanse_na_drapieznika():
+    # liczy sie sam fakt posiadania kur - dwie kury podnosza szanse tak samo jak jedna
+    f = zrob_farme([Kura(1, (0, 0), "A"), Kura(2, (0, 0), "B")])
+    f.szansa_drapieznik = 0.2
+    assert f._szansa_na_drapieznika(False) == 0.2 + KURA_WZROST_SZANSY_DRAPIEZNIKA
+
+
+def test_bez_kur_szansa_na_drapieznika_bez_bonusu():
+    f = zrob_farme([Krowa(1, (0, 0), "Mu")])
+    f.szansa_drapieznik = 0.2
+    assert f._szansa_na_drapieznika(False) == 0.2
+
+
+def test_kura_chodzi_po_planszy():
+    kura = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    f = zrob_farme([kura])
+    f.zdarzenia.szansa_zdarzenia = 0
+    f.szansa_drapieznik = 0
+    f.nowy_dzien()
+    # kura wedruje po planszy - dostaje pozycje w granicach pastwiska
+    assert kura.pozycja_wizualna is not None
+    x, y = kura.pozycja_wizualna
+    assert 0 <= x < f.pastwisko.szerokosc
+    assert 0 <= y < f.pastwisko.wysokosc
+
+
+def test_ufo_ucieka_przed_kura():
+    # UFO trafia na kure (jedyne zwierze) - ucieka przed potomkiem dinozaurow, nikogo nie porywa
+    from src.zdarzenia import ZdarzeniaLosoweMenadzer, UFO
+
+    kura = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    f = zrob_farme([kura])
+    f.szansa_drapieznik = 0
+    f.zdarzenia = ZdarzeniaLosoweMenadzer(pula=[UFO], szansa_zdarzenia=1.0)
+    log = f.nowy_dzien()
+    assert kura.zyje is True
+    assert any("dinozaur" in o.lower() for o in log["zdarzenia"])
+
+
+def test_kura_przezywa_smiertelne_zdarzenie():
+    # zabojcze zdarzenie usmierca cale stado, ale Farma cofa smierc kury (ginie tylko ze starosci)
+    from src.zdarzenia import ZdarzenieLosoweBase, ZdarzeniaLosoweMenadzer
+
+    class ZabojczeZdarzenie(ZdarzenieLosoweBase):
+        def __init__(self):
+            super().__init__()
+            self.nazwa = "Kataklizm"
+            self.opis = "usmierca wszystkich"
+            self.dni_trwania = 1
+
+        def czy_zachodzi(self, dzien):
+            return True
+
+        def zastosuj(self, farma):
+            for z in farma.stado:
+                z.zyje = False
+                z.umarla_dzis = True
+            return self.opis
+
+        def cofnij(self, farma):
+            pass
+
+    kura = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    f = zrob_farme([kura])
+    f.szansa_drapieznik = 0
+    f.zdarzenia = ZdarzeniaLosoweMenadzer(pula=[ZabojczeZdarzenie], szansa_zdarzenia=1.0)
+    f.nowy_dzien()
+    assert kura.zyje is True  # zdarzenie ja zabilo, ale Farma cofnela smierc
+
+
+def test_kura_daje_przychod_z_jajek():
+    kura = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    f = zrob_farme([kura])
+    f.zdarzenia.szansa_zdarzenia = 0
+    f.szansa_drapieznik = 0
+    log = f.nowy_dzien()
+    assert log["finanse"]["przychod"] == PRZYCHOD_Z_KURY
+
+
+def test_kurnik_znika_gdy_padnie_ostatnia_kura():
+    kura = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    f = zrob_farme([kura])
+    f.zdarzenia.szansa_zdarzenia = 0
+    f.szansa_drapieznik = 0
+    log = f.nowy_dzien()  # dzien 1: kura zyje, kurnik czynny
+    assert log["kurnik_aktywny"] is True
+    kura.wiek = KURA_DNI_ZYCIA  # nastepny dzien dobije ja ze starosci
+    log = f.nowy_dzien()
+    assert log["kurnik_aktywny"] is False
+    assert log["kurnik_zniknal"] is True
+    assert log["powod_smierci"]["Gyra"] == "starość"
 
 
 #  Kociol serowarski *******************************************

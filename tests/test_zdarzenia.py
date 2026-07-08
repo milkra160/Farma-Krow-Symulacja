@@ -32,16 +32,15 @@ class SztucznaFarma:
         self.narodziny_dzis = []
         self.zmartwychwstania_dzis = []
         self.szansa_drapieznik = config.SZANSA_DRAPIEZNIK
+        self.antena_dni_pozostale = 0
         self.ostatnie_id = 0
         for k in self.stado:
             if k.id > self.ostatnie_id:
                 self.ostatnie_id = k.id
 
-
     def _nowe_id(self):
         self.ostatnie_id += 1
         return self.ostatnie_id
-
 
 
 # ******************** Walentynki
@@ -59,7 +58,6 @@ def test_walentynki_zwiekszaja_i_cofaja_szanse_na_ciaze():
     assert config.SZANSA_NA_CIAZE == przed * 1.5
     w.cofnij(sf)
     assert config.SZANSA_NA_CIAZE == przed
-
 
 
 # **************** Nagla susza
@@ -107,6 +105,15 @@ def test_weterynarz_gdy_pusta_farma():
     assert isinstance(wynik, str)
 
 
+def test_weterynarz_pomija_kury():
+    from src.zwierzeta.kura import Kura
+
+    kura = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    sf = SztucznaFarma([kura])
+    Weterynarz().zastosuj(sf)
+    assert kura not in sf.do_wyleczenia  # kura nie glodnieje - weterynarz ja pomija
+
+
 # ************ Mleko GMO
 
 
@@ -118,7 +125,6 @@ def test_mleko_GMO_zwieksza_i_cofa_przychod():
     assert config.PRZYCHOD_Z_KROWY == przed * 1.3
     m.cofnij(sf)
     assert config.PRZYCHOD_Z_KROWY == przed
-
 
 
 # ******* METEORYT
@@ -159,6 +165,20 @@ def test_wielkanoc_brak_martwych_krow_nic_nie_zmienia():
     assert isinstance(wynik, str)
 
 
+def test_wielkanoc_wskrzesza_kure_z_nowym_zyciem():
+    from src.zwierzeta.kura import Kura
+
+    k = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    k.wiek = 99  # padla ze starosci
+    k.zyje = False
+    sf = SztucznaFarma([])
+    sf.cmentarz.append(k)
+    opis = Wielkanoc().zastosuj(sf)
+    assert k.zyje is True
+    assert k.wiek == 0  # zmartwychwstanie = nowy pelny cykl zycia
+    assert "kura" in opis.lower()  # komunikat zgodny z gatunkiem, nie "krowa"
+
+
 # ************** UFO
 
 
@@ -172,6 +192,34 @@ def test_czy_ufo_porywa_zywa_krowe():
 def test_brak_bledu_gdy_ufo_na_pustej_farmie():
     wynik = UFO().zastosuj(SztucznaFarma([]))
     assert isinstance(wynik, str)
+
+
+def test_ufo_ucieka_gdy_trafi_na_kure():
+    from src.zwierzeta.kura import Kura
+
+    k = Kura(id=1, pozycja=(0, 0), imie="Gyra")
+    opis = UFO().zastosuj(SztucznaFarma([k]))
+    assert k.zyje is True  # kura nie porwana
+    assert "dinozaur" in opis.lower()
+
+
+def test_ufo_zablokowane_gdy_dziala_antena():
+    sf = SztucznaFarma([])
+    assert UFO().zablokowane(sf) is False  # brak anteny - UFO moze zajsc
+    sf.antena_dni_pozostale = 3
+    assert UFO().zablokowane(sf) is True  # antena dziala - UFO zablokowane
+
+
+def test_menager_nie_dopuszcza_ufo_przy_antenie():
+    # przy dzialajacej antenie UFO nie porywa krowy, a w opisach pada info o zaglusonym sygnale
+    k = Krowa(id=1, pozycja=(0, 0), imie="Bart")
+    sf = SztucznaFarma([k])
+    sf.antena_dni_pozostale = 5
+    m = ZdarzeniaLosoweMenadzer(pula=[UFO], szansa_zdarzenia=1.0)
+    opisy = m.aktualizuj(sf, 1)
+    assert k.zyje is True  # krowa nie porwana
+    assert len(m.aktywne) == 0  # UFO nie stalo sie aktywnym zdarzeniem
+    assert any("Antena" in o for o in opisy)
 
 
 # ************ Lesniczy
@@ -222,6 +270,18 @@ def test_cud_nad_odra_rodzi_cielaka():
     CudNadOdra().zastosuj(sf)
     assert len(sf.stado) == 2
     assert isinstance(sf.stado[1], Cielak)
+
+
+def test_cud_nad_odra_owca_rodzi_jagnie():
+    from src.zwierzeta.owca import Owca
+    from src.zwierzeta.jagnie import Jagnie
+
+    matka = Owca(id=1, pozycja=(0, 0), imie="Bela")
+    matka.dorosla = True
+    sf = SztucznaFarma([matka])
+    CudNadOdra().zastosuj(sf)
+    assert len(sf.stado) == 2
+    assert isinstance(sf.stado[1], Jagnie)  # owca rodzi jagnie, nie cielaka
 
 
 def test_cud_nad_odra_gdy_brak_doroslych_krow_nic_nie_dodaje():

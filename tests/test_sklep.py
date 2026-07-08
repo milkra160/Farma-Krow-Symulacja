@@ -5,14 +5,17 @@ from src.finanse import Finanse
 from src.zdarzenia import ZdarzeniaLosoweMenadzer
 from src.zwierzeta.krowa import Krowa
 from src.zwierzeta.owca import Owca
+from src.zwierzeta.kura import Kura
 from src.sklep import (
     Sklep,
     KupDoroslaKrowe,
     KupCielaka,
     KupDoroslaOwce,
+    KupKure,
     KupKociolSerowarski,
     WorekPaszy,
     Plot,
+    KupAntene,
 )
 from src.config import *
 
@@ -60,7 +63,7 @@ def test_wydaj_nie_pozwala_zejsc_do_zera():
 
 def test_sklep_ma_domyslny_katalog():
     sklep = Sklep()
-    assert len(sklep.katalog) == 6
+    assert len(sklep.katalog) == 8
 
 
 def test_kup_dorosla_krowe_dodaje_krowe_i_pobiera_kase():
@@ -91,6 +94,15 @@ def test_kup_dorosla_owce_dodaje_owce():
     assert f.finanse.budzet == 1000 - CENA_DOROSLEJ_OWCY
 
 
+def test_kup_kure_dodaje_kure():
+    f = zrob_farme(budzet=1000)
+    udalo_sie, _ = Sklep().kup(KupKure(), f)
+    assert udalo_sie is True
+    assert isinstance(f.stado[0], Kura)
+    assert f.stado[0].je_trawe() is False  # kura nie pasie sie na trawie
+    assert f.finanse.budzet == 1000 - CENA_KURY
+
+
 def test_kociol_wlacza_przerob_na_ser_i_jest_jeden():
     f = zrob_farme(budzet=1000)
     kociol = KupKociolSerowarski()
@@ -99,6 +111,12 @@ def test_kociol_wlacza_przerob_na_ser_i_jest_jeden():
     assert f.kociol is True
     # gdy kociol juz stoi, znika z oferty (jeden na farme)
     assert kociol.dostepny(f) is False
+
+
+def test_antena_daje_ochrone_na_kilka_dni():
+    f = zrob_farme(budzet=1000)
+    Sklep().kup(KupAntene(), f)
+    assert f.antena_dni_pozostale == ANTENA_DNI_TRWANIA
 
 
 def test_cena_towaru_rosnie_po_kazdym_zakupie():

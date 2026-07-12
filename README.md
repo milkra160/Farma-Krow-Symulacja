@@ -86,6 +86,6 @@ tests/               # pytest suite
 ## Authors
 
 - **Miłosz Krawczyk** ([github.com/miloszkrawczyk](https://github.com/miloszkrawczyk))
-- **Piotr Trałowski** ([github.com/peterman1337](https://github.com/peterman1337))
+- **Piotr Tarłowski** ([github.com/peterman1337](https://github.com/peterman1337))
 
 Repository: [github.com/miloszkrawczyk/Cow-Farm-Simulation](https://github.com/miloszkrawczyk/Cow-Farm-Simulation)

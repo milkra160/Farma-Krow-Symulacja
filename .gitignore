@@ -1,4 +1,7 @@
 .venv/
 .idea/
-__pycache__/src/ranking.json
-__pycache__/ranking.json
+__pycache__/
+*.pyc
+.DS_Store
+ranking.json
+src/ranking.json

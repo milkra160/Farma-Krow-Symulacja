@@ -1,4 +1,4 @@
-from src.pastwisko.komorka import Komorka
+from src.pasture.komorka import Komorka
 import random
 
 

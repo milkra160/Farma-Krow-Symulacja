@@ -1,223 +1,214 @@
 from src.config import *
-from src.symulacja import Symulacja
+from src.simulation import Simulation
 import os
 import random
 import sys
-from src.logger import zielony, czerwony, zolty, niebieski, naglowek
+from src.logger import header
 
 os.system("")
 
-# kolory
-ZIELONY = "\033[92m"
-ZOLTY = "\033[93m"
-CZERWONY = "\033[91m"
-BLEKITNY = "\033[96m"
+# colors
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+RED = "\033[91m"
+BLUE = "\033[96m"
 RESET = "\033[0m"
 
 
-# funkcja zmieniająca tekst na zielony
-def zielony(tekst):
-    return f"{ZIELONY}{tekst}{RESET}"
+def green(text):
+    return f"{GREEN}{text}{RESET}"
 
 
-# funkcja zmieniająca tekst na zolty
-def zolty(tekst):
-    return f"{ZOLTY}{tekst}{RESET}"
+def yellow(text):
+    return f"{YELLOW}{text}{RESET}"
 
 
-# tekst na czerwony
-def czerwony(tekst):
-    return f"{CZERWONY}{tekst}{RESET}"
+def red(text):
+    return f"{RED}{text}{RESET}"
 
 
-# tekst na blekitny
-def blekitny(tekst):
-    return f"{BLEKITNY}{tekst}{RESET}"
+def blue(text):
+    return f"{BLUE}{text}{RESET}"
 
 
-# funkcja czyszcząca bufor przed każdym inputem w main, naprawia to błąd z wyświetlaniem dnia dwa razy przy
-# pojedynczym wciśnięciu ENTER
-def wczytaj(prompt=""):
+# flush the buffer before each input in main. This fixes the bug where the day showed up twice
+# on a single Enter press
+def read_input(prompt=""):
     sys.stdout.flush()
     return input(prompt)
 
 
-# pytamy użytkownika o wprowadzenie seedu, jeśli nic nie poda to
-# lostujemy losowy seed, tak żeby w przyszłości mozna było porównywac seedy
-def zapytaj_o_seed():
+# ask the player for a seed. With no input we draw a random one, so seeds can be compared later
+def ask_for_seed():
     while True:
         sys.stdout.flush()
-        odpowiedz = input(
-            "Podaj seed (liczba całkowita >= 0, Enter = losowy): "
+        answer = input(
+            "Enter a seed (integer >= 0, Enter = random): "
         ).strip()
 
-        # Enter = losujemy nowy seed
-        if odpowiedz == "":
+        # Enter = draw a new seed
+        if answer == "":
             seed = random.randrange(1, 1_000_000)
             random.seed(seed)
             print(
-                zolty(
-                    f"Wylosowano nowy seed: {seed} (zapisz go, jeśli chcesz powtórzyć tę grę)"
+                yellow(
+                    f"Drew a new seed: {seed} (save it if you want to replay this game)"
                 )
             )
             return seed
 
-        # proba zamiany na liczbe calkowita
+        # try to turn it into an integer
         try:
-            seed = int(odpowiedz)
+            seed = int(answer)
         except ValueError:
             print(
-                czerwony(
-                    "Seed musi być liczbą całkowitą (np. 1, 42, 1000). Spróbuj ponownie."
+                red(
+                    "The seed must be an integer (e.g. 1, 42, 1000). Try again."
                 )
             )
             continue
 
-        # seed nie moze byc ujemny
+        # the seed cannot be negative
         if seed < 0:
             print(
-                czerwony(
-                    "Seed nie może być ujemny. Podaj liczbę >= 0. Spróbuj ponownie."
+                red(
+                    "The seed cannot be negative. Enter a number >= 0. Try again."
                 )
             )
             continue
 
         random.seed(seed)
-        print(zolty(f"Ustawiono seed: {seed}"))
+        print(yellow(f"Seed set: {seed}"))
         return seed
 
 
-# pyta uzytkownika o jeden parametr. Enter = wartosc domyslna
-def zapytaj(tekst, domyslne, typ, opis="", minimum=None, maksimum=None):
-    if opis:
-        print(blekitny(opis))
+# ask the player for one parameter. Enter = the default value
+def ask(text, default, type_, description="", minimum=None, maximum=None):
+    if description:
+        print(blue(description))
 
-    # budujemy opis dozwolonego zakresu do komunikatu o bledzie
-    if minimum is not None and maksimum is not None:
-        zakres = f"z przedziału {minimum}–{maksimum}"
+    # build the allowed-range text for the error message
+    if minimum is not None and maximum is not None:
+        allowed = f"between {minimum} and {maximum}"
     elif minimum is not None:
-        zakres = f"nie mniejsza niż {minimum}"
-    elif maksimum is not None:
-        zakres = f"nie większa niż {maksimum}"
+        allowed = f"no less than {minimum}"
+    elif maximum is not None:
+        allowed = f"no more than {maximum}"
     else:
-        zakres = ""
+        allowed = ""
 
     while True:
         sys.stdout.flush()
-        odpowiedz = input(f"{tekst} [{domyslne}]: ").strip()
-        if odpowiedz == "":
-            return domyslne  # Enter = wartosc domyslna
+        answer = input(f"{text} [{default}]: ").strip()
+        if answer == "":
+            return default  # Enter = the default value
 
-        # proba zamiany na wlasciwy typ (int/float)
+        # try to convert to the right type (int/float)
         try:
-            wartosc = typ(odpowiedz)
+            value = type_(answer)
         except ValueError:
-            print(czerwony("To nie jest poprawna liczba. Spróbuj ponownie."))
+            print(red("That is not a valid number. Try again."))
             continue
 
-        # sprawdzenie zakresu z czytelnym komunikatem
-        poza_zakresem = (minimum is not None and wartosc < minimum) or (
-            maksimum is not None and wartosc > maksimum
+        # range check with a readable message
+        out_of_range = (minimum is not None and value < minimum) or (
+            maximum is not None and value > maximum
         )
-        if poza_zakresem:
+        if out_of_range:
             print(
-                czerwony(
-                    f"Wartość poza zakresem – dozwolone {zakres}. Spróbuj ponownie."
-                )
+                red(f"Value out of range, allowed {allowed}. Try again.")
             )
             continue
 
-        return wartosc
+        return value
 
 
-# przywitanie użytkownika i opis zmiennych ustwaianych na początku symulacji
-
-
+# greet the player and explain the values set at the start of the simulation
 def main():
     print()
-    print(naglowek("FARMA KRÓW"))
+    print(header("COW FARM"))
     print(
-        zielony(
-            "Zarządzasz farmą krów mlecznych — 1 tura = 1 dzień.\n"
-            "Dorosła krowa daje 20 zł mleka dziennie, a utrzymanie farmy\n"
-            "kosztuje 50 zł dziennie (potrzebujesz min. 3 dorosłych krów,\n"
-            "żeby wyjść na zero).\n\n"
-            "Cielak nie daje mleka do póki nie stanie się dorosły\n"
-            "Pogoda z poprzedniego dnia decyduje, ile kępek trawy wyrośnie\n"
-            "następnego dnia. Celem jest dobranie ustawień startowych tak,\n"
-            "by farma przetrwała jak najdłużej i była jak najbogatsza.\n\n"
-            "OWCE (do kupienia wyłącznie w sklepie): wolniej głodnieją niż\n"
-            "krowy, więc żyją dłużej, ale ich mleko jest mało warte (5 zł).\n"
-            "Opłacają się dopiero po kupieniu KOTŁA SEROWARSKIEGO (jeden na\n"
-            "farmę): kocioł przerabia mleko owcze na ser — mleko dojrzewa\n"
-            "w kotle 3 dni, po czym powstaje ser wart 30 zł za owcę (o 10 zł\n"
-            "więcej niż krowa). Owce dają mleko codziennie, więc ser powstaje\n"
-            "co dzień, tyle że z 3-dniowym opóźnieniem.\n\n"
-            "SKLEP: każdy kolejny zakup tego samego towaru jest droższy —\n"
-            "warto różnicować zakupy.\n\n"
-            "Wartości w nawiasach '[]' to domyślne — wciśnij ENTER, by je przyjąć."
+        green(
+            "You manage a dairy cow farm, where 1 turn = 1 day.\n"
+            "An adult cow gives 20 zł of milk a day, and keeping the farm\n"
+            "running costs 50 zł a day (you need at least 3 adult cows\n"
+            "to break even).\n\n"
+            "A calf gives no milk until it grows up.\n"
+            "Yesterday's weather decides how much grass grows the next day.\n"
+            "The goal is to pick starting settings so the farm survives as\n"
+            "long as possible and ends up as rich as possible.\n\n"
+            "SHEEP (buyable only in the shop): get hungry slower than cows,\n"
+            "so they live longer, but their milk is worth little (5 zł).\n"
+            "They only pay off after you buy a CHEESE VAT (one per farm):\n"
+            "the vat turns sheep milk into cheese. The milk ripens in the\n"
+            "vat for 3 days, then becomes cheese worth 30 zł per sheep\n"
+            "(10 zł more than a cow). Sheep give milk every day, so cheese\n"
+            "comes out daily, just with a 3-day delay.\n\n"
+            "SHOP: every repeat purchase of the same item costs more, so it\n"
+            "is worth spreading your money around.\n\n"
+            "Values in '[]' are the defaults, so press ENTER to accept them."
         )
     )
-    print(naglowek("USTAWIENIA STARTOWE"))
+    print(header("STARTING SETTINGS"))
 
-    seed = zapytaj_o_seed()
-    print()  # linijka przerwy
+    seed = ask_for_seed()
+    print()  # blank line
 
-    parametry = {
+    params = {
         "seed": seed,
-        "nazwa_farmy": zapytaj(
-            "Nazwa farmy", "Moja Farma", str, "Nazwa farmy – pojawi się w rankingu."
+        "farm_name": ask(
+            "Farm name", "My Farm", str, "The farm name, shown in the ranking."
         ),
-        "liczba_krow_start": zapytaj(
-            "Liczba krów startowych",
+        "starting_cows": ask(
+            "Starting cows",
             5,
             int,
-            "Ile dorosłych krów na start. Każda = +20 zł/dzień.",
+            "How many adult cows to start with. Each one = +20 zł/day.",
             minimum=1,
-            maksimum=400,
+            maximum=400,
         ),
-        "budzet_start": zapytaj(
-            "Budżet startowy",
-            BUDZET_START,
+        "starting_budget": ask(
+            "Starting budget",
+            START_BUDGET,
             float,
-            "Pieniądze na start. Dzień kosztuje 50 zł.",
+            "Money to start with. A day costs 50 zł.",
             minimum=1,
         ),
-        "szansa_drapieznik": zapytaj(
-            "Szansa na drapieżnika (0-1)",
-            SZANSA_DRAPIEZNIK,
+        "predator_chance": ask(
+            "Predator chance (0-1)",
+            PREDATOR_CHANCE,
             float,
-            "0 = nigdy, 1 = codziennie.",
+            "0 = never, 1 = every day.",
             minimum=0,
-            maksimum=1,
+            maximum=1,
         ),
-        "maks_drapieznikow": zapytaj(
-            "Maksymalna liczba drapieżników",
-            MAKS_DRAPIEZNIKOW,
+        "max_predators": ask(
+            "Max predators",
+            MAX_PREDATORS,
             int,
-            "Ilu naraz może się pojawić.",
+            "How many can appear at once.",
             minimum=1,
-            maksimum=10,
+            maximum=10,
         ),
-        "max_dni": zapytaj(
-            "Maksymalna liczba dni",
-            MAX_DNI,
+        "max_days": ask(
+            "Max days",
+            MAX_DAYS,
             int,
-            "Po tylu dniach symulacja sama się kończy.",
+            "After this many days the simulation ends on its own.",
             minimum=1,
         ),
-        "szansa_zdarzenia": zapytaj(
-            "Szansa na zdarzenie losowe (0-1)",
-            SZANSA_NA_ZDARZENIE,
+        "event_chance": ask(
+            "Random event chance (0-1)",
+            EVENT_CHANCE,
             float,
-            "Jak często dzieje się coś nieoczekiwanego.",
+            "How often something unexpected happens.",
             minimum=0,
-            maksimum=1,
+            maximum=1,
         ),
     }
-    symulacja = Symulacja()
-    symulacja.start(parametry)
+    simulation = Simulation()
+    simulation.start(params)
 
 
-if __name__ == "__main__":  # zabezpiecznie
+if __name__ == "__main__":  # safeguard
     main()

@@ -51,6 +51,12 @@ class Ranking:
             return []
         if not isinstance(data, list):
             return []
+        # keep only well-formed entries, so an older ranking file from a previous
+        # schema is skipped instead of crashing the sort
+        needed = ("days_survived", "max_budget", "max_herd")
+        data = [
+            r for r in data if isinstance(r, dict) and all(k in r for k in needed)
+        ]
         # sort descending by days survived
         data.sort(key=_sort_key, reverse=True)
         return data

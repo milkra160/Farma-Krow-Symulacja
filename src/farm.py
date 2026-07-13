@@ -90,8 +90,8 @@ class Farm:
     def _hen_count(self) -> int:
         return sum(1 for a in self.animals if a.species == "hen" and a.is_alive)
 
-    # predator chance. Owning any hen raises it (loud, draws predators) - the fact counts,
-    # not the number of hens. A fence lowers the chance.
+    # predator chance. Owning any hen raises it (loud, draws predators); what counts is the
+    # fact, not the number of hens. A fence lowers the chance.
     def _predator_chance_today(self, fence_active: bool) -> float:
         chance = self.predator_chance
         if self._hen_count() > 0:
@@ -131,7 +131,7 @@ class Farm:
                 "batches_in_vat": 0,
             }
 
-        # ripen the batches already in the vat - the ones with a 0 counter become finished cheese
+        # ripen the batches already in the vat. The ones with a 0 counter become finished cheese
         remaining = []
         for batch in self.cheese_queue:
             batch[0] -= 1
@@ -179,7 +179,7 @@ class Farm:
                         f"{animal.name} (in {animal.days_to_birth} days)"
                     )
 
-        # give birth - each mother bears young of her own species (calf or lamb)
+        # give birth. Each mother bears young of her own species (calf or lamb)
         births = []
         for mother in mothers:
             new_id = self._next_id()
@@ -233,8 +233,8 @@ class Farm:
         if antenna_active:
             self.antenna_days_left -= 1
 
-        # predators - roll whether they show up. The fence cuts the chance but does not zero it -
-        # a predator can still slip in through a hole in the fence
+        # predators: roll whether they show up. The fence cuts the chance but does not zero it,
+        # so a predator can still slip in through a hole in the fence
         self.predators = []
         predator_through_hole = False
         free_cells = self.pasture.grass_cells()
@@ -260,11 +260,11 @@ class Farm:
             if not animal.is_alive:
                 dead_before_predators.append(animal.id)
 
-        # seat only the grazing animals on the cells - hens eat from the coop,
+        # seat only the grazing animals on the cells. Hens eat from the coop,
         # so they do not take cells
         self.pasture.assign_grazing_cells([a for a in self.animals if a.grazes()])
 
-        # hens do not graze but wander the farm - they get a random board position
+        # hens do not graze but wander the farm, so they get a random board position
         for hen in self.animals:
             if hen.is_alive and not hen.grazes():
                 x = random.randint(0, self.pasture.width - 1)
@@ -286,7 +286,7 @@ class Farm:
             if animal.is_alive:
                 animal.satiety = START_SATIETY
 
-        # hens can only die of old age - if something else (an event) "killed" them,
+        # hens can only die of old age. If something else (an event) "killed" them,
         # they come back to life. An event can attack them, but cannot kill them.
         for animal in self.animals:
             if not animal.is_alive and not animal.death_is_final():
@@ -369,7 +369,7 @@ class Farm:
             if isinstance(e, ForestRanger):
                 ranger_active = True
 
-        # finances - each animal reports its own income polymorphically.
+        # finances: each animal reports its own income polymorphically.
         # Exception: with the vat standing, adult sheep milk is not sold directly but goes
         # into the vat, where after a few days it ripens into more valuable cheese.
         income = 0

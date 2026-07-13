@@ -1,239 +1,234 @@
-# klasa Logger formatuje i drukuje dzienny log w terminalu
+# The Logger class formats and prints the daily log in the terminal
 
-SZEROKOSC = 56
-# kolory
-CZERWONY = "\033[91m"
-ZIELONY = "\033[92m"
-ZOLTY = "\033[93m"
-SZARY = "\033[90m"
-ROZOWY = "\033[95m"
-NIEBIESKI = "\033[96m"
+WIDTH = 56
+# colors
+RED = "\033[91m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+GRAY = "\033[90m"
+PINK = "\033[95m"
+CYAN = "\033[96m"
 RESET = "\033[0m"
-WYBLAKLY_ZIELONY = "\033[2;32m"
-WYBLAKLY_CZERWONY = "\033[2;31m"
+FADED_GREEN = "\033[2;32m"
+FADED_RED = "\033[2;31m"
 
 
-def wyblakly_zielony(tekst):
-    return f"{WYBLAKLY_ZIELONY}{tekst}{RESET}"
+def faded_green(text):
+    return f"{FADED_GREEN}{text}{RESET}"
 
 
-def wyblakly_czerwony(tekst):
-    return f"{WYBLAKLY_CZERWONY}{tekst}{RESET}"
+def faded_red(text):
+    return f"{FADED_RED}{text}{RESET}"
 
 
-def czerwony(tekst):
-    return f"{CZERWONY}{tekst}{RESET}"
+def red(text):
+    return f"{RED}{text}{RESET}"
 
 
-def zielony(tekst):
-    return f"{ZIELONY}{tekst}{RESET}"
+def green(text):
+    return f"{GREEN}{text}{RESET}"
 
 
-def zolty(tekst):
-    return f"{ZOLTY}{tekst}{RESET}"
+def yellow(text):
+    return f"{YELLOW}{text}{RESET}"
 
 
-def szary(tekst):
-    return f"{SZARY}{tekst}{RESET}"
+def gray(text):
+    return f"{GRAY}{text}{RESET}"
 
 
-def rozowy(tekst):
-    return f"{ROZOWY}{tekst}{RESET}"
+def pink(text):
+    return f"{PINK}{text}{RESET}"
 
 
-def niebieski(tekst):
-    return f"{NIEBIESKI}{tekst}{RESET}"
+def cyan(text):
+    return f"{CYAN}{text}{RESET}"
 
 
-def naglowek(tytul):
-    return zolty(f" {tytul} ".center(SZEROKOSC, "="))
+def header(title):
+    return yellow(f" {title} ".center(WIDTH, "="))
 
 
-def linia():
-    return szary("-" * SZEROKOSC)
+def line():
+    return gray("-" * WIDTH)
 
 
 class Logger:
-    SZEROKOSC = 56  # szerokosc "logu dnia"
+    WIDTH = 56  # width of the "daily log"
 
-    def drukuj_log(self, log: dict):
+    def print_log(self, log: dict):
         print()
 
-        # naglowek dnia (wysrodkowany)
-        # naglowek dnia (wspolny styl)
-        print(zolty(naglowek(f"DZIEŃ {log['dzien']} | pogoda: {log['pogoda']}")))
+        # day header (centered, shared style)
+        print(yellow(header(f"DAY {log['day']} | weather: {log['weather']}")))
 
-        # aktywne zdarzenia losowe (osobna sekcja)
-
-        if len(log["zdarzenia"]) > 0:
-            print(zolty("ZDARZENIA LOSOWE:"))
-            for opis in log["zdarzenia"]:
-                print(f" - {opis}")
+        # active random events (separate section)
+        if len(log["events"]) > 0:
+            print(yellow("RANDOM EVENTS:"))
+            for description in log["events"]:
+                print(f" - {description}")
         else:
-            print(szary("ZDARZENIA LOSOWE: brak"))
+            print(gray("RANDOM EVENTS: none"))
 
-        print(szary("-" * self.SZEROKOSC))
+        print(gray("-" * self.WIDTH))
 
-        # twoje dzialania: zakupy zrobione w sklepie + status plotu
-        zakupy = log.get("zakupy", [])
-        if len(zakupy) > 0 or log.get("plot_zniszczony"):
-            print(zielony("TWOJE DZIAŁANIA:"))
-            for zakup in zakupy:
-                print(f"   🛒 {zakup}")
-            if log.get("plot_zniszczony"):
-                print(czerwony("   🚧 Płot się zniszczył!"))
-            print(szary("-" * self.SZEROKOSC))
+        # your actions: shop purchases + fence status
+        purchases = log.get("purchases", [])
+        if len(purchases) > 0 or log.get("fence_destroyed"):
+            print(green("YOUR ACTIONS:"))
+            for purchase in purchases:
+                print(f"   🛒 {purchase}")
+            if log.get("fence_destroyed"):
+                print(red("   🚧 The fence broke!"))
+            print(gray("-" * self.WIDTH))
 
-        # iloesc kepek trawy
-        ile_kepek = len(log["kepki_trawy"])
-        print(f"KĘPKI TRAWY: {ile_kepek}")
-        print(szary("-" * self.SZEROKOSC))
+        # number of grass patches
+        patch_count = len(log["grass_patches"])
+        print(f"GRASS PATCHES: {patch_count}")
+        print(gray("-" * self.WIDTH))
 
-        # finanse (wyrownane w kolumnach)
-        finanse = log["finanse"]
-        print("FINANSE:")
+        # finances (aligned in columns)
+        finances = log["finances"]
+        print("FINANCES:")
         print(
-            f"   przychód: {finanse['przychod']:>8.0f}      koszt:  {finanse['koszt']:>8.0f}"
+            f"   income: {finances['income']:>8.0f}      cost:   {finances['cost']:>8.0f}"
         )
 
-        bilans = finanse["bilans"]
-        if bilans >= 0:
-            zmiana = wyblakly_zielony(f"(+{bilans:.0f})")
+        balance = finances["balance"]
+        if balance >= 0:
+            change = faded_green(f"(+{balance:.0f})")
         else:
-            zmiana = wyblakly_czerwony(f"({bilans:.0f})")
+            change = faded_red(f"({balance:.0f})")
 
         print(
-            f"   bilans:   {bilans:>8.0f}      budżet: {finanse['budzet']:>8.0f} {zmiana}"
+            f"   balance:  {balance:>8.0f}      budget: {finances['budget']:>8.0f} {change}"
         )
-        print(szary("-" * self.SZEROKOSC))
+        print(gray("-" * self.WIDTH))
 
-        # kociol serowarski - ile mleka owczego dodano dzis, ile sera powstalo i ile sera dojrzeje
-        # nastepnego dnia (mleko dojrzewa w ser z opoznieniem)
-        kociol = log.get("kociol")
-        if kociol and kociol["aktywny"]:
-            print("KOCIOŁ SEROWARSKI:")
-            if kociol["ser_dzis"] > 0:
-                print(zielony(f"   ser gotowy dzisiaj: +{kociol['ser_dzis']} zł"))
-            if kociol["mleko_dzis"] > 0:
-                print(f"   mleko owcze dodane do kotła: {kociol['mleko_dzis']}")
-            if kociol["ser_jutro"] > 0:
-                print(f"   ser gotowy jutro: +{kociol['ser_jutro']} zł")
-            if kociol["partie_w_kotle"] == 0 and kociol["ser_dzis"] == 0:
-                print(szary("   kocioł pusty — czeka na mleko owcze"))
-            print(szary("-" * self.SZEROKOSC))
+        # cheese vat: how much sheep milk was added today, how much cheese was made, and how much
+        # ripens the next day (milk ripens into cheese with a delay)
+        cheese_vat = log.get("cheese_vat")
+        if cheese_vat and cheese_vat["active"]:
+            print("CHEESE VAT:")
+            if cheese_vat["cheese_today"] > 0:
+                print(green(f"   cheese ready today: +{cheese_vat['cheese_today']} zł"))
+            if cheese_vat["milk_today"] > 0:
+                print(f"   sheep milk added to the vat: {cheese_vat['milk_today']}")
+            if cheese_vat["cheese_tomorrow"] > 0:
+                print(f"   cheese ready tomorrow: +{cheese_vat['cheese_tomorrow']} zł")
+            if cheese_vat["batches_in_vat"] == 0 and cheese_vat["cheese_today"] == 0:
+                print(gray("   vat empty, waiting for sheep milk"))
+            print(gray("-" * self.WIDTH))
 
-        # STADO: narodziny/dorastanie/zgony
+        # HERD: births/growing up/deaths
+        if len(log["births"]) > 0:
+            print(green(f"   births:  {', '.join(log['births'])}"))
+        if log.get("grown_up") and len(log["grown_up"]) > 0:
+            print(f"   grew up today:    {', '.join(log['grown_up'])}")
+        if len(log["dead"]) > 0:
+            parts = []
+            for name in log["dead"]:
+                parts.append(f"{name} ({log['death_causes'][name]})")
+            print(red(f"   deaths:      {', '.join(parts)}"))
 
-        if len(log["narodziny"]) > 0:
-            print(zielony(f"   narodziny:  {', '.join(log['narodziny'])}"))
-        if log.get("dorastanie") and len(log["dorastanie"]) > 0:
-            print(f"   stała się dziś dorosła:    {', '.join(log['dorastanie'])}")
-        if len(log["martwe"]) > 0:
-            czesci = []
-            for imie in log["martwe"]:
-                czesci.append(f"{imie} ({log['powod_smierci'][imie]})")
-            print(czerwony(f"   zgony:      {', '.join(czesci)}"))
+        if log.get("resurrections") and len(log["resurrections"]) > 0:
+            print(cyan(f"   resurrection: {', '.join(log['resurrections'])}"))
 
-        if log.get("zmartwychwstania") and len(log["zmartwychwstania"]) > 0:
+        # herd statistics
+        if log.get("pregnancies") and len(log["pregnancies"]) > 0:
+            print(pink(f"   pregnancy:      {', '.join(log['pregnancies'])}"))
+
+        # separate tables for cows and sheep. Same form, each species counted on its own
+        self._species_section(log, "cow", "LIVING COWS")
+        self._species_section(log, "sheep", "LIVING SHEEP")
+        if log.get("coop_gone"):
+            print(gray("The coop is empty, the last hen died"))
+        self._hen_section(log)
+        print("=" * self.WIDTH)
+
+    # print one species: a fed/hungry count plus a table of the living with a satiety bar.
+    # Same form for cows and sheep. We split them by the "species" field of the animal states.
+    def _species_section(self, log: dict, species: str, title: str):
+        animals = [a for a in log["animal_states"] if a.get("species") == species]
+        if len(animals) == 0:
+            return
+        alive = [a for a in animals if a["is_alive"]]
+        fed = sum(1 for a in alive if a["ate"])
+        hungry = len(alive) - fed
+        print(gray("-" * self.WIDTH))
+        print(f"{title}: {len(alive)} | fed: {fed} | hungry: {hungry}")
+        for a in alive:
             print(
-                niebieski(f"   zmartwychwstanie: {', '.join(log['zmartwychwstania'])}")
+                f"   {a['symbol']} {a['name']:<12} {self._hunger_bar(a['satiety'])} {a['satiety']:>3}/100"
             )
 
-        # statystyki stada
-        if log.get("ciaze") and len(log["ciaze"]) > 0:
-            print(rozowy(f"   ciąża:      {', '.join(log['ciaze'])}"))
-
-        # osobne tabele dla krow i owiec - ta sama forma, kazdy gatunek liczony niezaleznie
-        self._sekcja_gatunku(log, "krowa", "ŻYWE KROWY")
-        self._sekcja_gatunku(log, "owca", "ŻYWE OWCE")
-        if log.get("kurnik_zniknal"):
-            print(szary("Kurnik opustoszał — padła ostatnia kura"))
-        self._sekcja_kury(log)
-        print("=" * self.SZEROKOSC)
-
-    # wypisuje jeden gatunek: licznik najedzonych/glodnych + tabele zywych z paskiem najedzenia.
-    # Ta sama forma dla krow i owiec - rozdzielamy je po polu "gatunek" ze stanu zwierzat.
-    def _sekcja_gatunku(self, log: dict, gatunek: str, tytul: str):
-        zwierzeta = [k for k in log["stan_krow"] if k.get("gatunek") == gatunek]
-        if len(zwierzeta) == 0:
+    # a separate section for hens: they have no satiety bar (the coop feeds them), so instead of
+    # satiety we show how much of their fixed lifespan has passed, which tells you which hen is about to die
+    def _hen_section(self, log: dict):
+        hens = [a for a in log["animal_states"] if a.get("species") == "hen"]
+        if len(hens) == 0:
             return
-        zywe = [k for k in zwierzeta if k["zyje"]]
-        najedzone = sum(1 for k in zywe if k["zjadla"])
-        glodne = len(zywe) - najedzone
-        print(szary("-" * self.SZEROKOSC))
-        print(f"{tytul}: {len(zywe)} | najedzonych: {najedzone} | głodnych: {glodne}")
-        for k in zywe:
-            print(
-                f"   {k['symbol']} {k['imie']:<12} {self._pasek_glodu(k['najedzenie'])} {k['najedzenie']:>3}/100"
-            )
+        alive = [a for a in hens if a["is_alive"]]
+        lifespan = log.get("hen_lifespan", 7)
+        print(gray("-" * self.WIDTH))
+        print(f"LIVING HENS: {len(alive)}  (coop active)")
+        for a in alive:
+            print(f"   \U0001F414 {a['name']:<12} age {a['age']}/{lifespan} days")
 
-    # osobna sekcja dla kur: nie maja paska glodu (kurnik je karmi), wiec zamiast najedzenia
-    # pokazujemy ile z ustalonej dlugosci zycia juz uplynelo - widac, ktora kura zaraz padnie
-    def _sekcja_kury(self, log: dict):
-        kury = [k for k in log["stan_krow"] if k.get("gatunek") == "kura"]
-        if len(kury) == 0:
-            return
-        zywe = [k for k in kury if k["zyje"]]
-        dni_zycia = log.get("kura_dni_zycia", 7)
-        print(szary("-" * self.SZEROKOSC))
-        print(f"ŻYWE KURY: {len(zywe)}  (kurnik czynny)")
-        for k in zywe:
-            print(f"   \U0001F414 {k['imie']:<12} wiek {k['wiek']}/{dni_zycia} dni")
+    # draws an animal's satiety bar (0-100), the color depends on the hunger level
+    def _hunger_bar(self, satiety: int) -> str:
+        length = 10
+        filled = satiety * length // 100  # how many blocks to fill (satiety 0-100)
+        if filled > length:
+            filled = length
+        if filled < 0:
+            filled = 0
+        empty = length - filled
+        bar = "█" * filled + "░" * empty
 
-    # rysuje pasek najedzenia krowy (0-100), kolor zalezy od poziomu glodu
-    def _pasek_glodu(self, najedzenie: int) -> str:
-        dlugosc = 10
-        pelne = najedzenie * dlugosc // 100  # ile kratek wypelnic(najedzenie 0-100)
-        if pelne > dlugosc:
-            pelne = dlugosc
-        if pelne < 0:
-            pelne = 0
-        puste = dlugosc - pelne
-        pasek = "\u2588" * pelne + "\u2591" * puste
-
-        if najedzenie >= 60:
-            return zielony(pasek)
-        elif najedzenie >= 30:
-            return zolty(pasek)
+        if satiety >= 60:
+            return green(bar)
+        elif satiety >= 30:
+            return yellow(bar)
         else:
-            return czerwony(pasek)
+            return red(bar)
 
-    def drukuj_podsumowanie_koncowe(self, dni: int, powod: str, finanse: dict):
+    def print_final_summary(self, days: int, reason: str, finances: dict):
         print()
-        print(naglowek("KONIEC SYMULACJI"))
-        print(f"   powód zakończenia:  {powod}")
-        print(f"   przetrwane dni:     {dni}")
-        print(f"   końcowy budżet:     {finanse['budzet']:.0f} zł")
-        print("=" * SZEROKOSC)
+        print(header("END OF SIMULATION"))
+        print(f"   reason:          {reason}")
+        print(f"   days survived:   {days}")
+        print(f"   final budget:    {finances['budget']:.0f} zł")
+        print("=" * WIDTH)
 
-    def drukuj_statystyki(self, s: dict):
-        print()  # pusta linia dla estetyki
-        print(czerwony("=== STATYSTYKI KOŃCOWE ==="))
-        print(f"Łączne narodziny:   {s['narodziny']}")
-        print(f"Łączne zmartwychwstania: {s['zmartwychwstania']}")
-        print(f"Łączne zgony:       {s['zgony']}")
-        print(f"Krów łącznie na farmie: {s['wszystkie_krowy']}")
+    def print_statistics(self, s: dict):
+        print()  # empty line for looks
+        print(red("=== FINAL STATISTICS ==="))
+        print(f"Total births:   {s['births']}")
+        print(f"Total resurrections: {s['resurrections']}")
+        print(f"Total deaths:       {s['deaths']}")
+        print(f"Total cows on the farm: {s['total_cows']}")
         print(
-            f"Maksmalne stado: {s['maks_stado']} zwierząt (dzień {s['maks_stado_dzien']})"
+            f"Largest herd: {s['max_herd']} animals (day {s['max_herd_day']})"
         )
         print(
-            f"Stado na koniec: {s['krowy_koncowe']} krów | "
-            f"{s['owce_koncowe']} owiec | {s['kury_koncowe']} kur"
+            f"Final herd: {s['final_cows']} cows | "
+            f"{s['final_sheep']} sheep | {s['final_hens']} hens"
         )
-        print(f"Zdarzenia losowe:   {s['zdarzenia']}")
-        print(linia())
+        print(f"Random events:   {s['events']}")
+        print(line())
         print(
-            f"Pogoda: słońce {s['dni_slonca']} / deszcz {s['dni_deszczu']} / susza {s['dni_suszy']}"
+            f"Weather: sun {s['sunny_days']} / rain {s['rainy_days']} / drought {s['drought_days']}"
         )
         print(
-            f"Finanse: przychód {s['suma_przychodow']:.0f} zł, "
-            f"koszt {s['suma_kosztow']:.0f} zł, "
-            f"budżet końcowy {s['budzet_koncowy']:.0f} zł"
+            f"Finances: income {s['total_income']:.0f} zł, "
+            f"cost {s['total_cost']:.0f} zł, "
+            f"final budget {s['final_budget']:.0f} zł"
         )
-        print(linia())
+        print(line())
         print(
-            f"Zakupy w sklepie: zwierzęta {s['kupione_zwierzeta']}, "
-            f"worki paszy {s['kupione_pasze']}, "
-            f"ulepszenia {s['kupione_ulepszenia']}"
+            f"Shop purchases: animals {s['bought_animals']}, "
+            f"feed bags {s['bought_feed']}, "
+            f"upgrades {s['bought_upgrades']}"
         )
-        print("=" * SZEROKOSC)
+        print("=" * WIDTH)

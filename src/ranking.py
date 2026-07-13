@@ -2,133 +2,132 @@ import json
 import os
 
 
-# szablon dla kolorów do późniejszego wyświetlania by ułatwić pisanie kodu
-ZIELONY = "\033[92m"
-ZOLTY = "\033[93m"
+# color codes for later display, kept here to make the code simpler
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
 RESET = "\033[0m"
 
 
-# szablon dla wyświetlania rankingu w formie estetycznej tabeli
-_SZABLON = (
-    "{lp:<4}{nazwa:<13}{seed:<8}{dni:<5}"
-    "{budzet_maks:<12}{stado_maks:<11}{krowy:<6}"
-    "{budzet_st:<11}{drap:<6}{koniec:<13}"
+# template for showing the ranking as a tidy table
+_TEMPLATE = (
+    "{rank:<4}{name:<13}{seed:<8}{days:<5}"
+    "{max_budget:<12}{max_herd:<11}{cows:<6}"
+    "{start_budget:<11}{pred:<6}{end:<13}"
 )
 
 
-def _klucz_sortowania(wynik: dict):
+def _sort_key(result: dict):
     return (
-        wynik["dni_przezycia"],
-        wynik["maks_budzet"],
-        wynik["maks_stado"],
+        result["days_survived"],
+        result["max_budget"],
+        result["max_herd"],
     )
 
 
-# klasa ranking zapisuje wynik symulacji do pliku json i odczytuje je
+# The Ranking class saves simulation results to a json file and reads them back
 class Ranking:
-    def __init__(self, plik: str = "ranking.json"):
-        self.plik = plik
+    def __init__(self, file: str = "ranking.json"):
+        self.file = file
 
-    def wyswietl_kryteria(self):  # kryteria sortowania rankingu
+    def show_criteria(self):  # the ranking's sort criteria
         print()
-        print(ZIELONY + "=== JAK OCENIAMY WYNIK (kryteria rankingu) ===" + RESET)
-        print("Najlepszy wynik ustalamy po kolei wedlug:")
-        print("  1. Liczba przezytych dni  (im wiecej, tym lepiej)")
-        print("  2. Przy remisie: maksymalny budzet  (im wiecej, tym lepiej)")
-        print("  3. Przy dalszym remisie: maksymalne stado")
+        print(GREEN + "=== HOW WE SCORE (ranking criteria) ===" + RESET)
+        print("We pick the best result in order by:")
+        print("  1. Days survived  (more is better)")
+        print("  2. On a tie: max budget  (more is better)")
+        print("  3. On a further tie: max herd")
         print(
-            "Uwaga: uczciwe porownanie konfiguracji ma sens tylko w obrebie tego samego seeda."
+            "Note: comparing configs fairly only makes sense within the same seed."
         )
 
-    def wczytaj_ranking(self) -> list:
-        # zabezpieczenie. Jak nie ma pliku zwracamy pusta liste
-        if not os.path.exists(self.plik):
+    def load(self) -> list:
+        # safety. With no file we return an empty list
+        if not os.path.exists(self.file):
             return []
         try:
-            with open(self.plik, "r", encoding="utf-8") as f:
-                dane = json.load(f)
+            with open(self.file, "r", encoding="utf-8") as f:
+                data = json.load(f)
         except (json.JSONDecodeError, ValueError):
             return []
-        if not isinstance(dane, list):
+        if not isinstance(data, list):
             return []
-        # sortujemy malejaco po dniach przezycia
-        dane.sort(key=_klucz_sortowania, reverse=True)
-        return dane
+        # sort descending by days survived
+        data.sort(key=_sort_key, reverse=True)
+        return data
 
-    def zapisz_wynik(self, wynik: dict):
-        ranking = self.wczytaj_ranking()  # to co juz mamy znajduje sie w pliku
-        ranking.append(wynik)  # dodajemy nowy wynik
-        ranking.sort(key=_klucz_sortowania, reverse=True)
-        with open(self.plik, "w", encoding="utf-8") as f:
+    def save_result(self, result: dict):
+        ranking = self.load()  # what we already have is in the file
+        ranking.append(result)  # add the new result
+        ranking.sort(key=_sort_key, reverse=True)
+        with open(self.file, "w", encoding="utf-8") as f:
             json.dump(ranking, f, ensure_ascii=False, indent=2)
 
-    # wyciaga seed z parametrow startowych danego wyniku (moze byc None)
-    def _seed_wyniku(self, wynik: dict):
-        return wynik.get("parametry_start", {}).get("seed")
+    # pull the seed out of a result's start params (may be None)
+    def _result_seed(self, result: dict):
+        return result.get("start_params", {}).get("seed")
 
-    # buduje kolorowy naglowek tabeli rankingu
-    def _naglowek_tabeli(self):
-        tekst = _SZABLON.format(
-            lp="Lp.",
-            nazwa="Farma",
+    # build the colored header of the ranking table
+    def _table_header(self):
+        text = _TEMPLATE.format(
+            rank="No.",
+            name="Farm",
             seed="Seed",
-            dni="Dni",
-            budzet_maks="Budzet maks",
-            stado_maks="Stado maks",
-            krowy="Krowy",
-            budzet_st="Budzet st.",
-            drap="Drap.",
-            koniec="Koniec",
+            days="Days",
+            max_budget="Max budget",
+            max_herd="Max herd",
+            cows="Cows",
+            start_budget="Start bud.",
+            pred="Pred.",
+            end="End",
         )
-        linia = "-" * len(tekst)
-        return ZOLTY + tekst + RESET + "\n" + linia
+        line = "-" * len(text)
+        return YELLOW + text + RESET + "\n" + line
 
-        # jeden wiersz tabeli
-
-    def _wiersz(self, miejsce: int, wynik: dict) -> str:
-        p = wynik.get("parametry_start", {})
-        return _SZABLON.format(
-            lp=f"{miejsce}.",
-            nazwa=str(wynik["nazwa_farmy"])[:15],
-            seed=str(self._seed_wyniku(wynik)),
-            dni=str(wynik["dni_przezycia"]),
-            budzet_maks=str(wynik["maks_budzet"]),
-            stado_maks=str(wynik["maks_stado"]),
-            krowy=str(p.get("liczba_krow_start")),
-            budzet_st=str(p.get("budzet_start")),
-            drap=str(p.get("szansa_drapieznik")),
-            koniec=str(wynik["powod_konca"])[:19],
+    # one table row
+    def _row(self, place: int, result: dict) -> str:
+        p = result.get("start_params", {})
+        return _TEMPLATE.format(
+            rank=f"{place}.",
+            name=str(result["farm_name"])[:15],
+            seed=str(self._result_seed(result)),
+            days=str(result["days_survived"]),
+            max_budget=str(result["max_budget"]),
+            max_herd=str(result["max_herd"]),
+            cows=str(p.get("starting_cows")),
+            start_budget=str(p.get("starting_budget")),
+            pred=str(p.get("predator_chance")),
+            end=str(result["end_reason"])[:19],
         )
 
-    def wyswietl_dla_seeda(self, seed):
-        ranking = self.wczytaj_ranking()
-        tylko_ten_seed = [w for w in ranking if self._seed_wyniku(w) == seed]
+    def show_for_seed(self, seed):
+        ranking = self.load()
+        only_this_seed = [r for r in ranking if self._result_seed(r) == seed]
 
         print()
-        print(ZIELONY + f"=== RANKING dla seeda {seed} ===" + RESET)  # nogłówek
+        print(GREEN + f"=== RANKING for seed {seed} ===" + RESET)
 
-        print()  # linijka przerwy
-        if not tylko_ten_seed:
-            print("Brak wyników dla tego seeda.")
+        print()  # blank line
+        if not only_this_seed:
+            print("No results for this seed.")
             return
-        print(self._naglowek_tabeli())
-        miejsce = 1
-        for wynik in tylko_ten_seed:
-            print(self._wiersz(miejsce, wynik))
-            miejsce += 1
+        print(self._table_header())
+        place = 1
+        for result in only_this_seed:
+            print(self._row(place, result))
+            place += 1
 
-    def wyswietl_top_10(self):
-        ranking = self.wczytaj_ranking()
+    def show_top_10(self):
+        ranking = self.load()
 
         print()
-        print(ZIELONY + "=== TOP 10 (wszystkie seedy razem) ===" + RESET)
+        print(GREEN + "=== TOP 10 (all seeds together) ===" + RESET)
         print()
 
         if not ranking:
-            print("Brak wyników.")
+            print("No results.")
             return
-        print(self._naglowek_tabeli())
-        miejsce = 1
-        for wynik in ranking[:10]:
-            print(self._wiersz(miejsce, wynik))
-            miejsce += 1
+        print(self._table_header())
+        place = 1
+        for result in ranking[:10]:
+            print(self._row(place, result))
+            place += 1

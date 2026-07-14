@@ -77,9 +77,9 @@ class Logger:
         if len(purchases) > 0 or log.get("fence_destroyed"):
             print(green("YOUR ACTIONS:"))
             for purchase in purchases:
-                print(f"   🛒 {purchase}")
+                print(f"   - {purchase}")
             if log.get("fence_destroyed"):
-                print(red("   🚧 The fence broke!"))
+                print(red("   The fence broke!"))
             print(gray("-" * self.WIDTH))
 
         # number of grass patches
@@ -173,7 +173,7 @@ class Logger:
         print(gray("-" * self.WIDTH))
         print(f"LIVING HENS: {len(alive)}  (coop active)")
         for a in alive:
-            print(f"   \U0001F414 {a['name']:<12} age {a['age']}/{lifespan} days")
+            print(f"   H {a['name']:<12} age {a['age']}/{lifespan} days")
 
     # draws an animal's satiety bar (0-100), the color depends on the hunger level
     def _hunger_bar(self, satiety: int) -> str:

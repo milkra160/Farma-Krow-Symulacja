@@ -42,7 +42,7 @@ class RandomEvent(ABC):
 class ValentinesDay(RandomEvent):
     def __init__(self):
         super().__init__()
-        self.name = "Valentine's Day 💘"
+        self.name = "Valentine's Day"
         self.description = "Pregnancy chance +50% for one day"
         self.duration_days = 1
         self.original_chance = config.PREGNANCY_CHANCE
@@ -66,7 +66,7 @@ class ValentinesDay(RandomEvent):
 class SuddenDrought(RandomEvent):
     def __init__(self):
         super().__init__()
-        self.name = "Sudden Drought ☀️"
+        self.name = "Sudden Drought"
         self.description = "Grass patches cut in half for 3 days"
         self.duration_days = 3
         self.original_base = config.BASE_GRASS_PATCHES

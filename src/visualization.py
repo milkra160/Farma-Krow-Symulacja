@@ -91,38 +91,23 @@ class Visualization:  # draws a still frame of the farm at the end of the day
             self._draw_coop(lines)
         return "\n".join(lines)
 
-    # the ranger figure
+    # a text tag next to the board for each active feature. We put them on separate rows
+    # so several tags do not overlap when more than one feature is running.
     def _draw_ranger(self, lines: list):
-        figure = self._colorize("웃", "green")  # a little stickman
-        # lines[0] is the top frame, so we place the figure next to the first pasture row
         if len(lines) > 1:
-            lines[1] += "   " + figure
+            lines[1] += "   " + self._colorize("[ranger]", "green")
 
-    # the cheese vat next to the board (like the ranger figure): a pot of cheese with smoke
-    # rising above it, so you can tell cheese is being made. We draw the smoke in the rows above
-    # the vat, with growing indentation toward the top, so it looks like it drifts lazily to the side.
     def _draw_cheese_vat(self, lines: list):
-        if len(lines) <= 4:
-            return
-        lines[2] += "     \U0001f4a8"  # smoke
-        lines[3] += "    \U0001f4a8"  # smoke
-        lines[4] += "   \U0001fed5"  # a pot of cheese
+        if len(lines) > 3:
+            lines[3] += "   [cheese vat]"
 
-    # the jamming antenna next to the board: a gray square (the device) with a mast.
-    # We draw it lower than the vat so the two symbols do not overlap.
     def _draw_antenna(self, lines: list):
-        if len(lines) <= 7:
-            return
-        mast = self._colorize("\\|/", "gray")
-        device = self._colorize("▦", "gray")
-        lines[6] += "  " + mast
-        lines[7] += "   " + device
+        if len(lines) > 5:
+            lines[5] += "   " + self._colorize("[antenna]", "gray")
 
-    # the coop next to the board: a little house with a hen laying an egg. We draw it lowest, below the antenna.
     def _draw_coop(self, lines: list):
-        if len(lines) <= 10:
-            return
-        lines[9] += "  \U0001F3E0"  # a little house, the coop
+        if len(lines) > 7:
+            lines[7] += "   [coop]"
 
     # the main method, draws the board on screen
     def draw_board(self, pasture, log: dict):
@@ -131,26 +116,26 @@ class Visualization:  # draws a still frame of the farm at the end of the day
         if log.get("fence_active"):
             days = log["fence_days"]
             if days == 0:
-                text = "🚧 The fence protects the farm. Last day, it falls apart tomorrow"
+                text = "The fence protects the farm. Last day, it falls apart tomorrow"
             else:
                 word = "day" if days == 1 else "days"
-                text = f"🚧 The fence protects the farm. {days} {word} left"
+                text = f"The fence protects the farm. {days} {word} left"
             print(self._colorize(text, "yellow"))
         # alert when a predator broke through the fence, explains the gap in the frame
         if log.get("predator_through_hole"):
             print(
                 self._colorize(
-                    "🕳️  A predator slipped through a hole in the fence!", "red"
+                    "A predator slipped through a hole in the fence!", "red"
                 )
             )
         # caption explaining the antenna mast next to the board
         if log.get("antenna_active"):
             days = log.get("antenna_days", 0)
             if days == 0:
-                text = "\U0001f4e1 The antenna jams UFOs. Last day"
+                text = "The antenna jams UFOs. Last day"
             else:
                 word = "day" if days == 1 else "days"
-                text = f"\U0001f4e1 The antenna jams UFOs. {days} {word} left"
+                text = f"The antenna jams UFOs. {days} {word} left"
             print(self._colorize(text, "cyan"))
         self.legend()
 

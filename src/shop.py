@@ -45,7 +45,7 @@ class Item(ABC):
 class BuyAdultCow(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Adult cow 🐄"
+        self.name = "Adult cow"
         self.description = "An adult cow that gives milk from the next day"
         self.base_price = config.ADULT_COW_PRICE
         self.price = config.ADULT_COW_PRICE
@@ -68,7 +68,7 @@ class BuyAdultCow(Item):
 class BuyCalf(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Calf 🐮"
+        self.name = "Calf"
         self.description = "Cheaper, but only starts giving milk once it grows up"
         self.base_price = config.CALF_PRICE
         self.price = config.CALF_PRICE
@@ -89,7 +89,7 @@ class BuyCalf(Item):
 class FeedBag(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Feed bag 🌾"
+        self.name = "Feed bag"
         self.description = f"Adds {config.FEED_SATIETY} satiety to the whole herd"
         self.base_price = config.FEED_PRICE
         self.price = config.FEED_PRICE
@@ -114,7 +114,7 @@ class FeedBag(Item):
 class Fence(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Fence 🚧"
+        self.name = "Fence"
         self.description = (
             f"Lowers the predator chance for {config.FENCE_DURATION} days"
         )
@@ -138,7 +138,7 @@ class Fence(Item):
 class BuyAntenna(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Jamming antenna 📡"
+        self.name = "Jamming antenna"
         self.description = f"Blocks UFO abductions for {config.ANTENNA_DURATION} days"
         self.base_price = config.ANTENNA_PRICE
         self.price = config.ANTENNA_PRICE
@@ -158,7 +158,7 @@ class BuyAntenna(Item):
 class BuyAdultSheep(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Adult sheep 🐑"
+        self.name = "Adult sheep"
         self.description = "Lives longer than a cow, but its milk is worth little. Pays off with a cheese vat"
         self.base_price = config.ADULT_SHEEP_PRICE
         self.price = config.ADULT_SHEEP_PRICE
@@ -182,7 +182,7 @@ class BuyAdultSheep(Item):
 class BuyHen(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Hen 🐔"
+        self.name = "Hen"
         self.description = (
             f"Lays eggs worth {config.EGG_INCOME} zł/day for "
             f"{config.HEN_LIFESPAN} days. Does not eat grass, but draws predators"
@@ -207,7 +207,7 @@ class BuyHen(Item):
 class BuyCheeseVat(Item):
     def __init__(self):
         super().__init__()
-        self.name = "Cheese vat 🧀"
+        self.name = "Cheese vat"
         self.description = (
             f"Turns sheep milk into cheese after {config.CHEESE_RIPEN_DAYS} days "
             f"({config.CHEESE_INCOME} zł per sheep). One per farm"

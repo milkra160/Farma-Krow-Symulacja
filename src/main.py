@@ -129,24 +129,20 @@ def main():
     print(header("COW FARM"))
     print(
         green(
-            "You manage a dairy cow farm, where 1 turn = 1 day.\n"
-            "An adult cow gives 20 zł of milk a day, and keeping the farm\n"
-            "running costs 50 zł a day (you need at least 3 adult cows\n"
-            "to break even).\n\n"
-            "A calf gives no milk until it grows up.\n"
-            "Yesterday's weather decides how much grass grows the next day.\n"
-            "The goal is to pick starting settings so the farm survives as\n"
-            "long as possible and ends up as rich as possible.\n\n"
-            "SHEEP (buyable only in the shop): get hungry slower than cows,\n"
-            "so they live longer, but their milk is worth little (5 zł).\n"
-            "They only pay off after you buy a CHEESE VAT (one per farm):\n"
-            "the vat turns sheep milk into cheese. The milk ripens in the\n"
-            "vat for 3 days, then becomes cheese worth 30 zł per sheep\n"
-            "(10 zł more than a cow). Sheep give milk every day, so cheese\n"
-            "comes out daily, just with a 3-day delay.\n\n"
-            "SHOP: every repeat purchase of the same item costs more, so it\n"
-            "is worth spreading your money around.\n\n"
-            "Values in '[]' are the defaults, so press ENTER to accept them."
+            "You run a dairy farm. One turn is one day, and the aim is to\n"
+            "survive as long as you can and finish as rich as possible.\n\n"
+            "Cows are your income: an adult gives 20 zł of milk a day, upkeep\n"
+            "costs 50 zł, so about three adult cows break even. A calf is\n"
+            "cheaper but earns nothing until it grows up. Yesterday's weather\n"
+            "sets how much grass grows today, and animals that stay hungry die.\n\n"
+            "The shop opens up more options. Sheep live longer than cows, but\n"
+            "their milk is nearly worthless until you buy the cheese vat, which\n"
+            "ripens it into cheese worth 30 zł per sheep. Hens skip the grass\n"
+            "and lay eggs for steady income, though they are loud, draw\n"
+            "predators, and live only a few days. Fences and a jamming antenna\n"
+            "keep predators and UFOs off your back. Buying the same item twice\n"
+            "costs more each time, so spread your money around.\n\n"
+            "Values in '[]' are the defaults. Press ENTER to accept them."
         )
     )
     print(header("STARTING SETTINGS"))

@@ -2,34 +2,34 @@ import os
 from src.ranking import Ranking
 
 
-def wynik(nazwa, dni):
+def result(name, days):
     return {
-        "nazwa_farmy": nazwa,
-        "data": "2026-06-08",
-        "dni_przezycia": dni,
-        "maks_budzet": 100,
-        "maks_stado": 5,
-        "powod_konca": "bankructwo",
-        "parametry_start": {},
+        "farm_name": name,
+        "date": "2026-06-08",
+        "days_survived": days,
+        "max_budget": 100,
+        "max_herd": 5,
+        "end_reason": "bankruptcy",
+        "start_params": {},
     }
 
 
-def zrob_ranking():
-    plik = "/tmp/ranking_test.json"
-    if os.path.exists(plik):
-        os.remove(plik)
-    return Ranking(plik=plik)
+def make_ranking():
+    file = "/tmp/ranking_test.json"
+    if os.path.exists(file):
+        os.remove(file)
+    return Ranking(file=file)
 
 
-def test_pusty_ranking_gdy_nie_ma_pliku():
-    r = zrob_ranking()
-    assert r.wczytaj_ranking() == []
+def test_empty_ranking_when_no_file():
+    r = make_ranking()
+    assert r.load() == []
 
 
-def test_czy_dziala_zapis_i_sortowanie_malejaco():
-    r = zrob_ranking()
-    r.zapisz_wynik(wynik("pierwsza", 12))
-    r.zapisz_wynik(wynik("druga", 46))
-    r.zapisz_wynik(wynik("trzecia", 58))
-    ranking = r.wczytaj_ranking()
-    assert [w["dni_przezycia"] for w in ranking] == [58, 46, 12]
+def test_save_and_sort_descending():
+    r = make_ranking()
+    r.save_result(result("first", 12))
+    r.save_result(result("second", 46))
+    r.save_result(result("third", 58))
+    ranking = r.load()
+    assert [w["days_survived"] for w in ranking] == [58, 46, 12]

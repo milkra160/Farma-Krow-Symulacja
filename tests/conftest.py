@@ -2,18 +2,18 @@ import pytest
 from src import config
 
 
-# Zdarzenia losowe mutuja stale w globalnym module config (np. MlekoGMO zmienia PRZYCHOD_Z_KROWY,
-# NaglaSusza BAZA_KEPEK_TRAWY, Walentynki SZANSA_NA_CIAZE) i cofaja to dopiero, gdy zdarzenie
-# wygasnie. Test, ktory skonczy sie z aktywnym zdarzeniem, zostawia zmutowana stala i psuje kolejne
-# testy. Ta fikstura robi migawke prostych stalych configu przed kazdym testem i przywraca je po
-# nim, dzieki czemu testy sa od siebie niezalezne bez wzgledu na kolejnosc uruchomienia.
+# Random events mutate constants in the global config module (e.g. GmoFeed changes
+# COW_MILK_INCOME, SuddenDrought BASE_GRASS_PATCHES, ValentinesDay PREGNANCY_CHANCE) and only
+# revert them once the event expires. A test that ends with an active event leaves a mutated
+# constant behind and breaks the next test. This fixture snapshots the simple config constants
+# before each test and restores them afterwards, so tests stay independent of the run order.
 @pytest.fixture(autouse=True)
-def przywroc_stale_configu():
-    migawka = {
-        nazwa: wartosc
-        for nazwa, wartosc in vars(config).items()
-        if nazwa.isupper() and isinstance(wartosc, (int, float))
+def restore_config_constants():
+    snapshot = {
+        name: value
+        for name, value in vars(config).items()
+        if name.isupper() and isinstance(value, (int, float))
     }
     yield
-    for nazwa, wartosc in migawka.items():
-        setattr(config, nazwa, wartosc)
+    for name, value in snapshot.items():
+        setattr(config, name, value)

@@ -1,88 +1,88 @@
 from src.logger import Logger
 
 
-def przykladowy_log():
+def sample_log():
     return {
-        "dzien": 5,
-        "pogoda": "deszcz",
-        "narodziny": ["Karol"],
-        "martwe": ["Marek", "Bartosz"],
-        "powod_smierci": {"Marek": "glod", "Bartosz": "drapieznik"},
-        "zjadly": ["Łaciata", "Andrzej"],
-        "glodne": ["Hiszpan"],
-        "drapiezniki": [(3, 4)],
-        "stan_krow": [
+        "day": 5,
+        "weather": "rain",
+        "births": ["Charlie"],
+        "dead": ["Mark", "Bart"],
+        "death_causes": {"Mark": "hunger", "Bart": "predator"},
+        "fed": ["Spotty", "Andrew"],
+        "hungry": ["Spaniard"],
+        "predators": [(3, 4)],
+        "animal_states": [
             {
-                "symbol": "K",
-                "gatunek": "krowa",
-                "imie": "Łaciata",
-                "najedzenie": 80,
-                "zjadla": True,
-                "zyje": True,
+                "symbol": "C",
+                "species": "cow",
+                "name": "Spotty",
+                "satiety": 80,
+                "ate": True,
+                "is_alive": True,
             },
             {
-                "symbol": "K",
-                "gatunek": "krowa",
-                "imie": "Andrzej",
-                "najedzenie": 70,
-                "zjadla": True,
-                "zyje": True,
+                "symbol": "C",
+                "species": "cow",
+                "name": "Andrew",
+                "satiety": 70,
+                "ate": True,
+                "is_alive": True,
             },
             {
-                "symbol": "K",
-                "gatunek": "krowa",
-                "imie": "Hiszpan",
-                "najedzenie": 20,
-                "zjadla": False,
-                "zyje": True,
+                "symbol": "C",
+                "species": "cow",
+                "name": "Spaniard",
+                "satiety": 20,
+                "ate": False,
+                "is_alive": True,
             },
         ],
-        "kepki_trawy": [(1, 1), (2, 2)],
-        "finanse": {
-            "budzet": 120,
-            "przychod": 40,
-            "koszt": 50,
-            "bilans": -10,
-            "bankrut": False,
+        "grass_patches": [(1, 1), (2, 2)],
+        "finances": {
+            "budget": 120,
+            "income": 40,
+            "cost": 50,
+            "balance": -10,
+            "bankrupt": False,
         },
-        "zdarzenia": ["Pora deszczowa - leje od kilku dni"],
+        "events": ["Rainy Season: rain for a few days"],
     }
 
 
-def test_czy_log_zawiera_pogodei_naglowek(capsys):
-    Logger().drukuj_log(przykladowy_log())
-    wynik = capsys.readouterr().out
-    assert "DZIEŃ 5" in wynik
-    assert "deszcz" in wynik
+def test_log_contains_weather_and_header(capsys):
+    Logger().print_log(sample_log())
+    result = capsys.readouterr().out
+    assert "DAY 5" in result
+    assert "rain" in result
 
 
-def test_czy_log_pokazuje_smierc_z_powodem(capsys):
-    Logger().drukuj_log(przykladowy_log())
-    wynik = capsys.readouterr().out
-    assert "Marek" in wynik
-    assert "glod" in wynik
-    assert "Bartosz" in wynik
-    assert "drapieznik" in wynik
+def test_log_shows_death_with_cause(capsys):
+    Logger().print_log(sample_log())
+    result = capsys.readouterr().out
+    assert "Mark" in result
+    assert "hunger" in result
+    assert "Bart" in result
+    assert "predator" in result
 
 
-def test_czy_log_drukuje_statystyki_stada(capsys):
-    Logger().drukuj_log(przykladowy_log())
-    wynik = capsys.readouterr().out
-    assert "ŻYWE KROWY: 3" in wynik  # 3 zywe krowy
-    assert "najedzonych: 2" in wynik  # 2 najedzone
-    assert "głodnych: 1" in wynik  # 1 glodna
+def test_log_prints_herd_statistics(capsys):
+    Logger().print_log(sample_log())
+    result = capsys.readouterr().out
+    assert "LIVING COWS: 3" in result  # 3 living cows
+    assert "fed: 2" in result  # 2 fed
+    assert "hungry: 1" in result  # 1 hungry
 
 
-def test_czy_log_bez_zdarzen_pomija_naglowek(capsys):
-    log = przykladowy_log()
-    log["zdarzenia"] = []
-    Logger().drukuj_log(log)
-    wynik = capsys.readouterr().out
-    assert "Zdarzenia:" not in wynik
+def test_log_without_events_shows_none(capsys):
+    log = sample_log()
+    log["events"] = []
+    Logger().print_log(log)
+    result = capsys.readouterr().out
+    assert "RANDOM EVENTS: none" in result
 
 
-def test_czy_loger_pokazuje_podsumowanie_koncowe(capsys):
-    Logger().drukuj_podsumowanie_koncowe(5, "bankructwo", {"budzet": 0})
-    wynik = capsys.readouterr().out
-    assert "KONIEC" in wynik
-    assert "bankructwo" in wynik
+def test_log_prints_final_summary(capsys):
+    Logger().print_final_summary(5, "bankruptcy", {"budget": 0})
+    result = capsys.readouterr().out
+    assert "END OF SIMULATION" in result
+    assert "bankruptcy" in result

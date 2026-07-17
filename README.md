@@ -1,4 +1,4 @@
-#  Cow Farm Simulation
+# Cow Farm Simulation
 
 A turn-based farm management game that runs in the terminal. You start with a
 herd of dairy cows and a small budget, then decide how to spend it one day at a
@@ -67,20 +67,20 @@ uv run pytest
 
 ```
 src/
-├── main.py          # entry point, sets up a run and reads player input
-├── symulacja.py     # the day loop that ties everything together
-├── config.py        # all the tunable constants (prices, income, odds...)
-├── farma.py         # farm state: the herd, the budget, active defences
-├── weather.py       # daily weather
-├── finances.py      # income and upkeep
-├── events.py        # the random events and the manager that rolls them
-├── sklep.py         # the shop
-├── ranking.py       # saved run rankings
-├── logger.py        # coloured terminal output
-├── wizualizacja.py  # board rendering
-├── animals/         # cow, calf, sheep, lamb, hen, predator, livestock
-└── pasture/         # the pasture grid and its cells
-tests/               # pytest suite
+├── main.py           # entry point, sets up a run and reads player input
+├── simulation.py     # the day loop that ties everything together
+├── config.py         # all the tunable constants (prices, income, odds...)
+├── farm.py           # farm state: the herd, the budget, active defences
+├── weather.py        # daily weather
+├── finances.py       # income and upkeep
+├── events.py         # the random events and the manager that rolls them
+├── shop.py           # the shop
+├── ranking.py        # saved run rankings
+├── logger.py         # coloured terminal output
+├── visualization.py  # board rendering
+├── animals/          # cow, calf, sheep, lamb, hen, predator, livestock
+└── pasture/          # the pasture grid and its cells
+tests/                # pytest suite
 ```
 
 ## Authors
